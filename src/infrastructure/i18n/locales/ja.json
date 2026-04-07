@@ -1,0 +1,35 @@
+
+{
+  "common": {
+    "title": "配当金計算機",
+    "subtitle": "No-DB ポート폴리오 管理",
+    "currency": "通貨",
+    "exchangeRate": "リアルタイム為替",
+    "exchangeDashboard": "為替ダッシュボード",
+    "footerInfo": "データ는 ブラウザのローカルストレージにのみ保存されます。"
+  },
+  "portfolio": {
+    "totalValue": "総資産価値",
+    "annualDividend": "年間配当金 (税引後)",
+    "annualDividendUSD": "年間配当 (USD)",
+    "annualDividendKRW": "年間配当 (KRW)",
+    "monthlyDividend": "月間配当金 (税引後)",
+    "monthlyDividendUSD": "月平均 (USD)",
+    "monthlyDividendKRW": "月平均 (KRW)",
+    "averageYield": "平均利回り",
+    "taxInfo": "15% 税引後",
+    "avgPerMonth": "月平均受領額",
+    "inputTitle": "銘柄追加",
+    "stockName": "銘柄名",
+    "ticker": "ティッカー",
+    "quantity": "保有数量",
+    "purchasePrice": "買付単価",
+    "currentPrice": "現在株価",
+    "dividendPerShare": "1株配당 (年間)",
+    "addStock": "銘柄を追加",
+    "stockList": "ポートフォリオ",
+    "noStocks": "登録された銘柄がありません。",
+    "actions": "操作",
+    "delete": "削除"
+  }
+}

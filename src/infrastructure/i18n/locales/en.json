@@ -1,0 +1,35 @@
+
+{
+  "common": {
+    "title": "Dividend Calc",
+    "subtitle": "No-DB Portfolio Manager",
+    "currency": "Currency",
+    "exchangeRate": "Current Exchange Rate",
+    "exchangeDashboard": "Exchange Dashboard",
+    "footerInfo": "Data is stored locally on your device only."
+  },
+  "portfolio": {
+    "totalValue": "Total Value",
+    "annualDividend": "Annual Dividend",
+    "annualDividendUSD": "Yearly Total (USD)",
+    "annualDividendKRW": "Yearly Total (KRW)",
+    "monthlyDividend": "Monthly Dividend",
+    "monthlyDividendUSD": "Monthly Avg. (USD)",
+    "monthlyDividendKRW": "Monthly Avg. (KRW)",
+    "averageYield": "Avg. Yield",
+    "taxInfo": "After 15% Tax",
+    "avgPerMonth": "Average per Month",
+    "inputTitle": "Add Stock",
+    "stockName": "Stock Name",
+    "ticker": "Ticker",
+    "quantity": "Quantity",
+    "purchasePrice": "Purchase Price",
+    "currentPrice": "Current Price",
+    "dividendPerShare": "Annual Div/Share",
+    "addStock": "Add to Portfolio",
+    "stockList": "My Portfolio",
+    "noStocks": "No stocks added yet.",
+    "actions": "Actions",
+    "delete": "Delete"
+  }
+}

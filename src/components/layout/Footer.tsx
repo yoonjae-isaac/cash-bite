@@ -1,0 +1,18 @@
+import { useLanguageStore } from '../../application/i18n/useLanguageStore';
+
+const Footer = () => {
+  const t = useLanguageStore((state) => state.t);
+
+  return (
+    <footer className="mt-auto py-8 text-center text-slate-500 border-t border-slate-800/50">
+      <div className="container mx-auto px-4">
+        <p className="text-sm">
+          &copy; {new Date().getFullYear()} {t.common.title}. 
+          <span className="block md:inline md:ml-2">{t.common.footerInfo}</span>
+        </p>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;

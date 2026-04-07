@@ -1,0 +1,35 @@
+
+{
+  "common": {
+    "title": "배당금 계산기",
+    "subtitle": "No-DB 포트폴리오 관리자",
+    "currency": "통화",
+    "exchangeRate": "실시간 환율",
+    "exchangeDashboard": "환율 대시보드",
+    "footerInfo": "데이터는 브라우저의 로컬 스토리지에만 저장됩니다."
+  },
+  "portfolio": {
+    "totalValue": "총 자산 가치",
+    "annualDividend": "연간 배당금 (세후)",
+    "annualDividendUSD": "연간 배당금 (USD)",
+    "annualDividendKRW": "연간 배당금 (KRW)",
+    "monthlyDividend": "월평균 배당금 (세후)",
+    "monthlyDividendUSD": "월평균 배당금 (USD)",
+    "monthlyDividendKRW": "월평균 배당금 (KRW)",
+    "averageYield": "평균 배당 수익률",
+    "taxInfo": "15% 배당소득세 차감 후",
+    "avgPerMonth": "월평균 수령액",
+    "inputTitle": "종목 추가",
+    "stockName": "종목명",
+    "ticker": "티커",
+    "quantity": "보유 수량",
+    "purchasePrice": "매수 단가",
+    "currentPrice": "현재 주가",
+    "dividendPerShare": "주당 배당금 (연간)",
+    "addStock": "종목 추가하기",
+    "stockList": "나의 포트폴리오",
+    "noStocks": "추가된 종목이 없습니다.",
+    "actions": "관리",
+    "delete": "삭제"
+  }
+}
