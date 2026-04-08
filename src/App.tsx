@@ -8,9 +8,11 @@ import InputForm from './components/portfolio/InputForm';
 import PortfolioList from './components/portfolio/PortfolioList';
 import ExchangeRateCard from './presentation/components/exchange/ExchangeRateCard';
 import { usePortfolioStore } from './store/usePortfolioStore';
+import { useThemeStore } from './application/theme/useThemeStore';
 
 function App() {
   const fetchExchangeRate = usePortfolioStore((state) => state.fetchExchangeRate);
+  const colorMode = useThemeStore((s) => s.theme);
 
   useEffect(() => {
     fetchExchangeRate();
@@ -18,7 +20,22 @@ function App() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Toaster position="bottom-center" theme="dark" richColors closeButton />
+      <Toaster
+        position="bottom-center"
+        theme={colorMode === 'dark' ? 'dark' : 'light'}
+        richColors={false}
+        closeButton
+        toastOptions={{
+          classNames: {
+            toast:
+              '!bg-cb-surface !border !border-cb-border !text-cb-foreground !shadow-xl !shadow-[var(--cb-shadow-soft)]',
+            title: '!text-cb-foreground',
+            description: '!text-cb-muted',
+            error: '!border-cb-negative/40',
+            success: '!border-cb-positive/35',
+          },
+        }}
+      />
       <Header />
       
       <main className="flex-grow container mx-auto px-4 py-8 md:py-12 flex flex-col gap-8 max-w-7xl">
