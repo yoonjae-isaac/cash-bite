@@ -2,7 +2,6 @@
 {
   "common": {
     "title": "배당금 계산기",
-    "subtitle": "No-DB 포트폴리오 관리자",
     "currency": "통화",
     "exchangeRate": "실시간 환율",
     "exchangeDashboard": "환율 대시보드",
@@ -30,6 +29,7 @@
     "stockList": "나의 포트폴리오",
     "noStocks": "추가된 종목이 없습니다.",
     "actions": "관리",
-    "delete": "삭제"
+    "delete": "삭제",
+    "invalidTicker": "존재하지 않는 티커입니다"
   }
 }

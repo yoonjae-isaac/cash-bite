@@ -4,6 +4,10 @@ import type { ExchangeRates } from '../domain/exchange/types';
 import type { StockItem } from '../domain/portfolio/types';
 import { FALLBACK_RATES } from '../domain/exchange/constants';
 import * as finnhub from '../infrastructure/api/finnhubClient';
+import { fetchNaverExchangeRates } from '../infrastructure/api/naverExchangeClient';
+
+/** Set on store `error` when symbol has no Finnhub profile; show toast in UI. */
+export const INVALID_TICKER_ERROR = 'INVALID_TICKER' as const;
 
 interface PortfolioState {
   stocks: StockItem[];
@@ -62,12 +66,17 @@ export const usePortfolioStore = create<PortfolioStore>()(
             stocks: [...state.stocks, newStock],
             isLoading: false,
           }));
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error("Failed to add stock:", err);
-          set({ 
-            error: err.message || "Failed to fetch stock data. Please check the ticker.", 
-            isLoading: false 
-          });
+          if (err instanceof finnhub.InvalidTickerError) {
+            set({ error: INVALID_TICKER_ERROR, isLoading: false });
+            return;
+          }
+          const message =
+            err instanceof Error
+              ? err.message
+              : "Failed to fetch stock data. Please check the ticker.";
+          set({ error: message || "Failed to fetch stock data. Please check the ticker.", isLoading: false });
         }
       },
 
@@ -84,21 +93,20 @@ export const usePortfolioStore = create<PortfolioStore>()(
         })),
 
       fetchExchangeRate: async () => {
-        const apiKey = import.meta.env.VITE_FINNHUB_API_KEY;
-        if (!apiKey) return;
-
         set({ isLoading: true });
         try {
-          const quotes = await finnhub.fetchForexRates(apiKey);
-          if (quotes.KRW || quotes.JPY) {
-            set({ 
+          const quotes = await fetchNaverExchangeRates();
+          if (quotes.KRW != null || quotes.JPY != null) {
+            set({
               rates: {
                 USD: 1,
-                KRW: quotes.KRW || get().rates.KRW,
-                JPY: quotes.JPY || get().rates.JPY,
+                KRW: quotes.KRW ?? get().rates.KRW,
+                JPY: quotes.JPY ?? get().rates.JPY,
               },
-              isLoading: false 
+              isLoading: false,
             });
+          } else {
+            set({ isLoading: false });
           }
         } catch (error) {
           console.error('Failed to fetch exchange rates:', error);

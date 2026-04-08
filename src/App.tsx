@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { Toaster } from 'sonner';
+import 'sonner/dist/styles.css';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Summary from './components/portfolio/Summary';
@@ -16,6 +18,7 @@ function App() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <Toaster position="bottom-center" theme="dark" richColors closeButton />
       <Header />
       
       <main className="flex-grow container mx-auto px-4 py-8 md:py-12 flex flex-col gap-8 max-w-7xl">

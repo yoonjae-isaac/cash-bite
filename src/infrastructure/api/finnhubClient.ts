@@ -1,6 +1,14 @@
 
 const BASE_URL = 'https://finnhub.io/api/v1';
 
+export class InvalidTickerError extends Error {
+  constructor() {
+    super('Invalid ticker');
+    this.name = 'InvalidTickerError';
+    Object.setPrototypeOf(this, InvalidTickerError.prototype);
+  }
+}
+
 export const fetchQuote = async (symbol: string, apiKey: string) => {
   const res = await fetch(`${BASE_URL}/quote?symbol=${symbol.toUpperCase()}&token=${apiKey}`);
   const data = await res.json();
@@ -30,16 +38,16 @@ export const fetchSymbolProfile = async (symbol: string, apiKey: string) => {
   const res = await fetch(`${BASE_URL}/stock/profile2?symbol=${symbol.toUpperCase()}&token=${apiKey}`);
   const data = await res.json();
   if (data.error) throw new Error(data.error);
+
+  const name = typeof data.name === 'string' ? data.name.trim() : '';
+  const profileTicker = typeof data.ticker === 'string' ? data.ticker.trim() : '';
+  if (!name && !profileTicker) {
+    throw new InvalidTickerError();
+  }
+
   return {
-    name: data.name || symbol,
+    name: name || profileTicker || symbol,
     logo: data.logo || '',
     currency: data.currency || 'USD',
   };
-};
-
-export const fetchForexRates = async (apiKey: string) => {
-  const res = await fetch(`${BASE_URL}/forex/rates?base=USD&token=${apiKey}`);
-  const data = await res.json();
-  if (data.error) throw new Error(data.error);
-  return data.quote || {};
 };

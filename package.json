@@ -9,10 +9,14 @@
     "dev:open": "vite --open",
     "dev:host": "vite --host",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
     "lint": "eslint .",
+    "lint:check": "eslint . --max-warnings 0",
+    "check": "pnpm run lint:check && pnpm run typecheck",
     "preview": "vite preview"
   },
   "dependencies": {
+    "sonner": "^2.0.3",
     "lucide-react": "^1.7.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

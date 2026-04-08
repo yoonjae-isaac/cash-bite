@@ -4,7 +4,6 @@ export type Language = 'ko' | 'en' | 'ja';
 export interface TranslationSchema {
   common: {
     title: string;
-    subtitle: string;
     currency: string;
     exchangeRate: string;
     footerInfo: string;
@@ -32,5 +31,6 @@ export interface TranslationSchema {
     noStocks: string;
     actions: string;
     delete: string;
+    invalidTicker: string;
   };
 }

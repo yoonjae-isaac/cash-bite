@@ -2,7 +2,6 @@
 {
   "common": {
     "title": "Dividend Calc",
-    "subtitle": "No-DB Portfolio Manager",
     "currency": "Currency",
     "exchangeRate": "Current Exchange Rate",
     "exchangeDashboard": "Exchange Dashboard",
@@ -30,6 +29,7 @@
     "stockList": "My Portfolio",
     "noStocks": "No stocks added yet.",
     "actions": "Actions",
-    "delete": "Delete"
+    "delete": "Delete",
+    "invalidTicker": "This ticker does not exist."
   }
 }

@@ -89,7 +89,7 @@ const ExchangeRateCard = () => {
       </div>
 
       <div className="mt-6 pt-4 border-t border-slate-800/50 text-[10px] text-slate-500 italic text-center">
-        Real-time data provided via Open Exchange Rates API.
+        Exchange rates via Naver (KEB Hana Bank benchmark).
       </div>
     </div>
   );

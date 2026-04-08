@@ -1,8 +1,6 @@
-
 {
   "common": {
     "title": "配当金計算機",
-    "subtitle": "No-DB ポート폴리오 管理",
     "currency": "通貨",
     "exchangeRate": "リアルタイム為替",
     "exchangeDashboard": "為替ダッシュボード",
@@ -30,6 +28,7 @@
     "stockList": "ポートフォリオ",
     "noStocks": "登録された銘柄がありません。",
     "actions": "操作",
-    "delete": "削除"
+    "delete": "削除",
+    "invalidTicker": "存在しないティッカーです"
   }
 }

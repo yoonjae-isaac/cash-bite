@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Plus, Search, Loader2, AlertCircle } from 'lucide-react';
-import { usePortfolioStore } from '../../store/usePortfolioStore';
+import { usePortfolioStore, INVALID_TICKER_ERROR } from '../../store/usePortfolioStore';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 
 const InputForm = () => {
@@ -8,6 +9,12 @@ const InputForm = () => {
   const [shares, setShares] = useState<string>('');
   const { addStock, isLoading, error, clearError } = usePortfolioStore();
   const t = useLanguageStore((state) => state.t);
+
+  useEffect(() => {
+    if (error !== INVALID_TICKER_ERROR) return;
+    toast.error(t.portfolio.invalidTicker);
+    clearError();
+  }, [error, t.portfolio.invalidTicker, clearError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +73,7 @@ const InputForm = () => {
           />
         </div>
 
-        {error && (
+        {error && error !== INVALID_TICKER_ERROR && (
           <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs animate-in fade-in slide-in-from-top-1">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <p>{error}</p>
