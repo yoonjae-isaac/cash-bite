@@ -1,4 +1,4 @@
-import { Trash2, TrendingUp, DollarSign } from 'lucide-react';
+import { Trash2, TrendingUp } from 'lucide-react';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 
