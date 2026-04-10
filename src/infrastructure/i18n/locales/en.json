@@ -1,11 +1,43 @@
-
 {
   "common": {
-    "title": "Dividend Calc",
+    "title": "CashBite",
     "currency": "Currency",
     "exchangeRate": "Current Exchange Rate",
     "exchangeDashboard": "Exchange Dashboard",
     "footerInfo": "Data is stored locally on your device only."
+  },
+  "nav": {
+    "home": "Home",
+    "portfolio": "Dividend Portfolio",
+    "compound": "Compound Calc",
+    "fire": "FIRE Calc"
+  },
+  "home": {
+    "heroTitle": "Your Wealth, Visualized",
+    "heroSubtitle": "Manage dividend portfolios, simulate compound growth, and plan your FIRE — all in your browser, for free.",
+    "heroCta": "Get Started",
+    "toolsTitle": "Available Tools",
+    "toolsSubtitle": "Essential financial calculations, all in one place",
+    "portfolioTitle": "Dividend Portfolio",
+    "portfolioDesc": "Add US & Korean dividend stocks and see your annual/monthly after-tax income at a glance.",
+    "compoundTitle": "Compound Calculator",
+    "compoundDesc": "Simulate how compound interest transforms your savings into wealth over time.",
+    "fireTitle": "FIRE Calculator",
+    "fireDesc": "Use the 4% rule to find your FIRE number and calculate how long until you achieve financial independence.",
+    "exchangeTitle": "Exchange Rates",
+    "exchangeDesc": "Track real-time USD/KRW/JPY rates from Naver and apply them to your portfolio instantly.",
+    "trustTitle": "Why use this app?",
+    "trust1": "Zero data collection",
+    "trust2": "Completely free",
+    "trust3": "No signup required",
+    "trust4": "No app to install",
+    "tipTitle": "Key Financial Concepts",
+    "tip1Title": "Dividend Reinvestment (DRIP)",
+    "tip1Desc": "Reinvesting dividends leverages compound growth to significantly boost long-term returns.",
+    "tip2Title": "The Power of Compounding",
+    "tip2Desc": "Divide 72 by your annual return rate to estimate how many years it takes to double your money.",
+    "tip3Title": "The 4% FIRE Rule",
+    "tip3Desc": "Save 25× your annual expenses. At a 4% withdrawal rate, your portfolio theoretically lasts forever."
   },
   "portfolio": {
     "totalValue": "Total Value",
@@ -31,5 +63,56 @@
     "actions": "Actions",
     "delete": "Delete",
     "invalidTicker": "This ticker does not exist."
+  },
+  "compound": {
+    "title": "Compound Interest Calculator",
+    "subtitle": "See how time and consistency build lasting wealth",
+    "initial": "Initial Investment ($)",
+    "initialPlaceholder": "e.g. 10000",
+    "monthly": "Monthly Contribution ($)",
+    "monthlyPlaceholder": "e.g. 500",
+    "rate": "Annual Return Rate (%)",
+    "ratePlaceholder": "e.g. 7",
+    "years": "Investment Period (years)",
+    "yearsPlaceholder": "e.g. 20",
+    "calculate": "Calculate",
+    "reset": "Reset",
+    "finalAmount": "Final Amount",
+    "totalContributed": "Total Contributed",
+    "totalGain": "Total Gain",
+    "gainPercent": "Return Rate",
+    "chartTitle": "Year-by-Year Growth",
+    "contributed": "Contributed",
+    "gain": "Gain",
+    "yearUnit": "yr",
+    "tip": "💡 Rule of 72: Divide 72 by your annual return rate to get the years needed to double your money."
+  },
+  "quote": {
+    "sectionLabel": "Investor Quote of the Day",
+    "next": "Next Quote",
+    "shareHint": "Like it? Save it for later"
+  },
+  "fire": {
+    "title": "FIRE Calculator",
+    "subtitle": "When can you achieve financial independence?",
+    "monthlyExpense": "Target Monthly Expenses ($)",
+    "monthlyExpensePlaceholder": "e.g. 3000",
+    "currentAsset": "Current Assets ($)",
+    "currentAssetPlaceholder": "e.g. 100000",
+    "monthlySaving": "Monthly Savings/Investment ($)",
+    "monthlySavingPlaceholder": "e.g. 2000",
+    "annualReturn": "Expected Annual Return (%)",
+    "annualReturnPlaceholder": "e.g. 7",
+    "calculate": "Calculate",
+    "reset": "Reset",
+    "fireNumber": "FIRE Target",
+    "yearsToFire": "Time to FIRE",
+    "progress": "Current Progress",
+    "alreadyFire": "🎉 You've already achieved FIRE! Congratulations!",
+    "rule4Desc": "Based on 4% rule: Annual expenses × 25",
+    "yearUnit": "yr",
+    "monthUnit": "mo",
+    "progressLabel": "Progress",
+    "tip": "💡 The 4% Rule: Saving 25× your annual expenses lets you withdraw 4% yearly indefinitely."
   }
 }

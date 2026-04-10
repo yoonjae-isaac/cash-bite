@@ -1,12 +1,48 @@
 
 export type Language = 'ko' | 'en' | 'ja';
 
+export type PageId = 'home' | 'portfolio' | 'compound' | 'fire';
+
 export interface TranslationSchema {
   common: {
     title: string;
     currency: string;
     exchangeRate: string;
+    exchangeDashboard: string;
     footerInfo: string;
+  };
+  nav: {
+    home: string;
+    portfolio: string;
+    compound: string;
+    fire: string;
+  };
+  home: {
+    heroTitle: string;
+    heroSubtitle: string;
+    heroCta: string;
+    toolsTitle: string;
+    toolsSubtitle: string;
+    portfolioTitle: string;
+    portfolioDesc: string;
+    compoundTitle: string;
+    compoundDesc: string;
+    fireTitle: string;
+    fireDesc: string;
+    exchangeTitle: string;
+    exchangeDesc: string;
+    trustTitle: string;
+    trust1: string;
+    trust2: string;
+    trust3: string;
+    trust4: string;
+    tipTitle: string;
+    tip1Title: string;
+    tip1Desc: string;
+    tip2Title: string;
+    tip2Desc: string;
+    tip3Title: string;
+    tip3Desc: string;
   };
   portfolio: {
     totalValue: string;
@@ -32,5 +68,56 @@ export interface TranslationSchema {
     actions: string;
     delete: string;
     invalidTicker: string;
+  };
+  compound: {
+    title: string;
+    subtitle: string;
+    initial: string;
+    initialPlaceholder: string;
+    monthly: string;
+    monthlyPlaceholder: string;
+    rate: string;
+    ratePlaceholder: string;
+    years: string;
+    yearsPlaceholder: string;
+    calculate: string;
+    reset: string;
+    finalAmount: string;
+    totalContributed: string;
+    totalGain: string;
+    gainPercent: string;
+    chartTitle: string;
+    contributed: string;
+    gain: string;
+    yearUnit: string;
+    tip: string;
+  };
+  quote: {
+    sectionLabel: string;
+    next: string;
+    shareHint: string;
+  };
+  fire: {
+    title: string;
+    subtitle: string;
+    monthlyExpense: string;
+    monthlyExpensePlaceholder: string;
+    currentAsset: string;
+    currentAssetPlaceholder: string;
+    monthlySaving: string;
+    monthlySavingPlaceholder: string;
+    annualReturn: string;
+    annualReturnPlaceholder: string;
+    calculate: string;
+    reset: string;
+    fireNumber: string;
+    yearsToFire: string;
+    progress: string;
+    alreadyFire: string;
+    rule4Desc: string;
+    yearUnit: string;
+    monthUnit: string;
+    progressLabel: string;
+    tip: string;
   };
 }
