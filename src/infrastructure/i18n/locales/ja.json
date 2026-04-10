@@ -10,7 +10,8 @@
     "home": "ホーム",
     "portfolio": "配当ポートフォリオ",
     "compound": "複利計算機",
-    "fire": "FIRE計算機"
+    "fire": "FIRE計算機",
+    "averaging": "平均取得単価"
   },
   "home": {
     "heroTitle": "資産をデータで見る",
@@ -37,7 +38,9 @@
     "tip2Title": "複利の力",
     "tip2Desc": "72を年利で割ると、資産が2倍になる期間がわかります（72の法則）。",
     "tip3Title": "FIREの4%ルール",
-    "tip3Desc": "年間生活費の25倍を貯めると、4%の取り崩し率で理論上資産が減りません。"
+    "tip3Desc": "年間生活費の25倍を貯めると、4%の取り崩し率で理論上資産が減りません。",
+    "averagingTitle": "ナンピン / 買い増し計算機",
+    "averagingDesc": "追加購入時の新しい平均取得単価と損益率の変化をリアルタイムで確認できます。"
   },
   "portfolio": {
     "totalValue": "総資産価値",
@@ -67,9 +70,9 @@
   "compound": {
     "title": "複利計算機",
     "subtitle": "時間が生み出す収益 — 複利の魔法を確認しましょう",
-    "initial": "初期投資額 ($)",
+    "initial": "初期投資額",
     "initialPlaceholder": "例: 10000",
-    "monthly": "月次積立額 ($)",
+    "monthly": "月次積立額",
     "monthlyPlaceholder": "例: 500",
     "rate": "年利回り (%)",
     "ratePlaceholder": "例: 7",
@@ -95,11 +98,11 @@
   "fire": {
     "title": "FIRE計算機",
     "subtitle": "経済的自由、いつ達成できますか？",
-    "monthlyExpense": "目標月間生活費 ($)",
+    "monthlyExpense": "目標月間生活費",
     "monthlyExpensePlaceholder": "例: 3000",
-    "currentAsset": "現在の資産 ($)",
+    "currentAsset": "現在の資産",
     "currentAssetPlaceholder": "例: 100000",
-    "monthlySaving": "月次貯蓄・投資額 ($)",
+    "monthlySaving": "月次貯蓄・投資額",
     "monthlySavingPlaceholder": "例: 2000",
     "annualReturn": "予想年利回り (%)",
     "annualReturnPlaceholder": "例: 7",
@@ -114,5 +117,34 @@
     "monthUnit": "ヶ月",
     "progressLabel": "達成率",
     "tip": "💡 4%ルール: 年間生活費の25倍を貯めると、理論上資産は永続的に維持されます。"
+  },
+  "averaging": {
+    "title": "ナンピン / 買い増し計算機",
+    "subtitle": "追加購入すると平均単価と損益率はどう変わる？",
+    "currentHolding": "現在の保有状況",
+    "holdingQty": "保有株数",
+    "holdingQtyPlaceholder": "例: 100",
+    "avgBuyPrice": "平均取得単価",
+    "avgBuyPricePlaceholder": "例: 50.00",
+    "additionalBuy": "追加購入",
+    "currentPrice": "現在株価",
+    "currentPricePlaceholder": "例: 42.00",
+    "addByQty": "株数で入力",
+    "addByAmount": "金額で入力",
+    "addQty": "追加株数",
+    "addQtyPlaceholder": "例: 50",
+    "addAmount": "追加金額",
+    "addAmountPlaceholder": "例: 2100",
+    "qtyUnit": "株",
+    "newAvgPrice": "新しい平均単価",
+    "returnChange": "損益率の変化",
+    "totalInvestment": "総投資額",
+    "addInvestment": "追加金額",
+    "totalQty": "合計保有株数",
+    "avgDown": "ナンピン",
+    "avgUp": "買い増し",
+    "reset": "リセット",
+    "emptyHint": "上の項目を入力すると結果がすぐ表示されます",
+    "tip": "💡 ナンピン: 株価下落時に追加購入して平均単価を下げる戦略。買い増し: 上昇トレンドで追加購入して利益を最大化する戦略。いずれもリスク管理が重要です。"
   }
 }

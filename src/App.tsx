@@ -6,11 +6,13 @@ import Footer from './components/layout/Footer';
 import { usePortfolioStore } from './store/usePortfolioStore';
 import { useThemeStore } from './application/theme/useThemeStore';
 import { usePageStore } from './store/usePageStore';
+import ExchangeRateCard from './presentation/components/exchange/ExchangeRateCard';
 
 import HomePage from './pages/HomePage';
 import PortfolioPage from './pages/PortfolioPage';
 import CompoundPage from './pages/CompoundPage';
 import FirePage from './pages/FirePage';
+import AveragingPage from './pages/AveragingPage';
 
 function App() {
   const fetchExchangeRate = usePortfolioStore((state) => state.fetchExchangeRate);
@@ -42,10 +44,23 @@ function App() {
       <Header />
 
       <main className="flex-grow container mx-auto px-4 py-8 md:py-12 max-w-7xl">
-        {page === 'home' && <HomePage />}
-        {page === 'portfolio' && <PortfolioPage />}
-        {page === 'compound' && <CompoundPage />}
-        {page === 'fire' && <FirePage />}
+        <div className="flex gap-8 items-start">
+          {/* Main content area */}
+          <div className="flex-1 min-w-0">
+            {page === 'home' && <HomePage />}
+            {page === 'portfolio' && <PortfolioPage />}
+            {page === 'compound' && <CompoundPage />}
+            {page === 'fire' && <FirePage />}
+            {page === 'averaging' && <AveragingPage />}
+          </div>
+
+          {/* Sticky exchange rate sidebar — xl+ only */}
+          <aside className="hidden xl:block w-64 shrink-0">
+            <div className="sticky top-24">
+              <ExchangeRateCard />
+            </div>
+          </aside>
+        </div>
       </main>
 
       <Footer />

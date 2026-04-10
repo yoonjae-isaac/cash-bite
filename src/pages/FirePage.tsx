@@ -1,6 +1,10 @@
 import { useState, useMemo } from 'react';
-import { Target, DollarSign, Percent, RotateCcw, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { Target, Percent, RotateCcw, TrendingUp, CheckCircle2 } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
+import { useCurrencyStore } from '../application/currency/useCurrencyStore';
+import type { SupportedCurrency } from '../domain/exchange/types';
+import CurrencyInput from '../shared/components/CurrencyInput';
+import CurrencySelector from '../shared/components/CurrencySelector';
 
 type FireResult = {
   fireNumber: number;
@@ -51,14 +55,23 @@ function calcFire(
   return { fireNumber, totalMonths: months, progress, alreadyFire: false, milestones };
 }
 
-function fmtUSD(n: number) {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
+  USD: '$',
+  KRW: '₩',
+  JPY: '¥',
+};
+
+function makeFormatter(currency: SupportedCurrency) {
+  const sym = CURRENCY_SYMBOLS[currency];
+  return (n: number) => {
+    if (n >= 1_000_000_000_000) return `${sym}${(n / 1_000_000_000_000).toFixed(2)}T`;
+    if (n >= 1_000_000_000) return `${sym}${(n / 1_000_000_000).toFixed(2)}B`;
+    if (n >= 1_000_000) return `${sym}${(n / 1_000_000).toFixed(2)}M`;
+    if (n >= 1_000) return `${sym}${(n / 1_000).toFixed(1)}K`;
+    return `${sym}${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  };
 }
 
-const inputCls =
-  'w-full theme-field border rounded-lg py-3 px-4 placeholder:text-cb-muted/45 focus:outline-none focus:ring-2 focus:ring-cb-accent/45 focus:border-cb-accent/60 transition-all font-mono';
 const labelCls = 'block text-sm font-medium text-cb-muted mb-1.5 ml-1';
 
 const RADIUS = 72;
@@ -68,9 +81,7 @@ const ProgressRing = ({ pct }: { pct: number }) => {
   const dash = (pct / 100) * CIRC;
   return (
     <svg viewBox="0 0 180 180" className="w-44 h-44" aria-hidden>
-      {/* Track */}
       <circle cx="90" cy="90" r={RADIUS} fill="none" stroke="currentColor" strokeOpacity={0.1} strokeWidth={14} />
-      {/* Progress */}
       <circle
         cx="90"
         cy="90"
@@ -96,6 +107,8 @@ const ProgressRing = ({ pct }: { pct: number }) => {
 
 const FirePage = () => {
   const t = useLanguageStore((s) => s.t);
+  const { currency } = useCurrencyStore();
+  const fmt = makeFormatter(currency);
 
   const [expense, setExpense] = useState('3000');
   const [asset, setAsset] = useState('100000');
@@ -127,6 +140,8 @@ const FirePage = () => {
       : `${Math.floor(result.totalMonths / 12)}${t.fire.yearUnit} ${result.totalMonths % 12}${t.fire.monthUnit}`
     : null;
 
+  const inputCls = 'w-full theme-field border rounded-lg py-3 px-4 placeholder:text-cb-muted/45 focus:outline-none focus:ring-2 focus:ring-cb-accent/45 focus:border-cb-accent/60 transition-all font-mono';
+
   return (
     <div className="flex flex-col gap-8 max-w-4xl mx-auto">
       {/* Header */}
@@ -142,42 +157,39 @@ const FirePage = () => {
 
       {/* Input */}
       <div className="glass-panel p-6">
+        {/* Currency selector */}
+        <div className="flex items-center justify-between mb-5">
+          <p className="text-xs font-bold uppercase tracking-widest text-cb-muted">기준 통화</p>
+          <CurrencySelector />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
           <div>
             <label className={labelCls}>{t.fire.monthlyExpense}</label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cb-muted" />
-              <input
-                type="number" min="0" value={expense}
-                onChange={(e) => { setExpense(e.target.value); setSubmitted(false); }}
-                placeholder={t.fire.monthlyExpensePlaceholder}
-                className={`${inputCls} pl-9`}
-              />
-            </div>
+            <CurrencyInput
+              value={expense}
+              onChange={(v) => { setExpense(v); setSubmitted(false); }}
+              currency={currency}
+              placeholder={t.fire.monthlyExpensePlaceholder}
+            />
           </div>
           <div>
             <label className={labelCls}>{t.fire.currentAsset}</label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cb-muted" />
-              <input
-                type="number" min="0" value={asset}
-                onChange={(e) => { setAsset(e.target.value); setSubmitted(false); }}
-                placeholder={t.fire.currentAssetPlaceholder}
-                className={`${inputCls} pl-9`}
-              />
-            </div>
+            <CurrencyInput
+              value={asset}
+              onChange={(v) => { setAsset(v); setSubmitted(false); }}
+              currency={currency}
+              placeholder={t.fire.currentAssetPlaceholder}
+            />
           </div>
           <div>
             <label className={labelCls}>{t.fire.monthlySaving}</label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cb-muted" />
-              <input
-                type="number" min="0" value={saving}
-                onChange={(e) => { setSaving(e.target.value); setSubmitted(false); }}
-                placeholder={t.fire.monthlySavingPlaceholder}
-                className={`${inputCls} pl-9`}
-              />
-            </div>
+            <CurrencyInput
+              value={saving}
+              onChange={(v) => { setSaving(v); setSubmitted(false); }}
+              currency={currency}
+              placeholder={t.fire.monthlySavingPlaceholder}
+            />
           </div>
           <div>
             <label className={labelCls}>{t.fire.annualReturn}</label>
@@ -218,7 +230,7 @@ const FirePage = () => {
               <CheckCircle2 className="w-14 h-14 text-cb-positive mx-auto mb-4" />
               <p className="text-xl font-bold text-cb-positive">{t.fire.alreadyFire}</p>
               <p className="text-cb-muted mt-2">{t.fire.rule4Desc}</p>
-              <p className="text-2xl font-black text-cb-foreground font-mono mt-3">{fmtUSD(result.fireNumber)}</p>
+              <p className="text-2xl font-black text-cb-foreground font-mono mt-3">{fmt(result.fireNumber)}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -232,7 +244,7 @@ const FirePage = () => {
               <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="glass-panel p-5 border-cb-accent/40 bg-gradient-to-br from-cb-accent/10 to-transparent">
                   <div className="text-xs font-semibold uppercase tracking-wide text-cb-accent mb-2">{t.fire.fireNumber}</div>
-                  <div className="text-2xl font-black text-cb-accent font-mono">{fmtUSD(result.fireNumber)}</div>
+                  <div className="text-2xl font-black text-cb-accent font-mono">{fmt(result.fireNumber)}</div>
                   <div className="text-xs text-cb-muted mt-1">{t.fire.rule4Desc}</div>
                 </div>
                 <div className="glass-panel p-5">
@@ -253,7 +265,7 @@ const FirePage = () => {
                     {result.milestones.map((m) => (
                       <div key={m.label} className="text-center p-3 rounded-lg bg-[var(--cb-row-bg)]">
                         <div className="text-xs font-bold text-cb-accent mb-1">{m.label}</div>
-                        <div className="text-sm font-bold text-cb-foreground font-mono">{fmtUSD(m.asset)}</div>
+                        <div className="text-sm font-bold text-cb-foreground font-mono">{fmt(m.asset)}</div>
                         <div className="text-[10px] text-cb-muted mt-0.5">
                           {m.year > 0 ? `≈ ${m.year}${t.fire.yearUnit}` : '달성'}
                         </div>

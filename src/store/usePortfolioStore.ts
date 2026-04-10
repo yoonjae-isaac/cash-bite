@@ -6,12 +6,15 @@ import { FALLBACK_RATES } from '../domain/exchange/constants';
 import * as finnhub from '../infrastructure/api/finnhubClient';
 import { fetchNaverExchangeRates } from '../infrastructure/api/naverExchangeClient';
 
+const EXCHANGE_CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
 /** Set on store `error` when symbol has no Finnhub profile; show toast in UI. */
 export const INVALID_TICKER_ERROR = 'INVALID_TICKER' as const;
 
 interface PortfolioState {
   stocks: StockItem[];
   rates: ExchangeRates;
+  ratesLastFetched: number | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -20,7 +23,7 @@ interface PortfolioActions {
   addStock: (ticker: string, shares: number) => Promise<void>;
   removeStock: (id: string) => void;
   setShares: (id: string, shares: number) => void;
-  fetchExchangeRate: () => Promise<void>;
+  fetchExchangeRate: (force?: boolean) => Promise<void>;
   clearError: () => void;
 }
 
@@ -31,6 +34,7 @@ export const usePortfolioStore = create<PortfolioStore>()(
     (set, get) => ({
       stocks: [],
       rates: FALLBACK_RATES,
+      ratesLastFetched: null,
       isLoading: false,
       error: null,
 
@@ -44,7 +48,6 @@ export const usePortfolioStore = create<PortfolioStore>()(
              throw new Error("API Key is missing. Please check your .env file.");
           }
 
-          // Parallel API calls
           const [profile, quote, financials] = await Promise.all([
             finnhub.fetchSymbolProfile(uppercaseTicker, apiKey),
             finnhub.fetchQuote(uppercaseTicker, apiKey),
@@ -92,7 +95,19 @@ export const usePortfolioStore = create<PortfolioStore>()(
           ),
         })),
 
-      fetchExchangeRate: async () => {
+      fetchExchangeRate: async (force = false) => {
+        const state = get();
+        const now = Date.now();
+
+        // Use cached rates if still fresh
+        if (
+          !force &&
+          state.ratesLastFetched !== null &&
+          now - state.ratesLastFetched < EXCHANGE_CACHE_TTL
+        ) {
+          return;
+        }
+
         set({ isLoading: true });
         try {
           const quotes = await fetchNaverExchangeRates();
@@ -103,6 +118,7 @@ export const usePortfolioStore = create<PortfolioStore>()(
                 KRW: quotes.KRW ?? get().rates.KRW,
                 JPY: quotes.JPY ?? get().rates.JPY,
               },
+              ratesLastFetched: Date.now(),
               isLoading: false,
             });
           } else {

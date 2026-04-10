@@ -1,4 +1,4 @@
-import { TrendingUp, Calculator, Target, Globe, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb } from 'lucide-react';
+import { TrendingUp, Calculator, Target, Layers, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { usePageStore } from '../store/usePageStore';
 import type { PageId } from '../domain/i18n/types';
@@ -35,10 +35,10 @@ const HomePage = () => {
       bg: 'bg-orange-400/15',
     },
     {
-      id: 'portfolio',
-      icon: <Globe className="w-6 h-6" />,
-      color: 'text-sky-400',
-      bg: 'bg-sky-400/15',
+      id: 'averaging',
+      icon: <Layers className="w-6 h-6" />,
+      color: 'text-violet-400',
+      bg: 'bg-violet-400/15',
     },
   ];
 
@@ -46,7 +46,7 @@ const HomePage = () => {
     { title: t.home.portfolioTitle, desc: t.home.portfolioDesc },
     { title: t.home.compoundTitle, desc: t.home.compoundDesc },
     { title: t.home.fireTitle, desc: t.home.fireDesc },
-    { title: t.home.exchangeTitle, desc: t.home.exchangeDesc },
+    { title: t.home.averagingTitle, desc: t.home.averagingDesc },
   ];
 
   const trustItems = [

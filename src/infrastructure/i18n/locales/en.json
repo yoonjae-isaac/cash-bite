@@ -10,7 +10,8 @@
     "home": "Home",
     "portfolio": "Dividend Portfolio",
     "compound": "Compound Calc",
-    "fire": "FIRE Calc"
+    "fire": "FIRE Calc",
+    "averaging": "Avg. Calculator"
   },
   "home": {
     "heroTitle": "Your Wealth, Visualized",
@@ -37,7 +38,9 @@
     "tip2Title": "The Power of Compounding",
     "tip2Desc": "Divide 72 by your annual return rate to estimate how many years it takes to double your money.",
     "tip3Title": "The 4% FIRE Rule",
-    "tip3Desc": "Save 25× your annual expenses. At a 4% withdrawal rate, your portfolio theoretically lasts forever."
+    "tip3Desc": "Save 25× your annual expenses. At a 4% withdrawal rate, your portfolio theoretically lasts forever.",
+    "averagingTitle": "Avg. Down / Up Calculator",
+    "averagingDesc": "See your new average price and updated profit/loss instantly after adding to a position."
   },
   "portfolio": {
     "totalValue": "Total Value",
@@ -67,9 +70,9 @@
   "compound": {
     "title": "Compound Interest Calculator",
     "subtitle": "See how time and consistency build lasting wealth",
-    "initial": "Initial Investment ($)",
+    "initial": "Initial Investment",
     "initialPlaceholder": "e.g. 10000",
-    "monthly": "Monthly Contribution ($)",
+    "monthly": "Monthly Contribution",
     "monthlyPlaceholder": "e.g. 500",
     "rate": "Annual Return Rate (%)",
     "ratePlaceholder": "e.g. 7",
@@ -95,11 +98,11 @@
   "fire": {
     "title": "FIRE Calculator",
     "subtitle": "When can you achieve financial independence?",
-    "monthlyExpense": "Target Monthly Expenses ($)",
+    "monthlyExpense": "Target Monthly Expenses",
     "monthlyExpensePlaceholder": "e.g. 3000",
-    "currentAsset": "Current Assets ($)",
+    "currentAsset": "Current Assets",
     "currentAssetPlaceholder": "e.g. 100000",
-    "monthlySaving": "Monthly Savings/Investment ($)",
+    "monthlySaving": "Monthly Savings/Investment",
     "monthlySavingPlaceholder": "e.g. 2000",
     "annualReturn": "Expected Annual Return (%)",
     "annualReturnPlaceholder": "e.g. 7",
@@ -114,5 +117,34 @@
     "monthUnit": "mo",
     "progressLabel": "Progress",
     "tip": "💡 The 4% Rule: Saving 25× your annual expenses lets you withdraw 4% yearly indefinitely."
+  },
+  "averaging": {
+    "title": "Avg. Down / Up Calculator",
+    "subtitle": "How does your average cost and P&L change when you add to a position?",
+    "currentHolding": "Current Position",
+    "holdingQty": "Shares Held",
+    "holdingQtyPlaceholder": "e.g. 100",
+    "avgBuyPrice": "Avg. Cost Basis",
+    "avgBuyPricePlaceholder": "e.g. 50.00",
+    "additionalBuy": "Additional Buy",
+    "currentPrice": "Current Price",
+    "currentPricePlaceholder": "e.g. 42.00",
+    "addByQty": "By Shares",
+    "addByAmount": "By Amount",
+    "addQty": "Shares to Add",
+    "addQtyPlaceholder": "e.g. 50",
+    "addAmount": "Amount to Add",
+    "addAmountPlaceholder": "e.g. 2100",
+    "qtyUnit": "sh",
+    "newAvgPrice": "New Avg. Cost",
+    "returnChange": "P&L Change",
+    "totalInvestment": "Total Invested",
+    "addInvestment": "Additional Cost",
+    "totalQty": "Total Shares",
+    "avgDown": "Averaging Down",
+    "avgUp": "Averaging Up",
+    "reset": "Reset",
+    "emptyHint": "Fill in the fields above to see results instantly",
+    "tip": "💡 Averaging Down: buying more shares at a lower price to reduce your cost basis. Averaging Up: adding to a winning position. Both strategies increase your total exposure — size carefully."
   }
 }

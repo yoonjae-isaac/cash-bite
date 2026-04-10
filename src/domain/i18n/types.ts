@@ -1,7 +1,7 @@
 
 export type Language = 'ko' | 'en' | 'ja';
 
-export type PageId = 'home' | 'portfolio' | 'compound' | 'fire';
+export type PageId = 'home' | 'portfolio' | 'compound' | 'fire' | 'averaging';
 
 export interface TranslationSchema {
   common: {
@@ -16,6 +16,7 @@ export interface TranslationSchema {
     portfolio: string;
     compound: string;
     fire: string;
+    averaging: string;
   };
   home: {
     heroTitle: string;
@@ -43,6 +44,8 @@ export interface TranslationSchema {
     tip2Desc: string;
     tip3Title: string;
     tip3Desc: string;
+    averagingTitle: string;
+    averagingDesc: string;
   };
   portfolio: {
     totalValue: string;
@@ -118,6 +121,35 @@ export interface TranslationSchema {
     yearUnit: string;
     monthUnit: string;
     progressLabel: string;
+    tip: string;
+  };
+  averaging: {
+    title: string;
+    subtitle: string;
+    currentHolding: string;
+    holdingQty: string;
+    holdingQtyPlaceholder: string;
+    avgBuyPrice: string;
+    avgBuyPricePlaceholder: string;
+    additionalBuy: string;
+    currentPrice: string;
+    currentPricePlaceholder: string;
+    addByQty: string;
+    addByAmount: string;
+    addQty: string;
+    addQtyPlaceholder: string;
+    addAmount: string;
+    addAmountPlaceholder: string;
+    qtyUnit: string;
+    newAvgPrice: string;
+    returnChange: string;
+    totalInvestment: string;
+    addInvestment: string;
+    totalQty: string;
+    avgDown: string;
+    avgUp: string;
+    reset: string;
+    emptyHint: string;
     tip: string;
   };
 }

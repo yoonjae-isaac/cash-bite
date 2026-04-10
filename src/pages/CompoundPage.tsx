@@ -1,6 +1,10 @@
 import { useState, useMemo } from 'react';
-import { Calculator, TrendingUp, DollarSign, Percent, RotateCcw } from 'lucide-react';
+import { Calculator, TrendingUp, Percent, RotateCcw } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
+import { useCurrencyStore } from '../application/currency/useCurrencyStore';
+import type { SupportedCurrency } from '../domain/exchange/types';
+import CurrencyInput from '../shared/components/CurrencyInput';
+import CurrencySelector from '../shared/components/CurrencySelector';
 
 type YearRow = {
   year: number;
@@ -27,19 +31,30 @@ function calcCompound(
   });
 }
 
-function fmt(n: number) {
-  if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(2)}B`;
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
+  USD: '$',
+  KRW: '₩',
+  JPY: '¥',
+};
+
+function makeFormatter(currency: SupportedCurrency) {
+  const sym = CURRENCY_SYMBOLS[currency];
+  const isWhole = currency !== 'USD';
+  return (n: number) => {
+    if (n >= 1_000_000_000_000) return `${sym}${(n / 1_000_000_000_000).toFixed(2)}T`;
+    if (n >= 1_000_000_000) return `${sym}${(n / 1_000_000_000).toFixed(2)}B`;
+    if (n >= 1_000_000) return `${sym}${(n / 1_000_000).toFixed(2)}M`;
+    if (n >= 1_000) return `${sym}${(n / 1_000).toFixed(1)}K`;
+    return `${sym}${n.toLocaleString(undefined, { maximumFractionDigits: isWhole ? 0 : 0 })}`;
+  };
 }
 
-const inputCls =
-  'w-full theme-field border rounded-lg py-3 px-4 placeholder:text-cb-muted/45 focus:outline-none focus:ring-2 focus:ring-cb-accent/45 focus:border-cb-accent/60 transition-all font-mono';
 const labelCls = 'block text-sm font-medium text-cb-muted mb-1.5 ml-1';
 
 const CompoundPage = () => {
   const t = useLanguageStore((s) => s.t);
+  const { currency } = useCurrencyStore();
+  const fmt = makeFormatter(currency);
 
   const [initial, setInitial] = useState('10000');
   const [monthly, setMonthly] = useState('500');
@@ -86,6 +101,8 @@ const CompoundPage = () => {
 
   const yTicks = [0, 0.25, 0.5, 0.75, 1];
 
+  const inputCls = 'w-full theme-field border rounded-lg py-3 px-4 placeholder:text-cb-muted/45 focus:outline-none focus:ring-2 focus:ring-cb-accent/45 focus:border-cb-accent/60 transition-all font-mono';
+
   return (
     <div className="flex flex-col gap-8 max-w-4xl mx-auto">
       {/* Header */}
@@ -101,34 +118,30 @@ const CompoundPage = () => {
 
       {/* Input panel */}
       <div className="glass-panel p-6">
+        {/* Currency selector */}
+        <div className="flex items-center justify-between mb-5">
+          <p className="text-xs font-bold uppercase tracking-widest text-cb-muted">기준 통화</p>
+          <CurrencySelector />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
           <div>
             <label className={labelCls}>{t.compound.initial}</label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cb-muted" />
-              <input
-                type="number"
-                min="0"
-                value={initial}
-                onChange={(e) => { setInitial(e.target.value); setSubmitted(false); }}
-                placeholder={t.compound.initialPlaceholder}
-                className={`${inputCls} pl-9`}
-              />
-            </div>
+            <CurrencyInput
+              value={initial}
+              onChange={(v) => { setInitial(v); setSubmitted(false); }}
+              currency={currency}
+              placeholder={t.compound.initialPlaceholder}
+            />
           </div>
           <div>
             <label className={labelCls}>{t.compound.monthly}</label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cb-muted" />
-              <input
-                type="number"
-                min="0"
-                value={monthly}
-                onChange={(e) => { setMonthly(e.target.value); setSubmitted(false); }}
-                placeholder={t.compound.monthlyPlaceholder}
-                className={`${inputCls} pl-9`}
-              />
-            </div>
+            <CurrencyInput
+              value={monthly}
+              onChange={(v) => { setMonthly(v); setSubmitted(false); }}
+              currency={currency}
+              placeholder={t.compound.monthlyPlaceholder}
+            />
           </div>
           <div>
             <label className={labelCls}>{t.compound.rate}</label>
@@ -233,7 +246,6 @@ const CompoundPage = () => {
                 style={{ minWidth: 320 }}
                 aria-hidden
               >
-                {/* Y grid + ticks */}
                 {yTicks.map((pct) => {
                   const y = PAD_TOP + innerH * (1 - pct);
                   return (
@@ -248,7 +260,6 @@ const CompoundPage = () => {
                   );
                 })}
 
-                {/* Bars */}
                 {chartData.map((row, i) => {
                   const x = PAD_L + i * (innerW / chartData.length) + (innerW / chartData.length - barW) / 2;
                   const contribH = maxTotal > 0 ? (row.contributed / maxTotal) * innerH : 0;
@@ -257,7 +268,6 @@ const CompoundPage = () => {
 
                   return (
                     <g key={row.year}>
-                      {/* Contributed (bottom) */}
                       <rect
                         x={x}
                         y={baseY - contribH}
@@ -267,7 +277,6 @@ const CompoundPage = () => {
                         fillOpacity={0.25}
                         rx={2}
                       />
-                      {/* Gain (top) */}
                       {gainH > 0 && (
                         <rect
                           x={x}
@@ -279,7 +288,6 @@ const CompoundPage = () => {
                           rx={2}
                         />
                       )}
-                      {/* X-axis label every ~5 bars */}
                       {(i === 0 || (row.year % 5 === 0) || i === chartData.length - 1) && (
                         <text
                           x={x + barW / 2}
