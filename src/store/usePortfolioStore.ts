@@ -48,10 +48,11 @@ export const usePortfolioStore = create<PortfolioStore>()(
              throw new Error("API Key is missing. Please check your .env file.");
           }
 
-          const [profile, quote, financials] = await Promise.all([
+          const [profile, quote, financials, exDividendDate] = await Promise.all([
             finnhub.fetchSymbolProfile(uppercaseTicker, apiKey),
             finnhub.fetchQuote(uppercaseTicker, apiKey),
-            finnhub.fetchFinancials(uppercaseTicker, apiKey)
+            finnhub.fetchFinancials(uppercaseTicker, apiKey),
+            finnhub.fetchDividendHistory(uppercaseTicker, apiKey),
           ]);
 
           const newStock: StockItem = {
@@ -61,7 +62,7 @@ export const usePortfolioStore = create<PortfolioStore>()(
             currentPrice: quote.currentPrice,
             dividendPerShare: financials.dividendPerShareAnnual,
             dividendYield: financials.dividendYieldIndicatedAnnual,
-            exDividendDate: '-',
+            exDividendDate,
             name: profile.name,
           };
 

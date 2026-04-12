@@ -1,7 +1,7 @@
 
 export type Language = 'ko' | 'en' | 'ja';
 
-export type PageId = 'home' | 'portfolio' | 'compound' | 'fire' | 'averaging';
+export type PageId = 'home' | 'portfolio' | 'compound' | 'fire' | 'averaging' | 'news';
 
 export interface TranslationSchema {
   common: {
@@ -17,6 +17,7 @@ export interface TranslationSchema {
     compound: string;
     fire: string;
     averaging: string;
+    news: string;
   };
   home: {
     heroTitle: string;
@@ -71,6 +72,29 @@ export interface TranslationSchema {
     actions: string;
     delete: string;
     invalidTicker: string;
+    exDividendDate: string;
+    detail: {
+      loading: string;
+      error: string;
+      recommendation: string;
+      priceTarget: string;
+      currentPrice: string;
+      upside: string;
+      recentNews: string;
+      strongBuy: string;
+      buy: string;
+      hold: string;
+      sell: string;
+      strongSell: string;
+      noData: string;
+    };
+  };
+  marketNews: {
+    title: string;
+    loading: string;
+    error: string;
+    noNews: string;
+    viewAll: string;
   };
   compound: {
     title: string;

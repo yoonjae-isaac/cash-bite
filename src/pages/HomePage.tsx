@@ -3,6 +3,7 @@ import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { usePageStore } from '../store/usePageStore';
 import type { PageId } from '../domain/i18n/types';
 import QuoteOfDay from '../components/home/QuoteOfDay';
+import MarketNewsPreview from '../components/news/MarketNewsPreview';
 
 type Tool = {
   id: PageId;
@@ -64,6 +65,9 @@ const HomePage = () => {
 
   return (
     <div className="flex flex-col gap-16 pb-8">
+
+      {/* ── Market News Preview ──────────────────────────── */}
+      <MarketNewsPreview />
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative flex flex-col lg:flex-row items-center gap-10 pt-6 lg:pt-10">

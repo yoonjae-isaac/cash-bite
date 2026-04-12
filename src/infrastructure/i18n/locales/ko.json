@@ -11,7 +11,8 @@
     "portfolio": "배당 포트폴리오",
     "compound": "복리 계산기",
     "fire": "FIRE 계산기",
-    "averaging": "물타기/불타기"
+    "averaging": "물타기/불타기",
+    "news": "시장 뉴스"
   },
   "home": {
     "heroTitle": "내 자산, 데이터로 보다",
@@ -65,7 +66,30 @@
     "noStocks": "추가된 종목이 없습니다.",
     "actions": "관리",
     "delete": "삭제",
-    "invalidTicker": "존재하지 않는 티커입니다"
+    "invalidTicker": "존재하지 않는 티커입니다",
+    "exDividendDate": "배당락일",
+    "detail": {
+      "loading": "데이터 불러오는 중...",
+      "error": "데이터 로딩 실패",
+      "recommendation": "애널리스트 컨센서스",
+      "priceTarget": "목표 주가",
+      "currentPrice": "현재가",
+      "upside": "업사이드",
+      "recentNews": "최근 뉴스",
+      "strongBuy": "강력 매수",
+      "buy": "매수",
+      "hold": "보류",
+      "sell": "매도",
+      "strongSell": "강력 매도",
+      "noData": "데이터 없음"
+    }
+  },
+  "marketNews": {
+    "title": "시장 뉴스",
+    "loading": "뉴스 불러오는 중...",
+    "error": "뉴스 로딩 실패",
+    "noNews": "뉴스가 없습니다",
+    "viewAll": "전체 보기"
   },
   "compound": {
     "title": "복리 계산기",

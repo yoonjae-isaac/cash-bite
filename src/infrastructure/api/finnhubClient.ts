@@ -34,6 +34,24 @@ export const fetchFinancials = async (symbol: string, apiKey: string) => {
   };
 };
 
+export const fetchDividendHistory = async (symbol: string, apiKey: string): Promise<string> => {
+  try {
+    const to = new Date().toISOString().split('T')[0];
+    const from = new Date(Date.now() - 730 * 86400_000).toISOString().split('T')[0];
+    const res = await fetch(
+      `${BASE_URL}/stock/dividend?symbol=${symbol.toUpperCase()}&from=${from}&to=${to}&token=${apiKey}`
+    );
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) return '-';
+    const sorted = [...data].sort(
+      (a, b) => new Date(b.exDate).getTime() - new Date(a.exDate).getTime()
+    );
+    return sorted[0].exDate ?? '-';
+  } catch {
+    return '-';
+  }
+};
+
 export const fetchSymbolProfile = async (symbol: string, apiKey: string) => {
   const res = await fetch(`${BASE_URL}/stock/profile2?symbol=${symbol.toUpperCase()}&token=${apiKey}`);
   const data = await res.json();

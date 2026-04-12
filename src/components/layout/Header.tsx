@@ -1,4 +1,4 @@
-import { Home, TrendingUp, Calculator, Target, Layers, Menu, X } from 'lucide-react';
+import { Home, TrendingUp, Calculator, Target, Layers, Newspaper, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '../../presentation/components/i18n/LanguageSwitcher';
 import ThemeToggle from '../../presentation/components/theme/ThemeToggle';
@@ -19,6 +19,7 @@ const Header = () => {
     { id: 'compound', icon: <Calculator className="w-4 h-4" /> },
     { id: 'fire', icon: <Target className="w-4 h-4" /> },
     { id: 'averaging', icon: <Layers className="w-4 h-4" /> },
+    { id: 'news', icon: <Newspaper className="w-4 h-4" /> },
   ];
 
   const navLabels: Record<PageId, string> = {
@@ -27,6 +28,7 @@ const Header = () => {
     compound: t.nav.compound,
     fire: t.nav.fire,
     averaging: t.nav.averaging,
+    news: t.nav.news,
   };
 
   const handleNav = (id: PageId) => {

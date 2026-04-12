@@ -11,7 +11,8 @@
     "portfolio": "配当ポートフォリオ",
     "compound": "複利計算機",
     "fire": "FIRE計算機",
-    "averaging": "平均取得単価"
+    "averaging": "平均取得単価",
+    "news": "マーケットニュース"
   },
   "home": {
     "heroTitle": "資産をデータで見る",
@@ -65,7 +66,30 @@
     "noStocks": "登録された銘柄がありません。",
     "actions": "操作",
     "delete": "削除",
-    "invalidTicker": "存在しないティッカーです"
+    "invalidTicker": "存在しないティッカーです",
+    "exDividendDate": "権利落ち日",
+    "detail": {
+      "loading": "読み込み中...",
+      "error": "データ取得に失敗しました",
+      "recommendation": "アナリスト評価",
+      "priceTarget": "目標株価",
+      "currentPrice": "現在値",
+      "upside": "上昇余地",
+      "recentNews": "最近のニュース",
+      "strongBuy": "強い買い",
+      "buy": "買い",
+      "hold": "中立",
+      "sell": "売り",
+      "strongSell": "強い売り",
+      "noData": "データなし"
+    }
+  },
+  "marketNews": {
+    "title": "マーケットニュース",
+    "loading": "ニュース読み込み中...",
+    "error": "ニュースの取得に失敗しました",
+    "noNews": "ニュースがありません",
+    "viewAll": "すべて見る"
   },
   "compound": {
     "title": "複利計算機",

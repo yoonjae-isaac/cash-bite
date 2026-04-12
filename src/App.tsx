@@ -13,6 +13,7 @@ import PortfolioPage from './pages/PortfolioPage';
 import CompoundPage from './pages/CompoundPage';
 import FirePage from './pages/FirePage';
 import AveragingPage from './pages/AveragingPage';
+import NewsPage from './pages/NewsPage';
 
 function App() {
   const fetchExchangeRate = usePortfolioStore((state) => state.fetchExchangeRate);
@@ -50,6 +51,7 @@ function App() {
         {page === 'compound' && <CompoundPage />}
         {page === 'fire' && <FirePage />}
         {page === 'averaging' && <AveragingPage />}
+        {page === 'news' && <NewsPage />}
       </main>
 
       <Footer />

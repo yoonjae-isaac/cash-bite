@@ -11,7 +11,8 @@
     "portfolio": "Dividend Portfolio",
     "compound": "Compound Calc",
     "fire": "FIRE Calc",
-    "averaging": "Avg. Calculator"
+    "averaging": "Avg. Calculator",
+    "news": "Market News"
   },
   "home": {
     "heroTitle": "Your Wealth, Visualized",
@@ -65,7 +66,30 @@
     "noStocks": "No stocks added yet.",
     "actions": "Actions",
     "delete": "Delete",
-    "invalidTicker": "This ticker does not exist."
+    "invalidTicker": "This ticker does not exist.",
+    "exDividendDate": "Ex-Div Date",
+    "detail": {
+      "loading": "Loading details...",
+      "error": "Failed to load details",
+      "recommendation": "Analyst Consensus",
+      "priceTarget": "Price Target",
+      "currentPrice": "Current",
+      "upside": "Upside",
+      "recentNews": "Recent News",
+      "strongBuy": "Strong Buy",
+      "buy": "Buy",
+      "hold": "Hold",
+      "sell": "Sell",
+      "strongSell": "Strong Sell",
+      "noData": "No data available"
+    }
+  },
+  "marketNews": {
+    "title": "Market News",
+    "loading": "Loading news...",
+    "error": "Failed to load news",
+    "noNews": "No news available",
+    "viewAll": "View all"
   },
   "compound": {
     "title": "Compound Interest Calculator",
