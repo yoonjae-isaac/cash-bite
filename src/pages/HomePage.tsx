@@ -1,4 +1,4 @@
-import { TrendingUp, Calculator, Target, Layers, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb } from 'lucide-react';
+import { TrendingUp, Calculator, Target, Layers, Newspaper, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { usePageStore } from '../store/usePageStore';
 import type { PageId } from '../domain/i18n/types';
@@ -41,6 +41,12 @@ const HomePage = () => {
       color: 'text-violet-400',
       bg: 'bg-violet-400/15',
     },
+    {
+      id: 'news',
+      icon: <Newspaper className="w-6 h-6" />,
+      color: 'text-sky-400',
+      bg: 'bg-sky-400/15',
+    },
   ];
 
   const toolLabels = [
@@ -48,6 +54,7 @@ const HomePage = () => {
     { title: t.home.compoundTitle, desc: t.home.compoundDesc },
     { title: t.home.fireTitle, desc: t.home.fireDesc },
     { title: t.home.averagingTitle, desc: t.home.averagingDesc },
+    { title: t.home.newsTitle, desc: t.home.newsDesc },
   ];
 
   const trustItems = [
@@ -226,7 +233,7 @@ const HomePage = () => {
           <h3 className="text-2xl md:text-3xl font-bold text-cb-foreground mb-2">{t.home.toolsTitle}</h3>
           <p className="text-cb-muted">{t.home.toolsSubtitle}</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5">
           {tools.map((tool, i) => (
             <button
               key={i}

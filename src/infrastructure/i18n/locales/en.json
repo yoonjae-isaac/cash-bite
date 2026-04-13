@@ -41,7 +41,9 @@
     "tip3Title": "The 4% FIRE Rule",
     "tip3Desc": "Save 25× your annual expenses. At a 4% withdrawal rate, your portfolio theoretically lasts forever.",
     "averagingTitle": "Avg. Down / Up Calculator",
-    "averagingDesc": "See your new average price and updated profit/loss instantly after adding to a position."
+    "averagingDesc": "See your new average price and updated profit/loss instantly after adding to a position.",
+    "newsTitle": "Market News",
+    "newsDesc": "Browse global financial headlines in real-time. No translation needed — news is already in English."
   },
   "portfolio": {
     "totalValue": "Total Value",
@@ -170,5 +172,20 @@
     "reset": "Reset",
     "emptyHint": "Fill in the fields above to see results instantly",
     "tip": "💡 Averaging Down: buying more shares at a lower price to reduce your cost basis. Averaging Up: adding to a winning position. Both strategies increase your total exposure — size carefully."
+  },
+  "news": {
+    "title": "Market News",
+    "subtitle": "Global Financial Market Headlines",
+    "loading": "Loading news...",
+    "error": "Failed to load news. Please try again later.",
+    "noNews": "No news available.",
+    "refresh": "Refresh",
+    "translate": "Translate",
+    "translating": "Translating",
+    "translated": "Translated",
+    "translateError": "Translation failed",
+    "autoTranslating": "Auto-translating...",
+    "retry": "Retry",
+    "updatedAt": "updated"
   }
 }

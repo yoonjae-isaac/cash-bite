@@ -7,7 +7,7 @@ interface Props {
 }
 
 const NewsItem = ({ article }: Props) => {
-  const { text, isTranslating } = useHeadlineTranslation(article.headline);
+  const { text, isTranslating } = useHeadlineTranslation(article.headline, article.id);
 
   const date = new Date(article.datetime * 1000).toLocaleDateString(undefined, {
     month: 'short',

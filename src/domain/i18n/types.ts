@@ -47,6 +47,8 @@ export interface TranslationSchema {
     tip3Desc: string;
     averagingTitle: string;
     averagingDesc: string;
+    newsTitle: string;
+    newsDesc: string;
   };
   portfolio: {
     totalValue: string;
@@ -175,5 +177,20 @@ export interface TranslationSchema {
     reset: string;
     emptyHint: string;
     tip: string;
+  };
+  news: {
+    title: string;
+    subtitle: string;
+    loading: string;
+    error: string;
+    noNews: string;
+    refresh: string;
+    translate: string;
+    translating: string;
+    translated: string;
+    translateError: string;
+    autoTranslating: string;
+    retry: string;
+    updatedAt: string;
   };
 }
