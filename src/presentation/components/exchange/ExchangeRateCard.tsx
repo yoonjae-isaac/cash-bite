@@ -1,6 +1,7 @@
 import { TrendingUp, RefreshCcw, Clock } from 'lucide-react';
 import { usePortfolioStore } from '../../../store/usePortfolioStore';
 import CurrencySelector from '../../../shared/components/CurrencySelector';
+import { trackEvent } from '../../../infrastructure/analytics/ga';
 
 const rateRowClass =
   'flex items-center justify-between p-2.5 rounded-lg theme-row';
@@ -30,7 +31,10 @@ const ExchangeRateCard = () => {
           실시간 환율
         </h3>
         <button
-          onClick={() => fetchExchangeRate(true)}
+          onClick={() => {
+            trackEvent('exchange_rate_refresh', { source: 'card' });
+            fetchExchangeRate(true);
+          }}
           disabled={isLoading}
           className="p-1.5 rounded-lg text-cb-muted hover:text-cb-accent hover:bg-[var(--cb-hover)] transition-all disabled:opacity-50"
           title="새로고침"

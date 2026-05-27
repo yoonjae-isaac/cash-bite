@@ -1,5 +1,6 @@
 import { Moon, Sun } from 'lucide-react';
 import { useThemeStore } from '../../../application/theme/useThemeStore';
+import { trackEvent } from '../../../infrastructure/analytics/ga';
 
 const ThemeToggle = () => {
   const theme = useThemeStore((s) => s.theme);
@@ -8,7 +9,11 @@ const ThemeToggle = () => {
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={() => {
+        const next = theme === 'dark' ? 'light' : 'dark';
+        trackEvent('theme_changed', { theme: next });
+        toggleTheme();
+      }}
       aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
       className="p-2 rounded-lg border border-cb-border bg-cb-surface/60 text-cb-muted hover:text-cb-accent hover:border-cb-accent/35 transition-colors"
     >

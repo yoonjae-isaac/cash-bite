@@ -7,6 +7,7 @@ import { usePortfolioStore } from './store/usePortfolioStore';
 import { useThemeStore } from './application/theme/useThemeStore';
 import { usePageStore } from './store/usePageStore';
 import ExchangeRateBar from './presentation/components/exchange/ExchangeRateBar';
+import { trackPageView } from './infrastructure/analytics/ga';
 
 import HomePage from './pages/HomePage';
 import PortfolioPage from './pages/PortfolioPage';
@@ -23,6 +24,10 @@ function App() {
   useEffect(() => {
     fetchExchangeRate();
   }, [fetchExchangeRate]);
+
+  useEffect(() => {
+    trackPageView(page);
+  }, [page]);
 
   return (
     <div className="flex flex-col min-h-screen">

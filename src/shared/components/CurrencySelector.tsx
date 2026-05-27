@@ -1,5 +1,6 @@
 import type { SupportedCurrency } from '../../domain/exchange/types';
 import { useCurrencyStore } from '../../application/currency/useCurrencyStore';
+import { trackEvent } from '../../infrastructure/analytics/ga';
 
 const OPTIONS: { value: SupportedCurrency; flag: string }[] = [
   { value: 'USD', flag: '🇺🇸' },
@@ -20,7 +21,12 @@ const CurrencySelector = ({ compact = false }: CurrencySelectorProps) => {
       {OPTIONS.map((opt, i) => (
         <button
           key={opt.value}
-          onClick={() => setCurrency(opt.value)}
+          onClick={() => {
+            if (currency !== opt.value) {
+              trackEvent('currency_changed', { currency: opt.value });
+            }
+            setCurrency(opt.value);
+          }}
           className={[
             'flex items-center gap-1 py-1.5 text-xs font-bold transition-colors',
             compact ? 'px-2.5' : 'px-3',

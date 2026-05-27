@@ -2,6 +2,7 @@
 import { useLanguageStore } from '../../../application/i18n/useLanguageStore';
 import type { Language } from '../../../domain/i18n/types';
 import { Globe } from 'lucide-react';
+import { trackEvent } from '../../../infrastructure/analytics/ga';
 
 const LanguageSwitcher = () => {
   const { language, setLanguage } = useLanguageStore();
@@ -19,7 +20,12 @@ const LanguageSwitcher = () => {
         {languages.map((lang) => (
           <button
             key={lang.code}
-            onClick={() => setLanguage(lang.code)}
+            onClick={() => {
+              if (language !== lang.code) {
+                trackEvent('language_changed', { language: lang.code });
+              }
+              setLanguage(lang.code);
+            }}
             className={`px-2 py-1 text-xs font-bold rounded transition-all ${
               language === lang.code
                 ? 'bg-cb-accent text-cb-on-accent shadow-lg shadow-amber-500/35'

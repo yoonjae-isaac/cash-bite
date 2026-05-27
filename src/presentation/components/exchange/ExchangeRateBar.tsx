@@ -1,5 +1,6 @@
 import { TrendingUp, RefreshCcw, Clock } from 'lucide-react';
 import { usePortfolioStore } from '../../../store/usePortfolioStore';
+import { trackEvent } from '../../../infrastructure/analytics/ga';
 
 function relativeTime(ts: number): string {
   const diffMs = Date.now() - ts;
@@ -66,7 +67,10 @@ const ExchangeRateBar = () => {
             </span>
           )}
           <button
-            onClick={() => fetchExchangeRate(true)}
+            onClick={() => {
+              trackEvent('exchange_rate_refresh', { source: 'bar' });
+              fetchExchangeRate(true);
+            }}
             disabled={isLoading}
             className="p-1 rounded text-cb-muted hover:text-cb-accent hover:bg-[var(--cb-hover)] transition-colors disabled:opacity-40"
             title="새로고침"

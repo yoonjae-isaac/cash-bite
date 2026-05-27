@@ -1,10 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Layers, TrendingDown, TrendingUp, ArrowRight, RotateCcw } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { useCurrencyStore } from '../application/currency/useCurrencyStore';
 import type { SupportedCurrency } from '../domain/exchange/types';
 import CurrencyInput from '../shared/components/CurrencyInput';
 import CurrencySelector from '../shared/components/CurrencySelector';
+import { trackEvent } from '../infrastructure/analytics/ga';
 
 type InputMode = 'qty' | 'amount';
 
@@ -93,6 +94,20 @@ const AveragingPage = () => {
       isAveragingDown,
     };
   }, [holdingQty, avgPrice, currentPrice, addValue, mode]);
+
+  const hasTrackedRef = useRef(false);
+  useEffect(() => {
+    if (result && !hasTrackedRef.current) {
+      hasTrackedRef.current = true;
+      trackEvent('averaging_calculated', {
+        type: result.isAveragingDown ? 'down' : 'up',
+        mode,
+        currency,
+      });
+    } else if (!result) {
+      hasTrackedRef.current = false;
+    }
+  }, [result, mode, currency]);
 
   const hasInput = holdingQty || avgPrice || currentPrice || addValue;
   const addQtyIsInteger = result ? result.addQty % 1 === 0 : true;
