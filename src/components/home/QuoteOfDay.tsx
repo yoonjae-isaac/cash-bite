@@ -101,7 +101,7 @@ const QuoteOfDay = () => {
 
           {/* Author */}
           <div className="flex items-center gap-3 pl-1">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cb-accent/30 to-amber-700/30 border border-cb-accent/25 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cb-accent/30 to-zinc-600/35 border border-cb-accent/25 flex items-center justify-center shrink-0">
               <span className="text-sm font-black text-cb-accent select-none">
                 {author.charAt(0)}
               </span>

@@ -28,7 +28,7 @@ const LanguageSwitcher = () => {
             }}
             className={`px-2 py-1 text-xs font-bold rounded transition-all ${
               language === lang.code
-                ? 'bg-cb-accent text-cb-on-accent shadow-lg shadow-amber-500/35'
+                ? 'bg-cb-accent text-cb-on-accent shadow-lg shadow-black/25'
                 : 'text-cb-muted hover:text-cb-foreground hover:bg-[var(--cb-hover)]'
             }`}
           >

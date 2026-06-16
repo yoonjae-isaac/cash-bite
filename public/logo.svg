@@ -1,0 +1,22 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0c0c0e"/>
+      <stop offset="100%" stop-color="#26262c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- squircle background (mono) + 라이트 배경 대비용 미세 보더 -->
+  <rect x="16" y="16" width="480" height="480" rx="116" fill="url(#bg)"/>
+  <rect x="18" y="18" width="476" height="476" rx="114" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="4"/>
+
+  <!-- letter A (two legs) -->
+  <path d="M140 408 L256 116 L372 408"
+        stroke="#ffffff" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"
+        fill="none"/>
+
+  <!-- crossbar as ascending arrow exiting through the right leg -->
+  <path d="M176 322 L360 256"
+        stroke="#ffffff" stroke-width="36" stroke-linecap="round" fill="none"/>
+  <path d="M404 240 L365 284 L347 227 Z" fill="#ffffff"/>
+</svg>

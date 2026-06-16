@@ -43,7 +43,7 @@ const NewsCard = ({ item, translation, locale }: NewsCardProps) => (
     href={item.url}
     target="_blank"
     rel="noopener noreferrer"
-    className="glass-panel p-4 flex gap-4 hover:border-cb-accent/30 hover:shadow-[0_4px_20px_-4px_rgba(255,191,0,0.12)] transition-all duration-200 group"
+    className="glass-panel p-4 flex gap-4 hover:border-cb-accent/30 hover:shadow-[0_4px_20px_-4px_rgba(127,127,135,0.18)] transition-all duration-200 group"
   >
     <div className="flex flex-col gap-1.5 flex-1 min-w-0">
       {/* Meta row */}
@@ -82,6 +82,7 @@ const NewsPage = () => {
   const language = useLanguageStore((s) => s.language);
 
   const {
+    market,
     news,
     translations,
     isLoading,
@@ -91,6 +92,7 @@ const NewsPage = () => {
     translationProgress,
     error,
     lastFetchedAt,
+    setMarket,
     fetchNews,
     initTranslation,
     translateAll,
@@ -178,6 +180,24 @@ const NewsPage = () => {
           <h2 className="text-2xl font-bold text-cb-foreground">{t.news.title}</h2>
         </div>
         <p className="text-cb-muted ml-11">{t.news.subtitle}</p>
+      </div>
+
+      {/* Market 토글 (국내 네이버 / 해외 Finnhub) */}
+      <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--cb-input-bg)] w-fit">
+        {(['KR', 'US'] as const).map((m) => (
+          <button
+            key={m}
+            onClick={() => setMarket(m)}
+            className={[
+              'px-4 py-1.5 rounded-md text-sm font-semibold transition-colors',
+              market === m
+                ? 'bg-cb-accent text-cb-on-accent'
+                : 'text-cb-muted hover:text-cb-foreground',
+            ].join(' ')}
+          >
+            {m === 'KR' ? t.news.marketKr : t.news.marketUs}
+          </button>
+        ))}
       </div>
 
       {/* Toolbar */}

@@ -45,3 +45,6 @@ dist-ssr/
 
 # Debugging
 .node_repl_history
+
+# Claude Code
+.claude/

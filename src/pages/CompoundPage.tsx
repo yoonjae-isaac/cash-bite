@@ -178,7 +178,7 @@ const CompoundPage = () => {
         <div className="flex gap-3">
           <button
             onClick={handleCalc}
-            className="flex-1 flex items-center justify-center gap-2 bg-cb-accent text-cb-on-accent font-bold py-3 px-6 rounded-lg shadow-lg shadow-amber-500/25 hover:bg-cb-accent-hover hover:scale-[1.01] active:scale-95 transition-all"
+            className="flex-1 flex items-center justify-center gap-2 bg-cb-accent text-cb-on-accent font-bold py-3 px-6 rounded-lg shadow-lg shadow-black/20 hover:bg-cb-accent-hover hover:scale-[1.01] active:scale-95 transition-all"
           >
             <Calculator className="w-4 h-4" />
             {t.compound.calculate}

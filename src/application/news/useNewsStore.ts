@@ -1,11 +1,23 @@
 import { create } from 'zustand';
 import type { NewsItem, TranslationMode, TranslationStatus } from '../../domain/news/types';
 import { fetchMarketNews } from '../../infrastructure/api/finnhubNewsClient';
+import { fetchKrMarketNews } from '../../infrastructure/api/backendNewsClient';
 import {
   detectTranslationMode,
   translateWithChromeAi,
   translateWithMyMemory,
 } from '../../infrastructure/translation/translatorService';
+
+export type NewsMarket = 'KR' | 'US';
+
+/** US 시장 뉴스 — Finnhub 직접 호출 (VITE_FINNHUB_API_KEY) */
+function fetchUsMarketNews(force: boolean): Promise<NewsItem[]> {
+  const apiKey = import.meta.env.VITE_FINNHUB_API_KEY as string | undefined;
+  if (!apiKey) {
+    throw new Error('Finnhub API key not configured');
+  }
+  return fetchMarketNews(apiKey, force);
+}
 
 // ─── Translation cache (localStorage) ───────────────────────────────────────
 
@@ -57,6 +69,7 @@ function resolveStoredTranslations(
 // ─── Store ───────────────────────────────────────────────────────────────────
 
 interface NewsState {
+  market: NewsMarket;
   news: NewsItem[];
   translations: Record<number, string>;
   isLoading: boolean;
@@ -69,12 +82,14 @@ interface NewsState {
 }
 
 interface NewsActions {
+  setMarket: (market: NewsMarket) => void;
   fetchNews: (force?: boolean) => Promise<void>;
   initTranslation: (language: string) => Promise<void>;
   translateAll: (language: string) => Promise<void>;
 }
 
 export const useNewsStore = create<NewsState & NewsActions>()((set, get) => ({
+  market: 'KR',
   news: [],
   translations: {},
   isLoading: false,
@@ -85,13 +100,21 @@ export const useNewsStore = create<NewsState & NewsActions>()((set, get) => ({
   error: null,
   lastFetchedAt: null,
 
+  setMarket: (market: NewsMarket) => {
+    if (get().market === market) return;
+    // 시장 전환 시 목록·번역 초기화 후 재조회
+    set({ market, news: [], translations: {}, translationStatus: 'idle', error: null });
+    get().fetchNews();
+  },
+
   fetchNews: async (force = false) => {
     set({ isLoading: true, error: null });
     try {
-      const apiKey = import.meta.env.VITE_FINNHUB_API_KEY as string | undefined;
-      if (!apiKey) throw new Error('Finnhub API key not configured');
-
-      const items = await fetchMarketNews(apiKey, force);
+      const market = get().market;
+      const items =
+        market === 'KR'
+          ? await fetchKrMarketNews()
+          : await fetchUsMarketNews(force);
 
       // When forcing a refresh, clear stale translation cache
       if (force) saveStoredTranslations('', {});
@@ -110,7 +133,8 @@ export const useNewsStore = create<NewsState & NewsActions>()((set, get) => ({
    * If Chrome AI is available and no cache exists, auto-translate immediately.
    */
   initTranslation: async (language: string) => {
-    if (language === 'en') {
+    // KR 뉴스(네이버)는 한국어 원문 — 번역 불필요. US(영어)만 번역 대상.
+    if (get().market === 'KR' || language === 'en') {
       set({ translationMode: 'not-needed', translations: {}, translationStatus: 'idle' });
       return;
     }

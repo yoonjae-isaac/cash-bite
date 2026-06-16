@@ -1,4 +1,4 @@
-import { Home, TrendingUp, Calculator, Target, Layers, Newspaper, Menu, X } from 'lucide-react';
+import { Home, TrendingUp, Calculator, Layers, Newspaper, Crown, LineChart, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '../../presentation/components/i18n/LanguageSwitcher';
 import ThemeToggle from '../../presentation/components/theme/ThemeToggle';
@@ -13,22 +13,30 @@ const Header = () => {
   const { page, navigate } = usePageStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // 데스크톱 탭: 콘텐츠 페이지만 — 개인 도구는 RightRail (토스 스타일)
   const navItems: NavItem[] = [
     { id: 'home', icon: <Home className="w-4 h-4" /> },
+    { id: 'news', icon: <Newspaper className="w-4 h-4" /> },
+    { id: 'gurus', icon: <Crown className="w-4 h-4" /> },
+    { id: 'macro', icon: <LineChart className="w-4 h-4" /> },
+  ];
+
+  // 모바일 드로워: RightRail 이 없으므로 도구 포함 전체
+  const mobileItems: NavItem[] = [
+    ...navItems,
     { id: 'portfolio', icon: <TrendingUp className="w-4 h-4" /> },
     { id: 'compound', icon: <Calculator className="w-4 h-4" /> },
-    { id: 'fire', icon: <Target className="w-4 h-4" /> },
     { id: 'averaging', icon: <Layers className="w-4 h-4" /> },
-    { id: 'news', icon: <Newspaper className="w-4 h-4" /> },
   ];
 
   const navLabels: Record<PageId, string> = {
     home: t.nav.home,
     portfolio: t.nav.portfolio,
     compound: t.nav.compound,
-    fire: t.nav.fire,
     averaging: t.nav.averaging,
     news: t.nav.news,
+    gurus: t.nav.gurus,
+    macro: t.nav.macro,
   };
 
   const handleNav = (id: PageId) => {
@@ -40,7 +48,9 @@ const Header = () => {
   return (
     <header className="glass-header">
       {/* Single row: logo | desktop-nav (flush bottom) | controls */}
-      <div className="container mx-auto max-w-7xl px-4 flex items-stretch justify-between min-h-[52px]">
+      <div className="w-full px-4 md:px-6 flex items-stretch justify-between min-h-[52px]">
+        {/* 좌측 그룹: 로고 + 탭 (토스 스타일 좌측정렬) */}
+        <div className="flex items-stretch min-w-0">
 
         {/* Logo */}
         <button
@@ -52,13 +62,13 @@ const Header = () => {
               src="/logo.png"
               width={32}
               height={32}
-              alt="CashBite"
+              alt="AntsUp"
               className="w-full h-full object-cover"
               decoding="async"
             />
           </div>
-          <h1 className="text-base font-bold bg-clip-text text-transparent bg-gradient-to-r from-cb-foreground to-cb-muted hidden sm:block leading-none">
-            {t.common.title}
+          <h1 className="text-lg font-extrabold tracking-tight text-cb-foreground hidden sm:block leading-none">
+            AntsUp
           </h1>
         </button>
 
@@ -88,6 +98,7 @@ const Header = () => {
             );
           })}
         </nav>
+        </div>
 
         {/* Right controls */}
         <div className="flex items-center gap-2 py-2 pl-4">
@@ -110,8 +121,8 @@ const Header = () => {
           className="md:hidden border-t border-cb-border bg-cb-surface/95 backdrop-blur-sm"
           aria-label="Mobile navigation"
         >
-          <div className="container mx-auto max-w-7xl px-4 py-2 flex flex-col gap-0.5">
-            {navItems.map((item) => {
+          <div className="w-full px-4 py-2 flex flex-col gap-0.5">
+            {mobileItems.map((item) => {
               const active = page === item.id;
               return (
                 <button

@@ -7,7 +7,7 @@ export const THEME_STORAGE_KEY = 'theme-storage';
 function readStoredTheme(): ThemeMode {
   try {
     const raw = localStorage.getItem(THEME_STORAGE_KEY);
-    if (!raw) return 'dark';
+    if (!raw) return 'light';
     const parsed = JSON.parse(raw) as { state?: { theme?: string } };
     return parsed.state?.theme === 'light' ? 'light' : 'dark';
   } catch {

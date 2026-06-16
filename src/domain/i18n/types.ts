@@ -1,7 +1,7 @@
 
 export type Language = 'ko' | 'en' | 'ja';
 
-export type PageId = 'home' | 'portfolio' | 'compound' | 'fire' | 'averaging' | 'news';
+export type PageId = 'home' | 'portfolio' | 'compound' | 'averaging' | 'news' | 'gurus' | 'macro';
 
 export interface TranslationSchema {
   common: {
@@ -15,9 +15,16 @@ export interface TranslationSchema {
     home: string;
     portfolio: string;
     compound: string;
-    fire: string;
     averaging: string;
     news: string;
+    gurus: string;
+    macro: string;
+  };
+  sidebar: {
+    myInvestTitle: string;
+    stocksCount: string;
+    portfolioEmpty: string;
+    toolsTitle: string;
   };
   home: {
     heroTitle: string;
@@ -29,8 +36,6 @@ export interface TranslationSchema {
     portfolioDesc: string;
     compoundTitle: string;
     compoundDesc: string;
-    fireTitle: string;
-    fireDesc: string;
     exchangeTitle: string;
     exchangeDesc: string;
     trustTitle: string;
@@ -49,6 +54,8 @@ export interface TranslationSchema {
     averagingDesc: string;
     newsTitle: string;
     newsDesc: string;
+    gurusTitle: string;
+    gurusDesc: string;
   };
   portfolio: {
     totalValue: string;
@@ -126,29 +133,6 @@ export interface TranslationSchema {
     next: string;
     shareHint: string;
   };
-  fire: {
-    title: string;
-    subtitle: string;
-    monthlyExpense: string;
-    monthlyExpensePlaceholder: string;
-    currentAsset: string;
-    currentAssetPlaceholder: string;
-    monthlySaving: string;
-    monthlySavingPlaceholder: string;
-    annualReturn: string;
-    annualReturnPlaceholder: string;
-    calculate: string;
-    reset: string;
-    fireNumber: string;
-    yearsToFire: string;
-    progress: string;
-    alreadyFire: string;
-    rule4Desc: string;
-    yearUnit: string;
-    monthUnit: string;
-    progressLabel: string;
-    tip: string;
-  };
   averaging: {
     title: string;
     subtitle: string;
@@ -192,5 +176,77 @@ export interface TranslationSchema {
     autoTranslating: string;
     retry: string;
     updatedAt: string;
+    marketKr: string;
+    marketUs: string;
+  };
+  gurus: {
+    title: string;
+    subtitle: string;
+    pickerLabel: string;
+    loading: string;
+    error: string;
+    retry: string;
+    noData: string;
+    totalValue: string;
+    positions: string;
+    positionsUnit: string;
+    reportQuarter: string;
+    filedAt: string;
+    allocationTitle: string;
+    others: string;
+    holdingsTitle: string;
+    rank: string;
+    company: string;
+    weight: string;
+    value: string;
+    shares: string;
+    putBadge: string;
+    callBadge: string;
+    showAll: string;
+    showLess: string;
+    viewOnSec: string;
+    disclaimer: string;
+    changeNew: string;
+    changeIncreased: string;
+    changeDecreased: string;
+    exitsTitle: string;
+    exitsHint: string;
+    prevValueLabel: string;
+    tabPortfolio: string;
+    tabStats: string;
+    statsLoading: string;
+    statsError: string;
+    statsSummary: string;
+    statsInvestorsUnit: string;
+    mostHeldTitle: string;
+    mostHeldDesc: string;
+    grandTitle: string;
+    grandDesc: string;
+    mostBoughtTitle: string;
+    mostBoughtDesc: string;
+    mostSoldTitle: string;
+    mostSoldDesc: string;
+    holdersUnit: string;
+    buyersUnit: string;
+    sellersUnit: string;
+  };
+  macro: {
+    title: string;
+    subtitle: string;
+    loading: string;
+    error: string;
+    retry: string;
+    noData: string;
+    latest: string;
+    yoy: string;
+    mom: string;
+    range1y: string;
+    range3y: string;
+    range5y: string;
+    rangeAll: string;
+    categoryLabel: string;
+    allCategories: string;
+    unavailable: string;
+    source: string;
   };
 }

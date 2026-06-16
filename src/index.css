@@ -1,44 +1,57 @@
 @import "tailwindcss";
 
-/* Obsidian Gold (dark) + Cream Gold (light) — 공통 액센트 골드 */
+/*
+ * Design system — "Mono"
+ * dark: 토스증권 스타일 (near-black 배경 + 플랫 서피스) + 화이트 액센트
+ * light: 구글 파이낸스 스타일 (화이트 배경 + 아웃라인 카드) + 블랙 액센트
+ * 수익/손실(green/red)과 데이터 시각화 팔레트는 기능색으로 유지
+ */
 :root {
-  --cb-bg: #0c0c0d;
-  --cb-surface: #1e1f22;
-  --cb-foreground: #ffffff;
-  --cb-muted: #a1a1a1;
-  --cb-border-subtle: rgba(255, 255, 255, 0.05);
-  --cb-border-strong: rgba(255, 255, 255, 0.1);
-  --cb-input-bg: rgba(12, 12, 13, 0.55);
-  --cb-row-bg: rgba(12, 12, 13, 0.35);
-  --cb-hover: rgba(255, 255, 255, 0.05);
-  --cb-icon-tile: rgba(255, 255, 255, 0.1);
-  --cb-card-shine: rgba(255, 255, 255, 0.035);
-  --cb-positive: #43a047;
-  --cb-shadow-elevated: 0 24px 50px -18px rgba(0, 0, 0, 0.55);
-  --cb-shadow-soft: 0 12px 28px -12px rgba(0, 0, 0, 0.35);
-  --cb-orb-1: rgba(255, 191, 0, 0.045);
-  --cb-orb-2: rgba(255, 152, 0, 0.035);
+  --cb-bg: #101013;
+  --cb-surface: #1b1b20;
+  --cb-foreground: #ececef;
+  --cb-muted: #8e8e98;
+  --cb-border-subtle: rgba(255, 255, 255, 0.07);
+  --cb-border-strong: rgba(255, 255, 255, 0.13);
+  --cb-input-bg: rgba(255, 255, 255, 0.05);
+  --cb-row-bg: transparent;
+  --cb-hover: rgba(255, 255, 255, 0.06);
+  --cb-icon-tile: rgba(255, 255, 255, 0.08);
+  --cb-card-shine: rgba(255, 255, 255, 0.03);
+  --cb-accent: #fafafa;
+  --cb-accent-hover: #d4d4d8;
+  --cb-on-accent: #111113;
+  --cb-positive: #22c55e;
+  --cb-negative: #f04452;
+  --cb-shadow-elevated: 0 2px 12px -4px rgba(0, 0, 0, 0.4);
+  --cb-shadow-soft: none;
+  --cb-orb-1: transparent;
+  --cb-orb-2: transparent;
   --cb-globe: 0.08;
   --cb-globe-hover: 0.14;
 }
 
 :root[data-theme='light'] {
-  --cb-bg: #fff8ee;
+  --cb-bg: #ffffff;
   --cb-surface: #ffffff;
-  --cb-foreground: #2d2d2d;
-  --cb-muted: #757575;
-  --cb-border-subtle: rgba(0, 0, 0, 0.06);
-  --cb-border-strong: rgba(0, 0, 0, 0.1);
-  --cb-input-bg: rgba(255, 255, 255, 0.95);
-  --cb-row-bg: rgba(0, 0, 0, 0.04);
-  --cb-hover: rgba(0, 0, 0, 0.04);
-  --cb-icon-tile: rgba(0, 0, 0, 0.06);
-  --cb-card-shine: rgba(0, 0, 0, 0.025);
-  --cb-positive: #388e3c;
-  --cb-shadow-elevated: 0 18px 44px -14px rgba(0, 0, 0, 0.12);
-  --cb-shadow-soft: 0 8px 24px -8px rgba(0, 0, 0, 0.08);
-  --cb-orb-1: rgba(255, 191, 0, 0.14);
-  --cb-orb-2: rgba(255, 152, 0, 0.09);
+  --cb-foreground: #202124;
+  --cb-muted: #5f6368;
+  --cb-border-subtle: #dadce0;
+  --cb-border-strong: #c4c7cc;
+  --cb-input-bg: #f1f3f4;
+  --cb-row-bg: transparent;
+  --cb-hover: #f1f3f4;
+  --cb-icon-tile: #f1f3f4;
+  --cb-card-shine: rgba(0, 0, 0, 0.02);
+  --cb-accent: #18181b;
+  --cb-accent-hover: #3f3f46;
+  --cb-on-accent: #ffffff;
+  --cb-positive: #188038;
+  --cb-negative: #d93025;
+  --cb-shadow-elevated: 0 1px 3px rgba(60, 64, 67, 0.08);
+  --cb-shadow-soft: none;
+  --cb-orb-1: transparent;
+  --cb-orb-2: transparent;
   --cb-globe: 0.07;
   --cb-globe-hover: 0.11;
 }
@@ -49,43 +62,38 @@
   --color-cb-foreground: var(--cb-foreground);
   --color-cb-muted: var(--cb-muted);
   --color-cb-border: var(--cb-border-subtle);
-  --color-cb-accent: #ffbf00;
-  --color-cb-accent-hover: #ffca28;
+  --color-cb-accent: var(--cb-accent);
+  --color-cb-accent-hover: var(--cb-accent-hover);
   --color-cb-positive: var(--cb-positive);
-  --color-cb-negative: #ff5252;
-  --color-cb-on-accent: #0c0c0d;
+  --color-cb-negative: var(--cb-negative);
+  --color-cb-on-accent: var(--cb-on-accent);
 }
 
 @layer base {
   :root {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Pretendard Variable', Pretendard, 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   body {
     @apply antialiased min-h-screen flex flex-col;
     background-color: var(--cb-bg);
     color: var(--cb-foreground);
-    background-image:
-      radial-gradient(circle at 18% 45%, var(--cb-orb-1), transparent 52%),
-      radial-gradient(circle at 82% 32%, var(--cb-orb-2), transparent 48%);
-    background-attachment: fixed;
   }
 }
 
 @layer utilities {
+  /* 플랫 카드 — dark: 서피스 대비, light: 아웃라인 (이름은 기존 호환 유지) */
   .glass-panel {
-    border-radius: 0.5rem;
-    background-color: color-mix(in srgb, var(--cb-surface) 92%, transparent);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    border-radius: 1.25rem;
+    background-color: var(--cb-surface);
     border: 1px solid var(--cb-border-subtle);
     box-shadow: var(--cb-shadow-elevated);
   }
 
   .glass-header {
-    background-color: color-mix(in srgb, var(--cb-bg) 94%, transparent);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background-color: color-mix(in srgb, var(--cb-bg) 88%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--cb-border-subtle);
     @apply sticky top-0 z-50;
   }
@@ -94,6 +102,7 @@
     background-color: var(--cb-input-bg);
     border-color: var(--cb-border-subtle);
     color: var(--cb-foreground);
+    border-radius: 0.75rem;
   }
 
   .theme-row {

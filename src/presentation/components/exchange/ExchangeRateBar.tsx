@@ -19,7 +19,7 @@ const ExchangeRateBar = () => {
 
   return (
     <div className="sticky top-[52px] z-40 w-full border-b border-[var(--cb-border-subtle)] bg-[color-mix(in_srgb,var(--cb-bg)_94%,transparent)] backdrop-blur-md">
-      <div className="container mx-auto max-w-7xl px-4 h-10 flex items-center gap-4">
+      <div className="w-full px-4 md:px-6 h-10 flex items-center gap-4">
 
         {/* Label */}
         <span className="flex items-center gap-1.5 shrink-0 text-[11px] font-bold text-cb-muted uppercase tracking-wider">

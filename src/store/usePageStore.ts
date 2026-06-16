@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { PageId } from '../domain/i18n/types';
 
-const VALID_PAGES: PageId[] = ['home', 'portfolio', 'compound', 'fire', 'averaging', 'news'];
+const VALID_PAGES: PageId[] = ['home', 'portfolio', 'compound', 'averaging', 'news', 'gurus', 'macro'];
 
 function getPageFromHash(): PageId {
   const hash = window.location.hash.replace('#', '') as PageId;

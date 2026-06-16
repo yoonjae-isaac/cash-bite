@@ -255,7 +255,7 @@ const InputForm = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full bg-cb-accent text-cb-on-accent font-bold py-3.5 px-6 rounded-lg shadow-lg shadow-amber-500/30 transition-all hover:bg-cb-accent-hover hover:shadow-amber-400/45 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 mt-2 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+          className={`w-full bg-cb-accent text-cb-on-accent font-bold py-3.5 px-6 rounded-lg shadow-lg shadow-black/25 transition-all hover:bg-cb-accent-hover hover:shadow-black/35 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 mt-2 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
