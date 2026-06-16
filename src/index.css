@@ -67,6 +67,9 @@
   --color-cb-positive: var(--cb-positive);
   --color-cb-negative: var(--cb-negative);
   --color-cb-on-accent: var(--cb-on-accent);
+
+  /* 브랜드 워드마크 전용 폰트 — Media Sans(Production Type 유료) 대체 그로테스크체 */
+  --font-brand: 'Space Grotesk', 'Pretendard Variable', Pretendard, sans-serif;
 }
 
 @layer base {
