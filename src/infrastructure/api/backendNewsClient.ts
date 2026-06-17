@@ -30,10 +30,11 @@ function normalize(it: BackendNewsItem, index: number): NewsItem {
   };
 }
 
-/** 한국 시장 뉴스 — 네이버 검색 (백엔드 경유). 기본 키워드 '증시'. */
-export async function fetchKrMarketNews(query = '증시', limit = 30): Promise<NewsItem[]> {
-  const data = await backendGet<BackendNewsItem[]>(
-    `/news?market=KR&query=${encodeURIComponent(query)}&limit=${limit}`
-  );
+/**
+ * 시장별 최신 뉴스 — 백엔드 DB 피드 (크론이 5분마다 적재). KR=Naver 키워드, US=Finnhub 일반.
+ * 프론트는 외부 API 를 직접 호출하지 않고 백엔드 DB 값을 받는다.
+ */
+export async function fetchMarketNews(market: 'KR' | 'US', limit = 30): Promise<NewsItem[]> {
+  const data = await backendGet<BackendNewsItem[]>(`/news?market=${market}&limit=${limit}`);
   return data.map(normalize);
 }

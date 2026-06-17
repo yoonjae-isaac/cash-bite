@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import type { NewsItem, TranslationMode, TranslationStatus } from '../../domain/news/types';
-import { fetchMarketNews } from '../../infrastructure/api/finnhubNewsClient';
-import { fetchKrMarketNews } from '../../infrastructure/api/backendNewsClient';
+import { fetchMarketNews } from '../../infrastructure/api/backendNewsClient';
 import {
   detectTranslationMode,
   translateWithChromeAi,
@@ -10,14 +9,7 @@ import {
 
 export type NewsMarket = 'KR' | 'US';
 
-/** US 시장 뉴스 — Finnhub 직접 호출 (VITE_FINNHUB_API_KEY) */
-function fetchUsMarketNews(force: boolean): Promise<NewsItem[]> {
-  const apiKey = import.meta.env.VITE_FINNHUB_API_KEY as string | undefined;
-  if (!apiKey) {
-    throw new Error('Finnhub API key not configured');
-  }
-  return fetchMarketNews(apiKey, force);
-}
+// 뉴스는 KR·US 모두 백엔드 DB 피드에서 가져온다 (외부 API 직접 호출 없음).
 
 // ─── Translation cache (localStorage) ───────────────────────────────────────
 
@@ -111,10 +103,7 @@ export const useNewsStore = create<NewsState & NewsActions>()((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const market = get().market;
-      const items =
-        market === 'KR'
-          ? await fetchKrMarketNews()
-          : await fetchUsMarketNews(force);
+      const items = await fetchMarketNews(market);
 
       // When forcing a refresh, clear stale translation cache
       if (force) saveStoredTranslations('', {});
