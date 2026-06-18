@@ -6,7 +6,7 @@ export interface GuruInvestor {
   cik: string;
 }
 
-export type GuruChangeType = 'new' | 'increased' | 'decreased' | 'unchanged';
+type GuruChangeType = 'new' | 'increased' | 'decreased' | 'unchanged';
 
 export interface GuruHoldingChange {
   type: GuruChangeType;

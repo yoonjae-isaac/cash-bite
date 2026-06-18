@@ -3,6 +3,7 @@ import { Calculator, TrendingUp, Percent, RotateCcw } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { useCurrencyStore } from '../application/currency/useCurrencyStore';
 import type { SupportedCurrency } from '../domain/exchange/types';
+import { CURRENCY_SYMBOLS } from '../domain/exchange/constants';
 import CurrencyInput from '../shared/components/CurrencyInput';
 import CurrencySelector from '../shared/components/CurrencySelector';
 
@@ -30,12 +31,6 @@ function calcCompound(
     return { year: idx + 1, total, contributed, gain: total - contributed };
   });
 }
-
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
-  USD: '$',
-  KRW: '₩',
-  JPY: '¥',
-};
 
 function makeFormatter(currency: SupportedCurrency) {
   const sym = CURRENCY_SYMBOLS[currency];

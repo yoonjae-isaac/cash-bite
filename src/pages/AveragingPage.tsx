@@ -3,17 +3,12 @@ import { Layers, TrendingDown, TrendingUp, ArrowRight, RotateCcw } from 'lucide-
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { useCurrencyStore } from '../application/currency/useCurrencyStore';
 import type { SupportedCurrency } from '../domain/exchange/types';
+import { CURRENCY_SYMBOLS } from '../domain/exchange/constants';
 import CurrencyInput from '../shared/components/CurrencyInput';
 import CurrencySelector from '../shared/components/CurrencySelector';
 import { trackEvent } from '../infrastructure/analytics/ga';
 
 type InputMode = 'qty' | 'amount';
-
-const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
-  USD: '$',
-  KRW: '₩',
-  JPY: '¥',
-};
 
 const labelCls = 'block text-sm font-medium text-cb-muted mb-1.5 ml-1';
 

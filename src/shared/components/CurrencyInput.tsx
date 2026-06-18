@@ -1,17 +1,12 @@
 import { useState } from 'react';
 import type { SupportedCurrency } from '../../domain/exchange/types';
-
-export const CURRENCY_SYMBOLS: Record<SupportedCurrency, string> = {
-  USD: '$',
-  KRW: '₩',
-  JPY: '¥',
-};
+import { CURRENCY_SYMBOLS } from '../../domain/exchange/constants';
 
 /**
  * Format a raw numeric string with thousands-comma separators.
  * KRW/JPY are treated as whole numbers; USD preserves decimal portion.
  */
-export function formatCurrencyDisplay(raw: string, currency: SupportedCurrency): string {
+function formatCurrencyDisplay(raw: string, currency: SupportedCurrency): string {
   if (!raw || raw === '.' || raw === '') return raw;
 
   const isWholeNumber = currency === 'KRW' || currency === 'JPY';

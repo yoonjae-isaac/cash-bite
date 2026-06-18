@@ -1,8 +1,8 @@
 // 거시지표(Macro) — cash-bite-backend `/macro/*` 응답 타입
 
-export type MacroProvider = 'fred' | 'ecos';
-export type MacroFrequency = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annual';
-export type MacroImportance = 'low' | 'medium' | 'high' | 'very-high';
+type MacroProvider = 'fred' | 'ecos';
+type MacroFrequency = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annual';
+type MacroImportance = 'low' | 'medium' | 'high' | 'very-high';
 
 export interface MacroCatalogEntry {
   id: string;
@@ -23,7 +23,7 @@ export interface MacroObservation {
   value: number | null;
 }
 
-export interface MacroSeriesMeta {
+interface MacroSeriesMeta {
   latestValue: number | null;
   latestDate: string | null;
   yoyChange: number | null;

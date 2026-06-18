@@ -3,7 +3,7 @@
 
 const DEFAULT_BASE_URL = 'http://localhost:3000';
 
-export class BackendApiError extends Error {
+class BackendApiError extends Error {
   readonly statusCode: number;
   readonly code: string;
 
@@ -24,7 +24,7 @@ interface ErrorEnvelope {
   error: { statusCode: number; code: string; message: string };
 }
 
-export function getBackendBaseUrl(): string {
+function getBackendBaseUrl(): string {
   const fromEnv = import.meta.env.VITE_API_BASE_URL as string | undefined;
   return (fromEnv || DEFAULT_BASE_URL).replace(/\/$/, '');
 }

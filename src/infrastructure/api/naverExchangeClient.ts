@@ -1,7 +1,7 @@
 import type { NaverExchangeConversionInput } from '../../domain/exchange/naverConversionRequest';
 
 /** 네이버 모바일 검색 환율 계산기 qapirender 엔드포인트 */
-export const NAVER_EXCHANGE_QAPI_BASE =
+const NAVER_EXCHANGE_QAPI_BASE =
   'https://m.search.naver.com/p/csearch/content/qapirender.nhn' as const;
 
 /** qapirender JSON 본문 (하나은행 기준 환율 위젯). */
@@ -21,7 +21,7 @@ interface NaverExchangeCalculatorJson {
  * 1 u3 통화를 u4 통화로 환산한 결과 중, 대상 통화 쪽 숫자(예: 1 USD → KRW 금액).
  * `country[1].value`가 변환 결과입니다.
  */
-export function parseNaverExchangeCalculatorJson(text: string): number | null {
+function parseNaverExchangeCalculatorJson(text: string): number | null {
   let data: NaverExchangeCalculatorJson;
   try {
     data = JSON.parse(text) as NaverExchangeCalculatorJson;
@@ -41,7 +41,7 @@ export function parseNaverExchangeCalculatorJson(text: string): number | null {
  * - key: calculator, pkid: 141, q: 환율, where: m, u1: keb, u6: standardUnit, u7: 0, u8: down
  * - 가변: u2 금액, u3 기준 통화, u4 대상 통화
  */
-export function buildNaverExchangeRateUrl(
+function buildNaverExchangeRateUrl(
   input: NaverExchangeConversionInput
 ): string {
   const u3 = input.sourceCurrencyCode.trim().toUpperCase();

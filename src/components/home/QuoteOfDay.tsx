@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { RefreshCw, Quote } from 'lucide-react';
 import { investorQuotes } from '../../data/investorQuotes';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
@@ -42,10 +42,6 @@ const QuoteOfDay = () => {
       setVisible(true);
     }, 220);
   }, []);
-
-  useEffect(() => {
-    setVisible(true);
-  }, [index]);
 
   return (
     <section className="relative overflow-hidden glass-panel p-7 md:p-9 border-cb-accent/20">

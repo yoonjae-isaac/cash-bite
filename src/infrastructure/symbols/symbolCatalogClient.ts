@@ -37,9 +37,3 @@ export function fetchSymbolCatalog(): Promise<SymbolTuple[]> {
 
   return inflight;
 }
-
-/** 테스트 또는 핫 리로드 시 캐시 초기화용 */
-export function clearSymbolCatalogCache(): void {
-  memoryCache = null;
-  inflight = null;
-}

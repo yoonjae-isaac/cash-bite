@@ -72,25 +72,25 @@ export function useHeadlineTranslation(headline: string, id?: number): Translati
   }, []);
 
   useEffect(() => {
-    if (language === 'en') {
-      setTranslatedText(headline);
-      return;
-    }
-
-    // 1. Check persistent cache first
-    if (id !== undefined) {
-      const cached = readFromCache(id, language);
-      if (cached) {
-        setTranslatedText(cached);
-        return;
-      }
-    }
-
-    // 2. No cache — translate
-    setIsTranslating(true);
-    setTranslatedText(headline); // show original while translating
+    // en 은 번역 불필요 — 표시 텍스트는 반환부에서 headline 으로 파생한다.
+    if (language === 'en') return;
 
     const run = async () => {
+      // 1. 영속 캐시 우선
+      if (id !== undefined) {
+        const cached = readFromCache(id, language);
+        if (cached) {
+          if (mountedRef.current) setTranslatedText(cached);
+          return;
+        }
+      }
+
+      // 2. 캐시 없음 — 번역 (진행 중엔 원문 표시)
+      if (mountedRef.current) {
+        setIsTranslating(true);
+        setTranslatedText(headline);
+      }
+
       let result = headline;
 
       if (isAvailable) {
@@ -123,5 +123,7 @@ export function useHeadlineTranslation(headline: string, id?: number): Translati
     });
   }, [headline, language, id, isAvailable]);
 
-  return { text: translatedText, isTranslating, isAvailable };
+  // en 은 항상 원문, 그 외엔 번역 상태값을 표시.
+  const text = language === 'en' ? headline : translatedText;
+  return { text, isTranslating, isAvailable };
 }
