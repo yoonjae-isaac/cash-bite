@@ -1,7 +1,8 @@
 
 import { create } from 'zustand';
 import type { StockDetail, MarketNewsCache, DetailLoadState } from '../domain/portfolio/detailTypes';
-import * as detailApi from '../infrastructure/api/finnhubDetailClient';
+import { fetchStockDetail as fetchStockDetailApi } from '../infrastructure/api/stockClient';
+import { fetchMarketNews as fetchBackendMarketNews } from '../infrastructure/api/backendNewsClient';
 
 const DETAIL_CACHE_TTL = 5 * 60 * 1000;   // 5분
 const MARKET_NEWS_TTL = 30 * 60 * 1000;   // 30분
@@ -41,13 +42,9 @@ export const useStockDetailStore = create<StockDetailStore>()((set, get) => ({
       errors: { ...s.errors, [ticker]: null },
     }));
 
-    const apiKey = import.meta.env.VITE_FINNHUB_API_KEY;
     try {
-      const [recommendation, priceTarget, news] = await Promise.all([
-        detailApi.fetchRecommendation(ticker, apiKey),
-        detailApi.fetchPriceTarget(ticker, apiKey),
-        detailApi.fetchCompanyNews(ticker, apiKey, 3),
-      ]);
+      // 백엔드 Finnhub 프록시 — 추천+목표가+종목뉴스 (API 키는 백엔드에만).
+      const { recommendation, priceTarget, news } = await fetchStockDetailApi(ticker);
 
       set((s) => ({
         details: {
@@ -73,9 +70,9 @@ export const useStockDetailStore = create<StockDetailStore>()((set, get) => ({
     if (state.marketNewsLoadState === 'loading') return;
 
     set({ marketNewsLoadState: 'loading' });
-    const apiKey = import.meta.env.VITE_FINNHUB_API_KEY;
     try {
-      const articles = await detailApi.fetchMarketNews(apiKey);
+      // 홈 프리뷰도 NewsPage 와 동일하게 백엔드 DB(/news?market=US) 사용 (C: 뉴스 경로 일원화).
+      const articles = await fetchBackendMarketNews('US');
       set({ marketNews: { articles, fetchedAt: Date.now() }, marketNewsLoadState: 'success' });
     } catch {
       set({ marketNewsLoadState: 'error' });

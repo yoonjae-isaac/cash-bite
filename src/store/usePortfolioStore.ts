@@ -3,7 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ExchangeRates } from '../domain/exchange/types';
 import type { StockItem } from '../domain/portfolio/types';
 import { FALLBACK_RATES } from '../domain/exchange/constants';
-import * as finnhub from '../infrastructure/api/finnhubClient';
+import { fetchStockSummary } from '../infrastructure/api/stockClient';
+import { BackendApiError } from '../infrastructure/api/backendClient';
 import { fetchNaverExchangeRates } from '../infrastructure/api/naverExchangeClient';
 
 const EXCHANGE_CACHE_TTL = 60 * 60 * 1000; // 1 hour
@@ -41,29 +42,20 @@ export const usePortfolioStore = create<PortfolioStore>()(
       addStock: async (ticker, shares) => {
         set({ isLoading: true, error: null });
         const uppercaseTicker = ticker.toUpperCase().trim();
-        const apiKey = import.meta.env.VITE_FINNHUB_API_KEY;
 
         try {
-          if (!apiKey) {
-             throw new Error("API Key is missing. Please check your .env file.");
-          }
-
-          const [profile, quote, financials, exDividendDate] = await Promise.all([
-            finnhub.fetchSymbolProfile(uppercaseTicker, apiKey),
-            finnhub.fetchQuote(uppercaseTicker, apiKey),
-            finnhub.fetchFinancials(uppercaseTicker, apiKey),
-            finnhub.fetchDividendHistory(uppercaseTicker, apiKey),
-          ]);
+          // 백엔드 Finnhub 프록시 — 프로필+시세+배당을 한 번에 (API 키는 백엔드에만).
+          const summary = await fetchStockSummary(uppercaseTicker);
 
           const newStock: StockItem = {
             id: crypto.randomUUID(),
-            ticker: uppercaseTicker,
+            ticker: summary.ticker,
             shares,
-            currentPrice: quote.currentPrice,
-            dividendPerShare: financials.dividendPerShareAnnual,
-            dividendYield: financials.dividendYieldIndicatedAnnual,
-            exDividendDate,
-            name: profile.name,
+            currentPrice: summary.currentPrice,
+            dividendPerShare: summary.dividendPerShare,
+            dividendYield: summary.dividendYield,
+            exDividendDate: summary.exDividendDate,
+            name: summary.name,
           };
 
           set((state) => ({
@@ -72,7 +64,8 @@ export const usePortfolioStore = create<PortfolioStore>()(
           }));
         } catch (err: unknown) {
           console.error("Failed to add stock:", err);
-          if (err instanceof finnhub.InvalidTickerError) {
+          // 백엔드가 잘못된 티커를 404 로 응답 (summary 의 유일한 404).
+          if (err instanceof BackendApiError && err.statusCode === 404) {
             set({ error: INVALID_TICKER_ERROR, isLoading: false });
             return;
           }

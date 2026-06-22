@@ -3,7 +3,7 @@
 
 const DEFAULT_BASE_URL = 'http://localhost:3000';
 
-class BackendApiError extends Error {
+export class BackendApiError extends Error {
   readonly statusCode: number;
   readonly code: string;
 
