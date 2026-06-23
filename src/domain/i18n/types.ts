@@ -209,6 +209,9 @@ export interface TranslationSchema {
     changeNew: string;
     changeIncreased: string;
     changeDecreased: string;
+    changesTitle: string;
+    changesExited: string;
+    changesEmpty: string;
     exitsTitle: string;
     exitsHint: string;
     prevValueLabel: string;

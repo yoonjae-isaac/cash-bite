@@ -6,6 +6,7 @@ import type { GuruPortfolio } from '../domain/guru/types';
 import InvestorPicker from '../components/guru/InvestorPicker';
 import GuruSummary from '../components/guru/GuruSummary';
 import AllocationDonut from '../components/guru/AllocationDonut';
+import PortfolioChanges from '../components/guru/PortfolioChanges';
 import HoldingsTable from '../components/guru/HoldingsTable';
 import GuruExits from '../components/guru/GuruExits';
 import GuruStats from '../components/guru/GuruStats';
@@ -64,7 +65,10 @@ const PortfolioView = () => {
               </div>
             ) : (
               <>
-                <AllocationDonut portfolio={portfolio} />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <AllocationDonut portfolio={portfolio} />
+                  <PortfolioChanges portfolio={portfolio} />
+                </div>
                 <HoldingsTable holdings={portfolio.holdings} />
                 {portfolio.exits && <GuruExits exits={portfolio.exits} />}
               </>
