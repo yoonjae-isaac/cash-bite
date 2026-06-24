@@ -1,4 +1,4 @@
-import { Home, TrendingUp, Calculator, Layers, Newspaper, Crown, LineChart, Menu, X } from 'lucide-react';
+import { Home, Newspaper, Crown, LineChart, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '../../presentation/components/i18n/LanguageSwitcher';
 import ThemeToggle from '../../presentation/components/theme/ThemeToggle';
@@ -21,13 +21,8 @@ const Header = () => {
     { id: 'macro', icon: <LineChart className="w-4 h-4" /> },
   ];
 
-  // 모바일 드로워: RightRail 이 없으므로 도구 포함 전체
-  const mobileItems: NavItem[] = [
-    ...navItems,
-    { id: 'portfolio', icon: <TrendingUp className="w-4 h-4" /> },
-    { id: 'compound', icon: <Calculator className="w-4 h-4" /> },
-    { id: 'averaging', icon: <Layers className="w-4 h-4" /> },
-  ];
+  // 모바일 드로워 = 데스크톱 탭 (복리·배당포트폴리오·물타기 기능 비활성)
+  const mobileItems: NavItem[] = navItems;
 
   const navLabels: Record<PageId, string> = {
     home: t.nav.home,

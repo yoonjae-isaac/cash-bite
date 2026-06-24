@@ -1,4 +1,4 @@
-import { TrendingUp, Calculator, Layers, Newspaper, Crown, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb } from 'lucide-react';
+import { Newspaper, Crown, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { usePageStore } from '../store/usePageStore';
 import type { PageId } from '../domain/i18n/types';
@@ -16,6 +16,7 @@ const HomePage = () => {
   const t = useLanguageStore((s) => s.t);
   const navigate = usePageStore((s) => s.navigate);
 
+  // 복리·배당포트폴리오·물타기 기능 비활성 — news·gurus 만 노출
   const tools: Tool[] = [
     {
       id: 'news',
@@ -29,32 +30,11 @@ const HomePage = () => {
       color: 'text-rose-400',
       bg: 'bg-rose-400/15',
     },
-    {
-      id: 'portfolio',
-      icon: <TrendingUp className="w-6 h-6" />,
-      color: 'text-cb-accent',
-      bg: 'bg-cb-accent/15',
-    },
-    {
-      id: 'compound',
-      icon: <Calculator className="w-6 h-6" />,
-      color: 'text-cb-positive',
-      bg: 'bg-cb-positive/15',
-    },
-    {
-      id: 'averaging',
-      icon: <Layers className="w-6 h-6" />,
-      color: 'text-violet-400',
-      bg: 'bg-violet-400/15',
-    },
   ];
 
   const toolLabels = [
     { title: t.home.newsTitle, desc: t.home.newsDesc },
     { title: t.home.gurusTitle, desc: t.home.gurusDesc },
-    { title: t.home.portfolioTitle, desc: t.home.portfolioDesc },
-    { title: t.home.compoundTitle, desc: t.home.compoundDesc },
-    { title: t.home.averagingTitle, desc: t.home.averagingDesc },
   ];
 
   const trustItems = [

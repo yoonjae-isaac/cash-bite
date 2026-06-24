@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import type { PageId } from '../domain/i18n/types';
 
-const VALID_PAGES: PageId[] = ['home', 'portfolio', 'compound', 'averaging', 'news', 'gurus', 'macro'];
+// 복리·배당포트폴리오·물타기 비활성 — 라우팅 유효 페이지에서 제외 (딥링크는 home 폴백)
+const VALID_PAGES: PageId[] = ['home', 'news', 'gurus', 'macro'];
 
 function getPageFromHash(): PageId {
   const hash = window.location.hash.replace('#', '') as PageId;
