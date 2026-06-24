@@ -1,4 +1,4 @@
-import { Newspaper, Crown, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb } from 'lucide-react';
+import { Newspaper, Crown, LineChart, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { usePageStore } from '../store/usePageStore';
 import type { PageId } from '../domain/i18n/types';
@@ -16,7 +16,7 @@ const HomePage = () => {
   const t = useLanguageStore((s) => s.t);
   const navigate = usePageStore((s) => s.navigate);
 
-  // 복리·배당포트폴리오·물타기 기능 비활성 — news·gurus 만 노출
+  // 복리·배당포트폴리오·물타기 비활성 — news·gurus·macro 노출
   const tools: Tool[] = [
     {
       id: 'news',
@@ -30,11 +30,18 @@ const HomePage = () => {
       color: 'text-rose-400',
       bg: 'bg-rose-400/15',
     },
+    {
+      id: 'macro',
+      icon: <LineChart className="w-6 h-6" />,
+      color: 'text-amber-400',
+      bg: 'bg-amber-400/15',
+    },
   ];
 
   const toolLabels = [
     { title: t.home.newsTitle, desc: t.home.newsDesc },
     { title: t.home.gurusTitle, desc: t.home.gurusDesc },
+    { title: t.nav.macro, desc: t.macro.subtitle },
   ];
 
   const trustItems = [
