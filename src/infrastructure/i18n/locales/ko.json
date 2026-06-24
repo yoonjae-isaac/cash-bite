@@ -98,7 +98,9 @@
     "loading": "뉴스 불러오는 중...",
     "error": "뉴스 로딩 실패",
     "noNews": "뉴스가 없습니다",
-    "viewAll": "전체 보기"
+    "viewAll": "전체 보기",
+    "digestKr": "국내",
+    "digestUs": "미국"
   },
   "compound": {
     "title": "복리 계산기",

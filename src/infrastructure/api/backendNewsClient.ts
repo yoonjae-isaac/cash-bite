@@ -1,5 +1,5 @@
 import { backendGet } from './backendClient';
-import type { NewsItem } from '../../domain/news/types';
+import type { NewsItem, NewsDigest } from '../../domain/news/types';
 
 /** 백엔드 /news 응답 (libs/news NewsItem) */
 interface BackendNewsItem {
@@ -37,4 +37,9 @@ function normalize(it: BackendNewsItem, index: number): NewsItem {
 export async function fetchMarketNews(market: 'KR' | 'US', limit = 30): Promise<NewsItem[]> {
   const data = await backendGet<BackendNewsItem[]>(`/news?market=${market}&limit=${limit}`);
   return data.map(normalize);
+}
+
+/** 시장별 최신 AI 다이제스트 (아직 생성 전이면 null). */
+export function fetchNewsDigest(market: 'KR' | 'US'): Promise<NewsDigest | null> {
+  return backendGet<NewsDigest | null>(`/news/digest?market=${market}`);
 }

@@ -98,7 +98,9 @@
     "loading": "Loading news...",
     "error": "Failed to load news",
     "noNews": "No news available",
-    "viewAll": "View all"
+    "viewAll": "View all",
+    "digestKr": "Korea",
+    "digestUs": "US"
   },
   "compound": {
     "title": "Compound Interest Calculator",

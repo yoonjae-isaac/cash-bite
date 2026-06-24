@@ -104,6 +104,8 @@ export interface TranslationSchema {
     error: string;
     noNews: string;
     viewAll: string;
+    digestKr: string;
+    digestUs: string;
   };
   compound: {
     title: string;

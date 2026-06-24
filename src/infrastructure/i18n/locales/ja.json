@@ -98,7 +98,9 @@
     "loading": "ニュース読み込み中...",
     "error": "ニュースの取得に失敗しました",
     "noNews": "ニュースがありません",
-    "viewAll": "すべて見る"
+    "viewAll": "すべて見る",
+    "digestKr": "国内",
+    "digestUs": "米国"
   },
   "compound": {
     "title": "複利計算機",
