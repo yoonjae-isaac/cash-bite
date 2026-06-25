@@ -21,6 +21,9 @@
   --cb-accent: #fafafa;
   --cb-accent-hover: #d4d4d8;
   --cb-on-accent: #111113;
+  --cb-point: #5b8def;
+  --cb-point-hover: #7aa4f3;
+  --cb-on-point: #ffffff;
   --cb-positive: #22c55e;
   --cb-negative: #f04452;
   --cb-shadow-elevated: 0 2px 12px -4px rgba(0, 0, 0, 0.4);
@@ -46,6 +49,9 @@
   --cb-accent: #18181b;
   --cb-accent-hover: #3f3f46;
   --cb-on-accent: #ffffff;
+  --cb-point: #2563eb;
+  --cb-point-hover: #1d4ed8;
+  --cb-on-point: #ffffff;
   --cb-positive: #188038;
   --cb-negative: #d93025;
   --cb-shadow-elevated: 0 1px 3px rgba(60, 64, 67, 0.08);
@@ -67,6 +73,9 @@
   --color-cb-positive: var(--cb-positive);
   --color-cb-negative: var(--cb-negative);
   --color-cb-on-accent: var(--cb-on-accent);
+  --color-cb-point: var(--cb-point);
+  --color-cb-point-hover: var(--cb-point-hover);
+  --color-cb-on-point: var(--cb-on-point);
 
   /* 브랜드 워드마크 전용 폰트 — Media Sans(Production Type 유료) 대체 그로테스크체 */
   --font-brand: 'Space Grotesk', 'Pretendard Variable', Pretendard, sans-serif;

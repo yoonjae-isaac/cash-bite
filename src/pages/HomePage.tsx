@@ -71,7 +71,7 @@ const HomePage = () => {
         </p>
         <button
           onClick={() => navigate('gurus')}
-          className="mt-6 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-cb-accent text-cb-on-accent text-sm font-bold hover:bg-cb-accent-hover transition-colors"
+          className="mt-6 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-cb-point text-cb-on-point text-sm font-bold hover:bg-cb-point-hover transition-colors"
         >
           {t.home.heroCta}
           <ArrowRight className="w-4 h-4" />

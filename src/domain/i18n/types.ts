@@ -140,6 +140,7 @@ export interface TranslationSchema {
   quote: {
     sectionLabel: string;
     next: string;
+    prev: string;
     shareHint: string;
   };
   averaging: {

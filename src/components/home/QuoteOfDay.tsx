@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { RefreshCw, Quote } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { investorQuotes } from '../../data/investorQuotes';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import type { Language } from '../../domain/i18n/types';
@@ -9,13 +9,7 @@ function getDailyIndex(): number {
   return daysSinceEpoch % investorQuotes.length;
 }
 
-function getRandomIndex(exclude: number): number {
-  let idx: number;
-  do {
-    idx = Math.floor(Math.random() * investorQuotes.length);
-  } while (idx === exclude);
-  return idx;
-}
+const LEN = investorQuotes.length;
 
 function pickText(lang: Language, ko: string, en: string, ja: string) {
   if (lang === 'ko') return ko;
@@ -35,10 +29,10 @@ const QuoteOfDay = () => {
   const author = pickText(lang, q.authorKo, q.author, q.authorJa);
   const role = pickText(lang, q.roleKo, q.role, q.roleJa);
 
-  const animatedNext = useCallback(() => {
+  const animateBy = useCallback((delta: number) => {
     setVisible(false);
     setTimeout(() => {
-      setIndex((prev) => getRandomIndex(prev));
+      setIndex((prev) => (prev + delta + LEN) % LEN);
       setVisible(true);
     }, 220);
   }, []);
@@ -65,14 +59,24 @@ const QuoteOfDay = () => {
               {t.quote.sectionLabel}
             </span>
           </div>
-          <button
-            onClick={animatedNext}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cb-border text-xs font-semibold text-cb-muted hover:text-cb-accent hover:border-cb-accent/40 transition-all group"
-            aria-label={t.quote.next}
-          >
-            <RefreshCw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
-            {t.quote.next}
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => animateBy(-1)}
+              aria-label={t.quote.prev}
+              title={t.quote.prev}
+              className="p-1.5 rounded-lg border border-cb-border text-cb-muted hover:text-cb-accent hover:border-cb-accent/40 transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => animateBy(1)}
+              aria-label={t.quote.next}
+              title={t.quote.next}
+              className="p-1.5 rounded-lg border border-cb-border text-cb-muted hover:text-cb-accent hover:border-cb-accent/40 transition-colors"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Quote */}

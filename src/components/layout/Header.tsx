@@ -62,7 +62,7 @@ const Header = () => {
               decoding="async"
             />
           </div>
-          <h1 className="text-lg font-brand font-bold tracking-tight text-cb-foreground hidden sm:block leading-none">
+          <h1 className="text-lg font-brand font-bold tracking-tight text-cb-point hidden sm:block leading-none">
             AntsUp
           </h1>
         </button>

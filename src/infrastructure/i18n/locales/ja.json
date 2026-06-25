@@ -135,6 +135,7 @@
   "quote": {
     "sectionLabel": "今日の投資格言",
     "next": "次の格言",
+    "prev": "前の格言",
     "shareHint": "気に入りましたか？保存しておきましょう"
   },
   "averaging": {

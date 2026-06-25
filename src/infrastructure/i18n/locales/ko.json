@@ -135,6 +135,7 @@
   "quote": {
     "sectionLabel": "오늘의 투자 명언",
     "next": "다음 명언",
+    "prev": "이전 명언",
     "shareHint": "마음에 드셨나요? 저장해두세요"
   },
   "averaging": {

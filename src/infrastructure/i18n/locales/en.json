@@ -135,6 +135,7 @@
   "quote": {
     "sectionLabel": "Investor Quote of the Day",
     "next": "Next Quote",
+    "prev": "Previous Quote",
     "shareHint": "Like it? Save it for later"
   },
   "averaging": {
