@@ -24,7 +24,8 @@ function normalize(it: BackendNewsItem, index: number): NewsItem {
     summary: it.summary ?? '',
     source: it.publisher ?? it.source,
     url: it.url,
-    datetime: Number.isNaN(ts) ? Math.floor(Date.now() / 1000) : Math.floor(ts / 1000),
+    // 파싱 실패 시 0(=미상) — 가짜 현재시각으로 채우면 "전부 방금 전"으로 오인되므로 폴백 금지.
+    datetime: Number.isNaN(ts) ? 0 : Math.floor(ts / 1000),
     image: it.image ?? '',
     category: it.market,
   };

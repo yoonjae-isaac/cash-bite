@@ -19,6 +19,16 @@ function relativeTime(unixSeconds: number, locale: string): string {
   return rtf.format(-diffDay, 'day');
 }
 
+// 실제 발행시각(월.일 시:분) — Naver 최신순이라 상대시각만으론 "전부 N분 전"으로 뭉쳐 보임.
+function absoluteTime(unixSeconds: number, locale: string): string {
+  return new Date(unixSeconds * 1000).toLocaleString(locale, {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 // Skeleton card for loading state
 const SkeletonCard = () => (
   <div className="glass-panel p-4 flex flex-col gap-2 animate-pulse">
@@ -51,8 +61,11 @@ const NewsCard = ({ item, translation, locale }: NewsCardProps) => (
         <span className="text-[10px] font-bold uppercase tracking-wider text-cb-accent bg-cb-accent/10 px-1.5 py-0.5 rounded">
           {item.source}
         </span>
-        <span className="text-[10px] text-cb-muted/60 shrink-0">
-          {relativeTime(item.datetime, locale)}
+        <span
+          className="text-[10px] text-cb-muted/60 shrink-0 tabular-nums"
+          title={item.datetime ? relativeTime(item.datetime, locale) : undefined}
+        >
+          {item.datetime ? absoluteTime(item.datetime, locale) : '—'}
         </span>
       </div>
 

@@ -41,6 +41,7 @@ const ExchangeRateBar = () => {
 
   const bySymbol = Object.fromEntries(indices.map((q) => [q.symbol, q]));
   const busy = isLoading || indicesLoading;
+  const loadingIndices = indicesLoading && indices.length === 0; // 최초 로딩(데이터 없음+요청중)
 
   return (
     <div className="sticky top-[52px] z-40 w-full border-b border-[var(--cb-border-subtle)] bg-[color-mix(in_srgb,var(--cb-bg)_94%,transparent)] backdrop-blur-md">
@@ -110,6 +111,8 @@ const ExchangeRateBar = () => {
                         {q.changePercent.toFixed(2)}%
                       </span>
                     </>
+                  ) : loadingIndices ? (
+                    <span className="inline-block w-12 h-3 rounded bg-cb-muted/20 animate-pulse" aria-hidden />
                   ) : (
                     <span className="text-sm font-mono text-cb-muted/50">—</span>
                   )}

@@ -60,6 +60,23 @@ const HomePage = () => {
   return (
     <div className="flex flex-col gap-16 pb-8">
 
+      {/* ── Hero (정체성 먼저) ───────────────────────────── */}
+      <section className="text-center pt-2 md:pt-6">
+        <h2 className="text-3xl md:text-5xl font-brand font-extrabold tracking-tight text-cb-foreground leading-tight">
+          {t.home.heroTitle}
+        </h2>
+        <p className="mt-4 max-w-2xl mx-auto text-cb-muted text-base md:text-lg leading-relaxed">
+          {t.home.heroSubtitle}
+        </p>
+        <button
+          onClick={() => navigate('gurus')}
+          className="mt-6 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-cb-accent text-cb-on-accent text-sm font-bold hover:bg-cb-accent-hover transition-colors"
+        >
+          {t.home.heroCta}
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </section>
+
       {/* ── Market News Preview ──────────────────────────── */}
       <MarketNewsPreview />
 
