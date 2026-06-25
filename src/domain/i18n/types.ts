@@ -1,7 +1,15 @@
 
 export type Language = 'ko' | 'en' | 'ja';
 
-export type PageId = 'home' | 'portfolio' | 'compound' | 'averaging' | 'news' | 'gurus' | 'macro';
+export type PageId =
+  | 'home'
+  | 'portfolio'
+  | 'compound'
+  | 'averaging'
+  | 'news'
+  | 'gurus'
+  | 'macro'
+  | 'persona';
 
 export interface TranslationSchema {
   common: {
@@ -19,6 +27,7 @@ export interface TranslationSchema {
     news: string;
     gurus: string;
     macro: string;
+    persona: string;
   };
   sidebar: {
     myInvestTitle: string;
@@ -113,6 +122,16 @@ export interface TranslationSchema {
     yoy: string;
     mom: string;
     drip: string;
+  };
+  persona: {
+    title: string;
+    subtitle: string;
+    intro: string;
+    start: string;
+    resultTitle: string;
+    matchedGurus: string;
+    viewGurus: string;
+    restart: string;
   };
   compound: {
     title: string;

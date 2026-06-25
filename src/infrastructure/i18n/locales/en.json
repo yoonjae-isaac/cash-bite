@@ -13,7 +13,18 @@
     "averaging": "Avg. Calculator",
     "news": "Market News",
     "gurus": "Guru Portfolios",
-    "macro": "Macro"
+    "macro": "Macro",
+    "persona": "Investor Style"
+  },
+  "persona": {
+    "title": "Investor Style Quiz",
+    "subtitle": "Find your investing style in 4 questions + matching gurus",
+    "intro": "Answer 4 quick questions to discover your investing style and the legendary investors who match it.",
+    "start": "Start",
+    "resultTitle": "Your investor style",
+    "matchedGurus": "Gurus like you",
+    "viewGurus": "View guru portfolios",
+    "restart": "Retake"
   },
   "sidebar": {
     "myInvestTitle": "My Investments",

@@ -13,7 +13,18 @@
     "averaging": "물타기/불타기",
     "news": "시장 뉴스",
     "gurus": "대가의 포트폴리오",
-    "macro": "거시지표"
+    "macro": "거시지표",
+    "persona": "투자 성향"
+  },
+  "persona": {
+    "title": "투자 성향 진단",
+    "subtitle": "4문항으로 알아보는 나의 투자 성향 + 닮은 거장",
+    "intro": "간단한 4가지 질문으로 당신의 투자 성향을 진단하고, 비슷한 투자 거장을 추천해 드려요.",
+    "start": "진단 시작",
+    "resultTitle": "당신의 투자 성향",
+    "matchedGurus": "닮은 투자 거장",
+    "viewGurus": "거장 포트폴리오 보기",
+    "restart": "다시 진단"
   },
   "sidebar": {
     "myInvestTitle": "내 투자",

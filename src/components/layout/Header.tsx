@@ -1,4 +1,4 @@
-import { Home, Newspaper, Crown, LineChart, Menu, X } from 'lucide-react';
+import { Home, Newspaper, Crown, Compass, LineChart, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '../../presentation/components/i18n/LanguageSwitcher';
 import ThemeToggle from '../../presentation/components/theme/ThemeToggle';
@@ -18,6 +18,7 @@ const Header = () => {
     { id: 'home', icon: <Home className="w-4 h-4" /> },
     { id: 'news', icon: <Newspaper className="w-4 h-4" /> },
     { id: 'gurus', icon: <Crown className="w-4 h-4" /> },
+    { id: 'persona', icon: <Compass className="w-4 h-4" /> },
     { id: 'macro', icon: <LineChart className="w-4 h-4" /> },
   ];
 
@@ -32,6 +33,7 @@ const Header = () => {
     news: t.nav.news,
     gurus: t.nav.gurus,
     macro: t.nav.macro,
+    persona: t.nav.persona,
   };
 
   const handleNav = (id: PageId) => {
