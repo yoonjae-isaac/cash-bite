@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react';
-import { Loader2, Sparkles, ArrowRight } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { usePageStore } from '../../store/usePageStore';
 import { fetchNewsDigest } from '../../infrastructure/api/backendNewsClient';
 import type { NewsDigest } from '../../domain/news/types';
+import Skeleton from '../ui/Skeleton';
+import ErrorRetry from '../ui/ErrorRetry';
 
 /**
  * 홈 시장 요약 — 국내(KR)·미국(US) 일별 AI 다이제스트(summary)를 두 섹션으로 노출.
- * 데이터: 백엔드 GET /news/digest (크론이 KST 15:30/06:00 생성). 아직 없으면 섹션별 안내.
+ * 데이터: 백엔드 GET /news/digest (크론이 KST 15:30/06:00 생성). 미생성=섹션별 안내, 로딩 실패=재시도.
  */
 const MarketNewsPreview = () => {
   const t = useLanguageStore((s) => s.t);
@@ -15,25 +17,28 @@ const MarketNewsPreview = () => {
   const [kr, setKr] = useState<NewsDigest | null>(null);
   const [us, setUs] = useState<NewsDigest | null>(null);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+
+  // 동기 setState를 두지 않음(effect 내 직접 setState 회피) — 초기 상태가 이미 loading=true.
+  const load = useCallback(() => {
+    Promise.allSettled([fetchNewsDigest('KR'), fetchNewsDigest('US')]).then((rs) => {
+      setKr(rs[0].status === 'fulfilled' ? rs[0].value : null);
+      setUs(rs[1].status === 'fulfilled' ? rs[1].value : null);
+      setFailed(rs.some((r) => r.status === 'rejected'));
+      setLoading(false);
+    });
+  }, []);
 
   useEffect(() => {
-    let alive = true;
-    Promise.all([
-      fetchNewsDigest('KR').catch(() => null),
-      fetchNewsDigest('US').catch(() => null),
-    ])
-      .then(([k, u]) => {
-        if (!alive) return;
-        setKr(k);
-        setUs(u);
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
+    load();
+  }, [load]);
+
+  // 재시도(사용자 이벤트) — 여기서 로딩 상태를 되돌린다.
+  const retry = () => {
+    setLoading(true);
+    setFailed(false);
+    load();
+  };
 
   const sections: { label: string; digest: NewsDigest | null }[] = [
     { label: t.marketNews.digestKr, digest: kr },
@@ -57,10 +62,22 @@ const MarketNewsPreview = () => {
       </div>
 
       {loading ? (
-        <div className="flex items-center gap-2 text-cb-muted text-sm">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span>{t.marketNews.loading}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[0, 1].map((i) => (
+            <div key={i} className="glass-panel p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-2.5 w-16" />
+              </div>
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-4/5" />
+              <Skeleton className="h-3 w-2/3" />
+            </div>
+          ))}
         </div>
+      ) : failed && !kr && !us ? (
+        <ErrorRetry message={t.marketNews.error} retryLabel={t.news.retry} onRetry={retry} />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {sections.map(({ label, digest }) => (

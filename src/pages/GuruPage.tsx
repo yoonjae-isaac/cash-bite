@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Crown, ExternalLink, RotateCcw, User, BarChart3 } from 'lucide-react';
+import { Crown, ExternalLink, User, BarChart3 } from 'lucide-react';
 import { useGuruStore } from '../application/guru/useGuruStore';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import type { GuruPortfolio } from '../domain/guru/types';
@@ -10,6 +10,9 @@ import PortfolioChanges from '../components/guru/PortfolioChanges';
 import HoldingsTable from '../components/guru/HoldingsTable';
 import GuruExits from '../components/guru/GuruExits';
 import GuruStats from '../components/guru/GuruStats';
+import Skeleton from '../components/ui/Skeleton';
+import EmptyState from '../components/ui/EmptyState';
+import ErrorRetry from '../components/ui/ErrorRetry';
 
 type Tab = 'portfolio' | 'stats';
 
@@ -17,14 +20,20 @@ const secFilingUrl = (portfolio: GuruPortfolio): string =>
   `https://www.sec.gov/Archives/edgar/data/${Number(portfolio.cik)}/${portfolio.accessionNumber.replace(/-/g, '')}`;
 
 const LoadingSkeleton = () => (
-  <div className="space-y-4 animate-pulse" aria-hidden>
+  <div className="space-y-4">
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="glass-panel rounded-xl h-24" />
+        <div key={i} className="glass-panel rounded-xl p-4 space-y-2">
+          <Skeleton className="h-3 w-16" />
+          <Skeleton className="h-6 w-24" />
+        </div>
       ))}
     </div>
-    <div className="glass-panel rounded-xl h-64" />
-    <div className="glass-panel rounded-xl h-96" />
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <Skeleton className="h-64 rounded-xl" />
+      <Skeleton className="h-64 rounded-xl" />
+    </div>
+    <Skeleton className="h-96 rounded-xl" />
   </div>
 );
 
@@ -41,16 +50,7 @@ const PortfolioView = () => {
       <InvestorPicker />
 
       {error && (
-        <div className="glass-panel rounded-xl p-8 text-center">
-          <p className="text-cb-negative mb-4">{t.gurus.error}</p>
-          <button
-            onClick={() => init()}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cb-accent text-cb-on-accent text-sm font-semibold hover:bg-cb-accent-hover transition-colors"
-          >
-            <RotateCcw className="w-4 h-4" />
-            {t.gurus.retry}
-          </button>
-        </div>
+        <ErrorRetry message={t.gurus.error} retryLabel={t.gurus.retry} onRetry={() => init()} />
       )}
 
       {!error && isLoading && !portfolio && <LoadingSkeleton />}
@@ -60,9 +60,7 @@ const PortfolioView = () => {
           <div className="space-y-4">
             <GuruSummary portfolio={portfolio} />
             {portfolio.holdings.length === 0 ? (
-              <div className="glass-panel rounded-xl p-8 text-center text-cb-muted">
-                {t.gurus.noData}
-              </div>
+              <EmptyState message={t.gurus.noData} />
             ) : (
               <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
