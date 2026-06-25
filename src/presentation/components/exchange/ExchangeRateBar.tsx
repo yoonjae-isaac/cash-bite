@@ -4,7 +4,7 @@ import { usePortfolioStore } from '../../../store/usePortfolioStore';
 import { useIndicesStore } from '../../../application/market/useIndicesStore';
 import { trackEvent } from '../../../infrastructure/analytics/ga';
 
-/** 환율 바에 노출할 지수 — 표시 순서 + 국기/코드(통화코드처럼 하드코딩, FX 아이템과 동일 컨벤션). */
+/** 지수 행에 노출할 항목 — 국기·코드(통화코드처럼 하드코딩, FX 아이템과 동일 컨벤션). */
 const INDEX_META: { symbol: string; flag: string; code: string }[] = [
   { symbol: '^IXIC', flag: '🇺🇸', code: 'NASDAQ' },
   { symbol: '^DJI', flag: '🇺🇸', code: 'DOW' },
@@ -43,59 +43,29 @@ const ExchangeRateBar = () => {
   const busy = isLoading || indicesLoading;
   const loadingIndices = indicesLoading && indices.length === 0; // 최초 로딩(데이터 없음+요청중)
 
+  const refresh = () => {
+    trackEvent('exchange_rate_refresh', { source: 'bar' });
+    fetchExchangeRate(true);
+    fetchIndices(true);
+  };
+
   return (
     <div className="sticky top-[52px] z-40 w-full border-b border-[var(--cb-border-subtle)] bg-[color-mix(in_srgb,var(--cb-bg)_94%,transparent)] backdrop-blur-md">
-      <div className="w-full px-4 md:px-6 h-10 flex items-center gap-4">
-
-        {/* Label */}
+      {/* Row 1: 지수 (IDX) */}
+      <div className="w-full px-4 md:px-6 h-10 flex items-center gap-4 border-b border-[var(--cb-border-subtle)]">
         <span className="flex items-center gap-1.5 shrink-0 text-[11px] font-bold text-cb-muted uppercase tracking-wider">
-          <TrendingUp className="w-3 h-3 text-cb-accent" />
-          FX
+          <BarChart3 className="w-3 h-3 text-cb-accent" />
+          IDX
         </span>
-
         <div className="w-px h-4 bg-[var(--cb-border-strong)] shrink-0" />
 
-        {/* Rate + index items (한 줄, 모바일 가로 스크롤) */}
         <div className="flex items-center gap-4 min-w-0 overflow-x-auto scrollbar-none">
-          <span className="flex items-center gap-1.5 shrink-0">
-            <span className="text-sm">🇺🇸</span>
-            <span className="text-xs font-semibold text-cb-muted">USD</span>
-            <span className="text-sm font-bold font-mono text-cb-accent">$1.00</span>
-          </span>
-
-          <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />
-
-          <span className="flex items-center gap-1.5 shrink-0">
-            <span className="text-sm">🇰🇷</span>
-            <span className="text-xs font-semibold text-cb-muted">KRW</span>
-            <span className="text-sm font-bold font-mono text-cb-foreground">
-              ₩{krwRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </span>
-
-          <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />
-
-          <span className="flex items-center gap-1.5 shrink-0">
-            <span className="text-sm">🇯🇵</span>
-            <span className="text-xs font-semibold text-cb-muted">JPY</span>
-            <span className="text-sm font-bold font-mono text-cb-foreground">
-              ¥{jpyRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </span>
-
-          {/* Indices */}
-          <div className="w-px h-4 bg-[var(--cb-border-strong)] shrink-0" />
-          <span className="flex items-center gap-1.5 shrink-0 text-[11px] font-bold text-cb-muted uppercase tracking-wider">
-            <BarChart3 className="w-3 h-3 text-cb-accent" />
-            IDX
-          </span>
-
-          {INDEX_META.map((meta) => {
+          {INDEX_META.map((meta, i) => {
             const q = bySymbol[meta.symbol];
             const up = (q?.changePercent ?? 0) >= 0;
             return (
               <Fragment key={meta.symbol}>
-                <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />
+                {i > 0 && <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />}
                 <span className="flex items-center gap-1.5 shrink-0">
                   <span className="text-sm">{meta.flag}</span>
                   <span className="text-xs font-semibold text-cb-muted">{meta.code}</span>
@@ -122,26 +92,63 @@ const ExchangeRateBar = () => {
           })}
         </div>
 
-        {/* Right: time + refresh */}
-        <div className="flex items-center gap-2 ml-auto shrink-0">
-          {ratesLastFetched && (
-            <span className="hidden sm:flex items-center gap-1 text-[10px] text-cb-muted/50">
-              <Clock className="w-2.5 h-2.5" />
-              {relativeTime(ratesLastFetched)}
-            </span>
-          )}
+        {/* 새로고침 (환율·지수 동시 갱신) */}
+        <div className="flex items-center ml-auto shrink-0">
           <button
-            onClick={() => {
-              trackEvent('exchange_rate_refresh', { source: 'bar' });
-              fetchExchangeRate(true);
-              fetchIndices(true);
-            }}
+            onClick={refresh}
             disabled={busy}
             className="p-1 rounded text-cb-muted hover:text-cb-accent hover:bg-[var(--cb-hover)] transition-colors disabled:opacity-40"
             title="새로고침"
           >
             <RefreshCcw className={`w-3 h-3 ${busy ? 'animate-spin' : ''}`} />
           </button>
+        </div>
+      </div>
+
+      {/* Row 2: 환율 (FX) */}
+      <div className="w-full px-4 md:px-6 h-10 flex items-center gap-4">
+        <span className="flex items-center gap-1.5 shrink-0 text-[11px] font-bold text-cb-muted uppercase tracking-wider">
+          <TrendingUp className="w-3 h-3 text-cb-accent" />
+          FX
+        </span>
+        <div className="w-px h-4 bg-[var(--cb-border-strong)] shrink-0" />
+
+        <div className="flex items-center gap-4 min-w-0 overflow-x-auto scrollbar-none">
+          <span className="flex items-center gap-1.5 shrink-0">
+            <span className="text-sm">🇺🇸</span>
+            <span className="text-xs font-semibold text-cb-muted">USD</span>
+            <span className="text-sm font-bold font-mono text-cb-accent">$1.00</span>
+          </span>
+
+          <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />
+
+          <span className="flex items-center gap-1.5 shrink-0">
+            <span className="text-sm">🇰🇷</span>
+            <span className="text-xs font-semibold text-cb-muted">KRW</span>
+            <span className="text-sm font-bold font-mono text-cb-foreground">
+              ₩{krwRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </span>
+
+          <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />
+
+          <span className="flex items-center gap-1.5 shrink-0">
+            <span className="text-sm">🇯🇵</span>
+            <span className="text-xs font-semibold text-cb-muted">JPY</span>
+            <span className="text-sm font-bold font-mono text-cb-foreground">
+              ¥{jpyRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </span>
+        </div>
+
+        {/* 갱신 시각 (환율 기준) */}
+        <div className="flex items-center ml-auto shrink-0">
+          {ratesLastFetched && (
+            <span className="hidden sm:flex items-center gap-1 text-[10px] text-cb-muted/50">
+              <Clock className="w-2.5 h-2.5" />
+              {relativeTime(ratesLastFetched)}
+            </span>
+          )}
         </div>
       </div>
     </div>
