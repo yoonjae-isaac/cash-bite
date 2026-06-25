@@ -11,8 +11,9 @@ const PutCallBadge = ({ putCall }: { putCall: 'Put' | 'Call' }) => {
   const isPut = putCall === 'Put';
   return (
     <span
+      title={t.glossary.putCall}
       className={[
-        'ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold align-middle',
+        'ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold align-middle cursor-help',
         isPut ? 'bg-cb-negative/15 text-cb-negative' : 'bg-cb-positive/15 text-cb-positive',
       ].join(' ')}
     >

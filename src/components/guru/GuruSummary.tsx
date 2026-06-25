@@ -1,18 +1,22 @@
+import type { ReactNode } from 'react';
 import { Briefcase, CalendarDays, FileText, Wallet } from 'lucide-react';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { toQuarterLabel, type GuruPortfolio } from '../../domain/guru/types';
 import { formatUsd13F } from '../../domain/guru/format';
+import InfoHint from '../ui/InfoHint';
 
 const GuruSummary = ({ portfolio }: { portfolio: GuruPortfolio }) => {
   const t = useLanguageStore((s) => s.t);
 
-  const cards = [
-    {
-      icon: <Wallet className="w-4 h-4" />,
-      label: t.gurus.totalValue,
-      value: formatUsd13F(portfolio.totalValue),
-      accent: true,
-    },
+  const cards: { icon: ReactNode; label: string; value: string; accent: boolean; hint?: string }[] =
+    [
+      {
+        icon: <Wallet className="w-4 h-4" />,
+        label: t.gurus.totalValue,
+        value: formatUsd13F(portfolio.totalValue),
+        accent: true,
+        hint: t.glossary.thirteenF,
+      },
     {
       icon: <Briefcase className="w-4 h-4" />,
       label: t.gurus.positions,
@@ -40,6 +44,7 @@ const GuruSummary = ({ portfolio }: { portfolio: GuruPortfolio }) => {
           <div className="flex items-center gap-1.5 text-cb-muted text-xs font-medium mb-1.5">
             {card.icon}
             {card.label}
+            {card.hint && <InfoHint label={card.label} content={card.hint} />}
           </div>
           <p
             className={[

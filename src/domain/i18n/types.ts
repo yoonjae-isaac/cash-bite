@@ -107,6 +107,13 @@ export interface TranslationSchema {
     digestKr: string;
     digestUs: string;
   };
+  glossary: {
+    thirteenF: string;
+    putCall: string;
+    yoy: string;
+    mom: string;
+    drip: string;
+  };
   compound: {
     title: string;
     subtitle: string;

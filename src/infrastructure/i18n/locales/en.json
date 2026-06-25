@@ -102,6 +102,13 @@
     "digestKr": "Korea",
     "digestUs": "US"
   },
+  "glossary": {
+    "thirteenF": "A quarterly disclosure the US SEC requires from large managers (>$100M AUM). Filed up to 45 days after quarter-end, it shows only long positions in US-listed stocks.",
+    "putCall": "Put/Call are options. Put = right to sell at a set price; Call = right to buy. Most guru portfolios are plain long stock; options are a small part.",
+    "yoy": "Year-over-year — change vs. the same month last year, removing seasonality.",
+    "mom": "Month-over-month — change vs. the previous month (short-term momentum).",
+    "drip": "Dividend Reinvestment Plan: automatically using dividends to buy more shares, compounding your returns."
+  },
   "compound": {
     "title": "Compound Interest Calculator",
     "subtitle": "See how time and consistency build lasting wealth",

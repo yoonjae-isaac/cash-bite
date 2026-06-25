@@ -4,6 +4,7 @@ import { usePageStore } from '../store/usePageStore';
 import type { PageId } from '../domain/i18n/types';
 import QuoteOfDay from '../components/home/QuoteOfDay';
 import MarketNewsPreview from '../components/news/MarketNewsPreview';
+import InfoHint from '../components/ui/InfoHint';
 
 type Tool = {
   id: PageId;
@@ -52,9 +53,9 @@ const HomePage = () => {
   ];
 
   const tips = [
-    { title: t.home.tip1Title, desc: t.home.tip1Desc },
-    { title: t.home.tip2Title, desc: t.home.tip2Desc },
-    { title: t.home.tip3Title, desc: t.home.tip3Desc },
+    { title: t.home.tip1Title, desc: t.home.tip1Desc, hint: t.glossary.drip },
+    { title: t.home.tip2Title, desc: t.home.tip2Desc, hint: undefined },
+    { title: t.home.tip3Title, desc: t.home.tip3Desc, hint: t.glossary.thirteenF },
   ];
 
   return (
@@ -142,7 +143,10 @@ const HomePage = () => {
                 <div className="w-7 h-7 rounded-full bg-cb-accent/20 text-cb-accent flex items-center justify-center text-xs font-black">
                   {i + 1}
                 </div>
-                <h4 className="font-bold text-cb-foreground text-sm">{tip.title}</h4>
+                <h4 className="font-bold text-cb-foreground text-sm flex items-center gap-1">
+                  {tip.title}
+                  {tip.hint && <InfoHint label={tip.title} content={tip.hint} />}
+                </h4>
               </div>
               <p className="text-sm text-cb-muted leading-relaxed">{tip.desc}</p>
             </div>

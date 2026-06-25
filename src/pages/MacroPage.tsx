@@ -8,6 +8,7 @@ import MacroPicker from '../components/macro/MacroPicker';
 import MacroLineChart from '../components/macro/MacroLineChart';
 import Skeleton from '../components/ui/Skeleton';
 import ErrorRetry from '../components/ui/ErrorRetry';
+import InfoHint from '../components/ui/InfoHint';
 
 const RANGES: MacroRange[] = ['1y', '3y', '5y', 'all'];
 
@@ -49,13 +50,19 @@ const SummaryCards = ({ data }: { data: MacroSeriesData }) => {
         <p className="text-[11px] text-cb-muted mt-0.5">{meta.latestDate ?? '–'}</p>
       </div>
       <div className="glass-panel rounded-xl p-4">
-        <p className="text-xs text-cb-muted mb-1">{t.macro.yoy}</p>
+        <p className="text-xs text-cb-muted mb-1 inline-flex items-center gap-1">
+          {t.macro.yoy}
+          <InfoHint label={t.macro.yoy} content={t.glossary.yoy} />
+        </p>
         <p className={`text-xl md:text-2xl font-bold tabular-nums ${changeColorClass(meta.yoyChange)}`}>
           {formatChange(meta.yoyChange)}
         </p>
       </div>
       <div className="glass-panel rounded-xl p-4">
-        <p className="text-xs text-cb-muted mb-1">{t.macro.mom}</p>
+        <p className="text-xs text-cb-muted mb-1 inline-flex items-center gap-1">
+          {t.macro.mom}
+          <InfoHint label={t.macro.mom} content={t.glossary.mom} />
+        </p>
         <p className={`text-xl md:text-2xl font-bold tabular-nums ${changeColorClass(meta.momChange)}`}>
           {formatChange(meta.momChange)}
         </p>
