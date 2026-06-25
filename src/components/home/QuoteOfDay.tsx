@@ -119,20 +119,12 @@ const QuoteOfDay = () => {
         </div>
       </div>
 
-      {/* Bottom progress dots */}
-      <div className="relative z-10 flex justify-center gap-1 mt-6" aria-hidden>
-        {Array.from({ length: Math.min(investorQuotes.length, 8) }).map((_, i) => {
-          const segSize = Math.ceil(investorQuotes.length / 8);
-          const active = Math.floor(index / segSize) === i;
-          return (
-            <span
-              key={i}
-              className={`rounded-full transition-all duration-300 ${
-                active ? 'w-5 h-1.5 bg-cb-accent' : 'w-1.5 h-1.5 bg-cb-muted/30'
-              }`}
-            />
-          );
-        })}
+      {/* Bottom progress bar — 현재 위치((index+1)/전체) 비례, 이전/다음마다 이동 */}
+      <div className="relative z-10 mt-6 h-1 rounded-full bg-cb-muted/15 overflow-hidden" aria-hidden>
+        <div
+          className="h-full rounded-full bg-cb-accent transition-all duration-300"
+          style={{ width: `${((index + 1) / LEN) * 100}%` }}
+        />
       </div>
     </section>
   );
