@@ -70,7 +70,7 @@ const HomePage = () => {
 
       {/* ── Hero (정체성 먼저) ───────────────────────────── */}
       <section className="text-center pt-2 md:pt-6">
-        <h2 className="text-3xl md:text-5xl font-brand font-extrabold tracking-tight text-cb-foreground leading-tight">
+        <h2 className="text-3xl md:text-4xl font-brand font-extrabold tracking-tight text-cb-foreground leading-snug whitespace-pre-line">
           {t.home.heroTitle}
         </h2>
         <p className="mt-4 max-w-2xl mx-auto text-cb-muted text-base md:text-lg leading-relaxed">
