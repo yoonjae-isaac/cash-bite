@@ -9,7 +9,8 @@ export type PageId =
   | 'news'
   | 'gurus'
   | 'macro'
-  | 'persona';
+  | 'persona'
+  | 'stock';
 
 export interface TranslationSchema {
   common: {
@@ -28,6 +29,7 @@ export interface TranslationSchema {
     gurus: string;
     macro: string;
     persona: string;
+    stock: string;
   };
   sidebar: {
     myInvestTitle: string;
@@ -122,6 +124,48 @@ export interface TranslationSchema {
     yoy: string;
     mom: string;
     drip: string;
+    per: string;
+    pbr: string;
+  };
+  stock: {
+    title: string;
+    subtitle: string;
+    searchPlaceholder: string;
+    search: string;
+    examples: string;
+    loading: string;
+    error: string;
+    retry: string;
+    empty: string;
+    annual: string;
+    quarterly: string;
+    valuationTitle: string;
+    derivedNote: string;
+    per: string;
+    forwardPer: string;
+    pbr: string;
+    bps: string;
+    eps: string;
+    psr: string;
+    peg: string;
+    dividendYield: string;
+    marketCap: string;
+    price: string;
+    incomeTitle: string;
+    revenue: string;
+    operatingIncome: string;
+    netIncome: string;
+    balanceTitle: string;
+    totalAssets: string;
+    totalLiabilities: string;
+    equity: string;
+    cashflowTitle: string;
+    cfOperating: string;
+    cfInvesting: string;
+    cfFinancing: string;
+    freeCashFlow: string;
+    periodColumn: string;
+    noTableData: string;
   };
   persona: {
     title: string;

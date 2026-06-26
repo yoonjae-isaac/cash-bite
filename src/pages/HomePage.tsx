@@ -1,4 +1,4 @@
-import { Newspaper, Crown, LineChart, Compass, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb } from 'lucide-react';
+import { Newspaper, Crown, LineChart, Compass, BarChart3, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { usePageStore } from '../store/usePageStore';
 import type { PageId } from '../domain/i18n/types';
@@ -32,6 +32,12 @@ const HomePage = () => {
       bg: 'bg-rose-400/15',
     },
     {
+      id: 'stock',
+      icon: <BarChart3 className="w-6 h-6" />,
+      color: 'text-emerald-400',
+      bg: 'bg-emerald-400/15',
+    },
+    {
       id: 'macro',
       icon: <LineChart className="w-6 h-6" />,
       color: 'text-amber-400',
@@ -48,6 +54,7 @@ const HomePage = () => {
   const toolLabels = [
     { title: t.home.newsTitle, desc: t.home.newsDesc },
     { title: t.home.gurusTitle, desc: t.home.gurusDesc },
+    { title: t.nav.stock, desc: t.stock.subtitle },
     { title: t.nav.macro, desc: t.macro.subtitle },
     { title: t.nav.persona, desc: t.persona.subtitle },
   ];

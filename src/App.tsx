@@ -12,6 +12,7 @@ import { trackPageView } from './infrastructure/analytics/ga';
 import HomePage from './pages/HomePage';
 import NewsPage from './pages/NewsPage';
 import PersonaPage from './pages/PersonaPage';
+import StockPage from './pages/StockPage';
 
 // 차트(recharts) 사용 페이지는 lazy 로드 → 초기 번들에서 분리
 const GuruPage = lazy(() => import('./pages/GuruPage'));
@@ -56,6 +57,7 @@ function App() {
         {page === 'home' && <HomePage />}
         {page === 'news' && <NewsPage />}
         {page === 'persona' && <PersonaPage />}
+        {page === 'stock' && <StockPage />}
         <Suspense fallback={<div className="h-96 rounded-xl glass-panel animate-pulse" aria-hidden />}>
           {page === 'gurus' && <GuruPage />}
           {page === 'macro' && <MacroPage />}
