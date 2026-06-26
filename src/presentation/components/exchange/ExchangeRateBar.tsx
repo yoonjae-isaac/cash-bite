@@ -52,7 +52,7 @@ const ExchangeRateBar = () => {
   return (
     <div className="sticky top-[52px] z-40 w-full border-b border-[var(--cb-border-subtle)] bg-[color-mix(in_srgb,var(--cb-bg)_94%,transparent)] backdrop-blur-md">
       {/* Row 1: 지수 (IDX) */}
-      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 h-10 flex items-center gap-4 border-b border-[var(--cb-border-subtle)]">
+      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 h-10 flex items-center gap-4 border-b border-[var(--cb-border-subtle)]">
         <span className="flex items-center gap-1.5 shrink-0 text-[11px] font-bold text-cb-muted uppercase tracking-wider">
           <BarChart3 className="w-3 h-3 text-cb-accent" />
           IDX
@@ -106,7 +106,7 @@ const ExchangeRateBar = () => {
       </div>
 
       {/* Row 2: 환율 (FX) */}
-      <div className="w-full max-w-[1600px] mx-auto px-4 md:px-6 h-10 flex items-center gap-4">
+      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 h-10 flex items-center gap-4">
         <span className="flex items-center gap-1.5 shrink-0 text-[11px] font-bold text-cb-muted uppercase tracking-wider">
           <TrendingUp className="w-3 h-3 text-cb-accent" />
           FX

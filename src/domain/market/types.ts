@@ -1,3 +1,11 @@
+/** 종목 자동완성용 심볼 — src/data/stockSymbols.*.json 형식. */
+export interface StockSymbol {
+  code: string; // 6자리(또는 특수코드) 문자열. 앞 0 유지.
+  nameKo: string; // 한글 종목명 (검색 핵심)
+  nameEn?: string; // 영문명 (선택)
+  market: string; // 'KOSPI' | 'KOSDAQ' | 'US'
+}
+
 // 주요 지수 시세 — cash-bite-backend `GET /market/indices` 응답 타입 (libs/market IndexQuote)
 export interface IndexQuote {
   symbol: string; // Yahoo 심볼 (^IXIC 등)

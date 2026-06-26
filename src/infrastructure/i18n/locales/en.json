@@ -148,7 +148,7 @@
     "subtitle": "Financial statements and key valuation metrics by ticker",
     "searchPlaceholder": "Enter ticker (e.g. AAPL, 005930.KS)",
     "search": "Search",
-    "examples": "Examples: AAPL · MSFT · 005930.KS (Samsung) · 035720.KQ (Kakao)",
+    "examples": "Currently NASDAQ & KOSPI only. e.g. Samsung · 005930 · Apple · AAPL",
     "loading": "Loading financial data...",
     "error": "Failed to load financial data. Check the ticker or try again shortly.",
     "retry": "Retry",

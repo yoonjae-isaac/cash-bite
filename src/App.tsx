@@ -12,11 +12,11 @@ import { trackPageView } from './infrastructure/analytics/ga';
 import HomePage from './pages/HomePage';
 import NewsPage from './pages/NewsPage';
 import PersonaPage from './pages/PersonaPage';
-import StockPage from './pages/StockPage';
 
-// 차트(recharts) 사용 페이지는 lazy 로드 → 초기 번들에서 분리
+// 차트(recharts)·대용량 종목목록 페이지는 lazy 로드 → 초기 번들에서 분리
 const GuruPage = lazy(() => import('./pages/GuruPage'));
 const MacroPage = lazy(() => import('./pages/MacroPage'));
+const StockPage = lazy(() => import('./pages/StockPage'));
 
 function App() {
   const fetchExchangeRate = usePortfolioStore((state) => state.fetchExchangeRate);
@@ -53,14 +53,14 @@ function App() {
       <ExchangeRateBar />
 
       {/* 콘텐츠 최대폭 제한 + 중앙정렬 — 모든 페이지 좌우 여백 (헤더/환율바/푸터는 풀-너비 유지) */}
-      <main className="flex-grow w-full max-w-[1600px] mx-auto px-4 md:px-6 py-8 md:py-10">
+      <main className="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-6 py-8 md:py-10">
         {page === 'home' && <HomePage />}
         {page === 'news' && <NewsPage />}
         {page === 'persona' && <PersonaPage />}
-        {page === 'stock' && <StockPage />}
         <Suspense fallback={<div className="h-96 rounded-xl glass-panel animate-pulse" aria-hidden />}>
           {page === 'gurus' && <GuruPage />}
           {page === 'macro' && <MacroPage />}
+          {page === 'stock' && <StockPage />}
         </Suspense>
       </main>
 

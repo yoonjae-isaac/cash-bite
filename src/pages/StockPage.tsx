@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { BarChart3, Search } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { fetchFinancials } from '../infrastructure/api/marketClient';
+import TickerAutocomplete from '../components/stock/TickerAutocomplete';
 import type { Financials, StatementPeriod } from '../domain/market/types';
 import {
   formatCompact,
@@ -15,7 +16,6 @@ import ErrorRetry from '../components/ui/ErrorRetry';
 import EmptyState from '../components/ui/EmptyState';
 import InfoHint from '../components/ui/InfoHint';
 
-const DEFAULT_TICKER = 'AAPL';
 const PERIODS: StatementPeriod[] = ['annual', 'quarterly'];
 
 /** 표 한 줄: 항목명 + 기간별 셀(최신순). */
@@ -199,11 +199,10 @@ const StatementsView = ({ data }: { data: Financials }) => {
 const StockPage = () => {
   const t = useLanguageStore((s) => s.t);
 
-  const [ticker, setTicker] = useState(DEFAULT_TICKER);
-  const [query, setQuery] = useState(DEFAULT_TICKER);
+  const [query, setQuery] = useState(''); // 첫 진입은 빈 값 — 검색 시에만 조회
   const [period, setPeriod] = useState<StatementPeriod>('annual');
   const [data, setData] = useState<Financials | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
   // 비동기 경로에서만 setState — 동기 setState(loading=true)는 이벤트 핸들러에서 처리.
@@ -225,9 +224,8 @@ const StockPage = () => {
     if (query) load(query, period);
   }, [query, period, load]);
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const q = ticker.trim().toUpperCase();
+  const runSearch = (ticker: string) => {
+    const q = ticker.trim();
     if (!q) return;
     setLoading(true);
     setError(false);
@@ -257,40 +255,12 @@ const StockPage = () => {
         <p className="mt-1.5 text-cb-muted">{t.stock.subtitle}</p>
       </header>
 
-      {/* 검색 + 기간 토글 */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <form onSubmit={submit} className="flex gap-2 flex-1">
-          <input
-            value={ticker}
-            onChange={(e) => setTicker(e.target.value)}
-            placeholder={t.stock.searchPlaceholder}
-            aria-label={t.stock.searchPlaceholder}
-            className="flex-1 min-w-0 px-4 py-2.5 rounded-xl bg-cb-surface border border-cb-border text-cb-foreground placeholder:text-cb-muted focus:outline-none focus:border-cb-accent/50 transition-colors"
-          />
-          <button
-            type="submit"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cb-point text-cb-on-point text-sm font-bold hover:bg-cb-point-hover transition-colors shrink-0"
-          >
-            <Search className="w-4 h-4" />
-            {t.stock.search}
-          </button>
-        </form>
-
-        <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--cb-input-bg)] self-start sm:self-auto">
-          {PERIODS.map((p) => (
-            <button
-              key={p}
-              onClick={() => changePeriod(p)}
-              className={[
-                'px-3 py-1.5 rounded-md text-xs font-semibold transition-colors',
-                period === p ? 'bg-cb-accent text-cb-on-accent' : 'text-cb-muted hover:text-cb-foreground',
-              ].join(' ')}
-            >
-              {p === 'annual' ? t.stock.annual : t.stock.quarterly}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* 검색(자동완성) */}
+      <TickerAutocomplete
+        onSearch={runSearch}
+        placeholder={t.stock.searchPlaceholder}
+        searchLabel={t.stock.search}
+      />
 
       <p className="text-xs text-cb-muted px-1">{t.stock.examples}</p>
 
@@ -302,6 +272,26 @@ const StockPage = () => {
 
       {!error && data && (
         <div className={`space-y-6 ${loading ? 'opacity-60 transition-opacity' : ''}`}>
+          {/* 연간/분기 토글 — 티커 타이틀 위 */}
+          <div className="flex justify-end">
+            <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--cb-input-bg)]">
+              {PERIODS.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => changePeriod(p)}
+                  className={[
+                    'px-3 py-1.5 rounded-md text-xs font-semibold transition-colors',
+                    period === p
+                      ? 'bg-cb-accent text-cb-on-accent'
+                      : 'text-cb-muted hover:text-cb-foreground',
+                  ].join(' ')}
+                >
+                  {p === 'annual' ? t.stock.annual : t.stock.quarterly}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <section className="space-y-2">
             <h3 className="text-sm font-bold text-cb-muted uppercase tracking-wide flex items-center gap-2">
               {data.ticker}
