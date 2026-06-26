@@ -6,6 +6,15 @@
     "exchangeDashboard": "환율 대시보드",
     "footerInfo": "데이터는 브라우저의 로컬 스토리지에만 저장됩니다."
   },
+  "footer": {
+    "tagline": "개미가 거인의 어깨 위에서",
+    "menuTitle": "메뉴",
+    "aboutTitle": "소개",
+    "aboutDesc": "주식 초보자를 위한 무료 투자 학습 — 거장의 13F 포트폴리오·시장 뉴스·거시지표를 회원가입 없이.",
+    "dataTitle": "데이터 · 면책",
+    "sources": "데이터 출처: NAVER · FRED · SEC 13F · Yahoo Finance",
+    "disclaimer": "본 서비스는 교육 목적의 정보 제공이며 투자 권유가 아닙니다. 투자 판단과 책임은 이용자 본인에게 있습니다."
+  },
   "nav": {
     "home": "홈",
     "portfolio": "배당 포트폴리오",
@@ -62,7 +71,18 @@
     "averagingTitle": "물타기 / 불타기 계산기",
     "averagingDesc": "추가 매수 시 새 평균단가와 손익률 변화를 실시간으로 확인합니다.",
     "gurusTitle": "대가의 포트폴리오",
-    "gurusDesc": "버핏·버리·캐시 우드 등 거장 17인의 최신 13F 보유 종목과 분기 변화를 한눈에."
+    "gurusDesc": "버핏·버리·캐시 우드 등 거장 17인의 최신 13F 보유 종목과 분기 변화를 한눈에.",
+    "heroEyebrow": "주식 초보자를 위한 무료 투자 학습",
+    "usageTitle": "이렇게 활용하세요",
+    "usageSubtitle": "뉴스로 흐름을 잡고, 거장에게 배우고, 거시로 큰 그림을 봅니다",
+    "usage1Title": "뉴스로 시장 흐름 파악",
+    "usage1Desc": "국내·미국 시장 뉴스를 AI 요약으로 빠르게 훑고 오늘의 흐름을 잡습니다.",
+    "usage2Title": "거장들의 실제 보유 종목 확인",
+    "usage2Desc": "버핏 등 거장 17인의 SEC 13F 공시 기반 실제 보유 종목과 분기 변화를 봅니다.",
+    "usage3Title": "거시지표로 큰 그림 보기",
+    "usage3Desc": "물가·금리·고용 등 핵심 거시지표를 차트로 확인하며 시장의 맥락을 읽습니다.",
+    "closingTitle": "거장처럼 보는 눈, 오늘부터.",
+    "closingDesc": "회원가입도, 설치도 필요 없습니다. 지금 바로 거장의 포트폴리오부터 살펴보세요."
   },
   "portfolio": {
     "totalValue": "총 자산 가치",
@@ -236,7 +256,10 @@
     "retry": "다시 시도",
     "updatedAt": "갱신",
     "marketKr": "국내",
-    "marketUs": "해외"
+    "marketUs": "해외",
+    "analysisTitle": "AI 뉴스 분석",
+    "analysisEmpty": "아직 오늘의 분석이 생성되지 않았어요.",
+    "analysisArticles": "개 기사 분석"
   },
   "gurus": {
     "title": "투자 대가의 포트폴리오",

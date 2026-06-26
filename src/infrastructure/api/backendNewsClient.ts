@@ -40,7 +40,13 @@ export async function fetchMarketNews(market: 'KR' | 'US', limit = 30): Promise<
   return data.map(normalize);
 }
 
-/** 시장별 최신 AI 다이제스트 (아직 생성 전이면 null). */
-export function fetchNewsDigest(market: 'KR' | 'US'): Promise<NewsDigest | null> {
-  return backendGet<NewsDigest | null>(`/news/digest?market=${market}`);
+/** 시장별 AI 다이제스트 리스트 (생성시각 최신순, 매시 누적). 없으면 빈 배열. */
+export function fetchNewsDigests(market: 'KR' | 'US', limit = 24): Promise<NewsDigest[]> {
+  return backendGet<NewsDigest[]>(`/news/digest?market=${market}&limit=${limit}`);
+}
+
+/** 시장별 최신 다이제스트 1건 (홈 프리뷰용). 없으면 null. */
+export async function fetchNewsDigest(market: 'KR' | 'US'): Promise<NewsDigest | null> {
+  const list = await fetchNewsDigests(market, 1);
+  return list[0] ?? null;
 }

@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
-import { Newspaper, RefreshCcw, ExternalLink, Globe, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Newspaper, RefreshCcw, ExternalLink, Globe, Loader2, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { useNewsStore } from '../application/news/useNewsStore';
-import type { NewsItem } from '../domain/news/types';
+import { fetchNewsDigests } from '../infrastructure/api/backendNewsClient';
+import type { NewsItem, NewsDigest } from '../domain/news/types';
 
 // Relative time using browser's Intl API
 function relativeTime(unixSeconds: number, locale: string): string {
@@ -90,6 +91,89 @@ const NewsCard = ({ item, translation, locale }: NewsCardProps) => (
   </a>
 );
 
+interface AnalysisPanelProps {
+  market: 'KR' | 'US';
+  digests: NewsDigest[];
+  loading: boolean;
+  error: boolean;
+  onRetry: () => void;
+  locale: string;
+}
+
+// 생성시각 → "MM.DD HH:MM"
+function digestTime(iso: string, locale: string): string {
+  return new Date(iso).toLocaleString(locale, {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+// 우측 'AI 뉴스 분석' 패널 — 선택 시장의 다이제스트 리스트(매시 누적, 생성시각 노출). 데스크톱 sticky.
+const AnalysisPanel = ({ market, digests, loading, error, onRetry, locale }: AnalysisPanelProps) => {
+  const t = useLanguageStore((s) => s.t);
+
+  return (
+    <aside className="lg:sticky lg:top-[150px]">
+      <div className="glass-panel p-5 flex flex-col gap-3 lg:max-h-[calc(100vh-170px)]">
+        <div className="flex items-center justify-between gap-2 shrink-0">
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-cb-foreground">
+            <Sparkles className="w-4 h-4 text-cb-accent" />
+            {t.news.analysisTitle}
+          </span>
+          <span className="text-[11px] font-semibold text-cb-muted bg-[var(--cb-input-bg)] px-2 py-0.5 rounded-full">
+            {market === 'KR' ? t.news.marketKr : t.news.marketUs}
+          </span>
+        </div>
+
+        {loading ? (
+          <div className="space-y-2.5 animate-pulse pt-1">
+            <div className="h-3 w-full bg-cb-muted/20 rounded" />
+            <div className="h-3 w-full bg-cb-muted/20 rounded" />
+            <div className="h-3 w-11/12 bg-cb-muted/15 rounded" />
+            <div className="h-3 w-4/5 bg-cb-muted/15 rounded" />
+            <div className="h-3 w-2/3 bg-cb-muted/10 rounded" />
+          </div>
+        ) : error ? (
+          <div className="text-center py-6">
+            <p className="text-sm text-cb-negative mb-3">{t.news.error}</p>
+            <button
+              onClick={onRetry}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cb-border text-xs font-semibold text-cb-muted hover:text-cb-accent hover:border-cb-accent/40 transition-all"
+            >
+              <RefreshCcw className="w-3.5 h-3.5" />
+              {t.news.retry}
+            </button>
+          </div>
+        ) : digests.length > 0 ? (
+          <div className="flex flex-col gap-4 overflow-y-auto pr-1 -mr-1">
+            {digests.map((d) => (
+              <article key={d.generatedAt} className="border-b border-cb-border/40 last:border-0 pb-4 last:pb-0">
+                <div className="flex items-center justify-between text-[11px] text-cb-muted/70 tabular-nums mb-2">
+                  <span className="inline-flex items-center gap-1 font-semibold text-cb-accent">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cb-accent" />
+                    {digestTime(d.generatedAt, locale)}
+                  </span>
+                  <span>
+                    {d.articleCount}
+                    {t.news.analysisArticles}
+                  </span>
+                </div>
+                <p className="text-sm text-cb-foreground/90 leading-relaxed whitespace-pre-line">
+                  {d.summary}
+                </p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-cb-muted py-4">{t.news.analysisEmpty}</p>
+        )}
+      </div>
+    </aside>
+  );
+};
+
 const NewsPage = () => {
   const t = useLanguageStore((s) => s.t);
   const language = useLanguageStore((s) => s.language);
@@ -111,10 +195,31 @@ const NewsPage = () => {
     translateAll,
   } = useNewsStore();
 
+  // 우측 분석 패널 — 선택 시장의 AI 다이제스트 리스트(매시 누적).
+  const [digests, setDigests] = useState<NewsDigest[]>([]);
+  const [digestLoading, setDigestLoading] = useState(true);
+  const [digestError, setDigestError] = useState(false);
+
+  // 비동기 경로에서만 setState (effect 내 동기 setState 회피) — 로딩 토글은 이벤트 핸들러에서.
+  const loadDigest = useCallback((m: 'KR' | 'US') => {
+    fetchNewsDigests(m)
+      .then((list) => {
+        setDigests(list);
+        setDigestError(false);
+      })
+      .catch(() => setDigestError(true))
+      .finally(() => setDigestLoading(false));
+  }, []);
+
   // Fetch news on mount
   useEffect(() => {
     fetchNews();
   }, [fetchNews]);
+
+  // 시장 변경/마운트 시 분석 다이제스트 로드
+  useEffect(() => {
+    loadDigest(market);
+  }, [market, loadDigest]);
 
   // When news loads or language changes, (re-)init translation
   useEffect(() => {
@@ -123,8 +228,24 @@ const NewsPage = () => {
     }
   }, [news.length, language, initTranslation]);
 
+  const handleMarket = (m: 'KR' | 'US') => {
+    if (m === market) return;
+    setDigestLoading(true);
+    setDigestError(false);
+    setMarket(m);
+  };
+
+  const retryDigest = () => {
+    setDigestLoading(true);
+    setDigestError(false);
+    loadDigest(market);
+  };
+
   const handleRefresh = () => {
     fetchNews(true);
+    setDigestLoading(true);
+    setDigestError(false);
+    loadDigest(market);
   };
 
   const lastUpdatedText = lastFetchedAt
@@ -183,7 +304,7 @@ const NewsPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-4xl mx-auto">
+    <div className="flex flex-col gap-6">
       {/* Page header */}
       <div>
         <div className="flex items-center gap-3 mb-2">
@@ -200,7 +321,7 @@ const NewsPage = () => {
         {(['KR', 'US'] as const).map((m) => (
           <button
             key={m}
-            onClick={() => setMarket(m)}
+            onClick={() => handleMarket(m)}
             className={[
               'px-4 py-1.5 rounded-md text-sm font-semibold transition-colors',
               market === m
@@ -233,44 +354,49 @@ const NewsPage = () => {
         {renderTranslationBadge()}
       </div>
 
-      {/* Error state */}
-      {error && !isLoading && (
-        <div className="flex items-center gap-3 p-4 rounded-lg border border-cb-negative/25 bg-cb-negative/8 text-cb-negative text-sm">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>{t.news.error}</span>
-        </div>
-      )}
-
-      {/* Loading skeleton */}
-      {isLoading && (
+      {/* 본문: 좌(뉴스 리스트) · 우(AI 분석) 2단 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {/* Left: 뉴스 리스트 */}
         <div className="flex flex-col gap-3">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      )}
+          {error && !isLoading && (
+            <div className="flex items-center gap-3 p-4 rounded-lg border border-cb-negative/25 bg-cb-negative/8 text-cb-negative text-sm">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{t.news.error}</span>
+            </div>
+          )}
 
-      {/* News list */}
-      {!isLoading && news.length > 0 && (
-        <div className="flex flex-col gap-3">
-          {news.map((item) => (
-            <NewsCard
-              key={item.id}
-              item={item}
-              translation={translations[item.id]}
-              locale={language}
-            />
-          ))}
-        </div>
-      )}
+          {isLoading &&
+            Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
 
-      {/* Empty state */}
-      {!isLoading && !error && news.length === 0 && (
-        <div className="glass-panel p-12 flex flex-col items-center gap-3 text-center">
-          <Newspaper className="w-10 h-10 text-cb-muted/30" />
-          <p className="text-sm text-cb-muted">{t.news.noNews}</p>
+          {!isLoading &&
+            news.length > 0 &&
+            news.map((item) => (
+              <NewsCard
+                key={item.id}
+                item={item}
+                translation={translations[item.id]}
+                locale={language}
+              />
+            ))}
+
+          {!isLoading && !error && news.length === 0 && (
+            <div className="glass-panel p-12 flex flex-col items-center gap-3 text-center">
+              <Newspaper className="w-10 h-10 text-cb-muted/30" />
+              <p className="text-sm text-cb-muted">{t.news.noNews}</p>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Right: AI 뉴스 분석 (sticky) */}
+        <AnalysisPanel
+          market={market}
+          digests={digests}
+          loading={digestLoading}
+          error={digestError}
+          onRetry={retryDigest}
+          locale={language}
+        />
+      </div>
     </div>
   );
 };

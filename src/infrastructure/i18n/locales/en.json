@@ -6,6 +6,15 @@
     "exchangeDashboard": "Exchange Dashboard",
     "footerInfo": "Data is stored locally on your device only."
   },
+  "footer": {
+    "tagline": "Retail investors, on the shoulders of giants",
+    "menuTitle": "Menu",
+    "aboutTitle": "About",
+    "aboutDesc": "Free investing study for beginners — gurus' 13F portfolios, market news, and macro indicators, no sign-up.",
+    "dataTitle": "Data · Disclaimer",
+    "sources": "Sources: NAVER · FRED · SEC 13F · Yahoo Finance",
+    "disclaimer": "This service is educational information only, not investment advice. All decisions and responsibility are your own."
+  },
   "nav": {
     "home": "Home",
     "portfolio": "Dividend Portfolio",
@@ -62,7 +71,18 @@
     "newsTitle": "Market News",
     "newsDesc": "Browse global financial headlines in real-time. No translation needed — news is already in English.",
     "gurusTitle": "Guru Portfolios",
-    "gurusDesc": "Latest 13F holdings and quarterly moves of 17 legendary investors, from Buffett to Cathie Wood."
+    "gurusDesc": "Latest 13F holdings and quarterly moves of 17 legendary investors, from Buffett to Cathie Wood.",
+    "heroEyebrow": "Free investing study for beginners",
+    "usageTitle": "How to use it",
+    "usageSubtitle": "Catch the flow with news, learn from gurus, see the big picture with macro",
+    "usage1Title": "Catch the market flow with news",
+    "usage1Desc": "Skim AI summaries of Korean and US market news to grasp today's flow fast.",
+    "usage2Title": "See what the gurus actually hold",
+    "usage2Desc": "Real holdings and quarterly moves of 17 gurus, based on SEC 13F filings.",
+    "usage3Title": "See the big picture with macro",
+    "usage3Desc": "Read the market context through charts of inflation, rates, and employment.",
+    "closingTitle": "See like the gurus — starting today.",
+    "closingDesc": "No sign-up, no install. Start with the guru portfolios right now."
   },
   "portfolio": {
     "totalValue": "Total Value",
@@ -236,7 +256,10 @@
     "retry": "Retry",
     "updatedAt": "updated",
     "marketKr": "Korea",
-    "marketUs": "Global"
+    "marketUs": "Global",
+    "analysisTitle": "AI News Analysis",
+    "analysisEmpty": "Today's analysis hasn't been generated yet.",
+    "analysisArticles": " articles analyzed"
   },
   "gurus": {
     "title": "Guru Portfolios",

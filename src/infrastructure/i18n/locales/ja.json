@@ -6,6 +6,15 @@
     "exchangeDashboard": "為替ダッシュボード",
     "footerInfo": "データはブラウザのローカルストレージにのみ保存されます。"
   },
+  "footer": {
+    "tagline": "個人投資家を、巨人の肩の上へ",
+    "menuTitle": "メニュー",
+    "aboutTitle": "紹介",
+    "aboutDesc": "投資初心者のための無料学習 — 巨匠の13Fポートフォリオ・市場ニュース・マクロ指標を会員登録なしで。",
+    "dataTitle": "データ · 免責",
+    "sources": "データ出典: NAVER · FRED · SEC 13F · Yahoo Finance",
+    "disclaimer": "本サービスは教育目的の情報提供であり、投資勧誘ではありません。投資判断と責任はご利用者本人にあります。"
+  },
   "nav": {
     "home": "ホーム",
     "portfolio": "配当ポートフォリオ",
@@ -62,7 +71,18 @@
     "newsTitle": "マーケットニュース",
     "newsDesc": "グローバル金融ヘッドラインをリアルタイムで確認し、アプリの言語に自動翻訳します。",
     "gurusTitle": "巨匠ポートフォリオ",
-    "gurusDesc": "バフェットやキャシー・ウッドなど巨匠17人の最新13F保有銘柄と四半期の変化を一目で。"
+    "gurusDesc": "バフェットやキャシー・ウッドなど巨匠17人の最新13F保有銘柄と四半期の変化を一目で。",
+    "heroEyebrow": "投資初心者のための無料学習",
+    "usageTitle": "こう活用してください",
+    "usageSubtitle": "ニュースで流れをつかみ、巨匠に学び、マクロで全体像を見る",
+    "usage1Title": "ニュースで市場の流れを把握",
+    "usage1Desc": "国内・米国の市場ニュースをAI要約で素早く読み、今日の流れをつかみます。",
+    "usage2Title": "巨匠の実際の保有銘柄を確認",
+    "usage2Desc": "SEC 13F開示に基づく巨匠17人の実際の保有銘柄と四半期の変化を見ます。",
+    "usage3Title": "マクロ指標で全体像を見る",
+    "usage3Desc": "物価・金利・雇用などの主要マクロ指標をチャートで確認し、市場の文脈を読みます。",
+    "closingTitle": "巨匠のように見る目を、今日から。",
+    "closingDesc": "会員登録もインストールも不要。今すぐ巨匠のポートフォリオから見てみましょう。"
   },
   "portfolio": {
     "totalValue": "総資産価値",
@@ -236,7 +256,10 @@
     "retry": "再試行",
     "updatedAt": "更新",
     "marketKr": "韓国",
-    "marketUs": "海外"
+    "marketUs": "海外",
+    "analysisTitle": "AIニュース分析",
+    "analysisEmpty": "本日の分析はまだ生成されていません。",
+    "analysisArticles": "件を分析"
   },
   "gurus": {
     "title": "投資の巨匠ポートフォリオ",

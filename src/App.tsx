@@ -52,8 +52,8 @@ function App() {
       <Header />
       <ExchangeRateBar />
 
-      {/* 풀-너비 레이아웃 (토스 스타일) */}
-      <main className="flex-grow w-full px-4 md:px-6 py-8 md:py-10">
+      {/* 콘텐츠 최대폭 제한 + 중앙정렬 — 모든 페이지 좌우 여백 (헤더/환율바/푸터는 풀-너비 유지) */}
+      <main className="flex-grow w-full max-w-[1600px] mx-auto px-4 md:px-6 py-8 md:py-10">
         {page === 'home' && <HomePage />}
         {page === 'news' && <NewsPage />}
         {page === 'persona' && <PersonaPage />}

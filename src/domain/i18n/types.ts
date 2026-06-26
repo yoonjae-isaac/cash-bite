@@ -20,6 +20,15 @@ export interface TranslationSchema {
     exchangeDashboard: string;
     footerInfo: string;
   };
+  footer: {
+    tagline: string;
+    menuTitle: string;
+    aboutTitle: string;
+    aboutDesc: string;
+    dataTitle: string;
+    sources: string;
+    disclaimer: string;
+  };
   nav: {
     home: string;
     portfolio: string;
@@ -67,6 +76,17 @@ export interface TranslationSchema {
     newsDesc: string;
     gurusTitle: string;
     gurusDesc: string;
+    heroEyebrow: string;
+    usageTitle: string;
+    usageSubtitle: string;
+    usage1Title: string;
+    usage1Desc: string;
+    usage2Title: string;
+    usage2Desc: string;
+    usage3Title: string;
+    usage3Desc: string;
+    closingTitle: string;
+    closingDesc: string;
   };
   portfolio: {
     totalValue: string;
@@ -251,6 +271,9 @@ export interface TranslationSchema {
     updatedAt: string;
     marketKr: string;
     marketUs: string;
+    analysisTitle: string;
+    analysisEmpty: string;
+    analysisArticles: string;
   };
   gurus: {
     title: string;

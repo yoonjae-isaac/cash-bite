@@ -248,7 +248,7 @@ const StockPage = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6">
       <header>
         <h2 className="flex items-center gap-2 text-2xl md:text-3xl font-bold text-cb-foreground">
           <BarChart3 className="w-7 h-7 text-cb-accent" />
