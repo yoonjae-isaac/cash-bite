@@ -1,41 +1,39 @@
-
+import { Globe, ChevronDown } from 'lucide-react';
 import { useLanguageStore } from '../../../application/i18n/useLanguageStore';
 import type { Language } from '../../../domain/i18n/types';
-import { Globe } from 'lucide-react';
 import { trackEvent } from '../../../infrastructure/analytics/ga';
+
+const LANGUAGES: { code: Language; label: string }[] = [
+  { code: 'ko', label: '한국어' },
+  { code: 'en', label: 'English' },
+  { code: 'ja', label: '日本語' },
+];
 
 const LanguageSwitcher = () => {
   const { language, setLanguage } = useLanguageStore();
 
-  const languages: { code: Language; label: string }[] = [
-    { code: 'ko', label: 'KO' },
-    { code: 'en', label: 'EN' },
-    { code: 'ja', label: 'JA' },
-  ];
-
   return (
-    <div className="flex items-center gap-2 bg-cb-surface/70 p-1 rounded-lg border border-cb-border">
-      <Globe className="w-3.5 h-3.5 text-cb-muted ml-1.5" />
-      <div className="flex gap-1">
-        {languages.map((lang) => (
-          <button
-            key={lang.code}
-            onClick={() => {
-              if (language !== lang.code) {
-                trackEvent('language_changed', { language: lang.code });
-              }
-              setLanguage(lang.code);
-            }}
-            className={`px-2 py-1 text-xs font-bold rounded transition-all ${
-              language === lang.code
-                ? 'bg-cb-accent text-cb-on-accent shadow-lg shadow-black/25'
-                : 'text-cb-muted hover:text-cb-foreground hover:bg-[var(--cb-hover)]'
-            }`}
-          >
-            {lang.label}
-          </button>
+    <div className="relative inline-flex items-center">
+      <Globe className="w-3.5 h-3.5 text-cb-muted absolute left-2 pointer-events-none" />
+      <select
+        value={language}
+        onChange={(e) => {
+          const code = e.target.value as Language;
+          if (language !== code) {
+            trackEvent('language_changed', { language: code });
+          }
+          setLanguage(code);
+        }}
+        aria-label="Language"
+        className="appearance-none bg-cb-surface/70 border border-cb-border rounded-lg pl-7 pr-7 py-1.5 text-xs font-bold text-cb-foreground cursor-pointer hover:border-cb-accent/40 focus:outline-none focus:border-cb-accent/50 transition-colors"
+      >
+        {LANGUAGES.map((l) => (
+          <option key={l.code} value={l.code}>
+            {l.label}
+          </option>
         ))}
-      </div>
+      </select>
+      <ChevronDown className="w-3.5 h-3.5 text-cb-muted absolute right-2 pointer-events-none" />
     </div>
   );
 };

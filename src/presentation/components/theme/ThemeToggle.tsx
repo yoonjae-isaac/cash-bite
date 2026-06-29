@@ -15,9 +15,9 @@ const ThemeToggle = () => {
         toggleTheme();
       }}
       aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-      className="p-2 rounded-lg border border-cb-border bg-cb-surface/60 text-cb-muted hover:text-cb-accent hover:border-cb-accent/35 transition-colors"
+      className="p-1.5 rounded-lg border border-cb-border bg-cb-surface/70 text-cb-muted hover:text-cb-accent hover:border-cb-accent/35 transition-colors"
     >
-      {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
     </button>
   );
 };

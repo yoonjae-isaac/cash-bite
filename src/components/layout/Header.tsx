@@ -54,7 +54,7 @@ const Header = () => {
         {/* Logo */}
         <button
           onClick={() => handleNav('home')}
-          className="flex items-center gap-1.5 py-2.5 pr-4 shrink-0 group"
+          className="flex items-end gap-1.5 pb-2.5 pr-4 shrink-0 group"
         >
           <div className="w-8 h-8 rounded-md overflow-hidden shrink-0">
             <img
@@ -66,7 +66,7 @@ const Header = () => {
               decoding="async"
             />
           </div>
-          <h1 className="text-lg font-brand font-bold tracking-tight text-cb-point hidden sm:block leading-none">
+          <h1 className="text-xl font-brand font-bold tracking-tight text-cb-foreground hidden sm:block leading-none">
             AntsUp
           </h1>
         </button>
@@ -85,7 +85,7 @@ const Header = () => {
                 onClick={() => handleNav(item.id)}
                 aria-current={active ? 'page' : undefined}
                 className={[
-                  'flex items-center gap-1.5 px-3.5 text-sm font-medium border-b-2 -mb-px transition-colors duration-150 whitespace-nowrap',
+                  'flex items-end gap-1.5 px-3.5 pb-2.5 text-sm font-medium border-b-2 -mb-px transition-colors duration-150 whitespace-nowrap',
                   active
                     ? 'border-cb-accent text-cb-accent'
                     : 'border-transparent text-cb-muted hover:text-cb-foreground hover:border-cb-border',
@@ -100,7 +100,7 @@ const Header = () => {
         </div>
 
         {/* Right controls */}
-        <div className="flex items-center gap-2 py-2 pl-4">
+        <div className="flex items-end gap-2 pb-2.5 pl-4">
           <ThemeToggle />
           <LanguageSwitcher />
           {/* Mobile menu toggle */}
