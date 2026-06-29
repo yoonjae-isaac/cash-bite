@@ -9,7 +9,6 @@ export type PageId =
   | 'news'
   | 'gurus'
   | 'macro'
-  | 'persona'
   | 'stock';
 
 export interface TranslationSchema {
@@ -37,7 +36,6 @@ export interface TranslationSchema {
     news: string;
     gurus: string;
     macro: string;
-    persona: string;
     stock: string;
   };
   sidebar: {
@@ -186,16 +184,6 @@ export interface TranslationSchema {
     freeCashFlow: string;
     periodColumn: string;
     noTableData: string;
-  };
-  persona: {
-    title: string;
-    subtitle: string;
-    intro: string;
-    start: string;
-    resultTitle: string;
-    matchedGurus: string;
-    viewGurus: string;
-    restart: string;
   };
   compound: {
     title: string;

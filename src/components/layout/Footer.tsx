@@ -2,7 +2,7 @@ import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { usePageStore } from '../../store/usePageStore';
 import type { PageId } from '../../domain/i18n/types';
 
-const MENU: PageId[] = ['news', 'gurus', 'stock', 'macro', 'persona'];
+const MENU: PageId[] = ['news', 'gurus', 'stock', 'macro'];
 
 const Footer = () => {
   const t = useLanguageStore((s) => s.t);
@@ -19,7 +19,6 @@ const Footer = () => {
     gurus: t.nav.gurus,
     stock: t.nav.stock,
     macro: t.nav.macro,
-    persona: t.nav.persona,
   };
 
   return (
@@ -28,16 +27,18 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* 브랜드 + 태그라인 + 버전·언어 */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-end gap-1.5">
               <img
                 src="/logo.png"
-                width={28}
-                height={28}
+                width={32}
+                height={32}
                 alt="AntsUp"
-                className="w-7 h-7 rounded-md object-cover"
+                className="w-8 h-8 rounded-md object-cover"
                 decoding="async"
               />
-              <span className="text-lg font-brand font-bold text-cb-point">AntsUp</span>
+              <span className="text-xl font-brand font-bold tracking-tight text-cb-foreground">
+                AntsUp
+              </span>
             </div>
             <p className="mt-3 text-sm text-cb-muted leading-relaxed">{t.footer.tagline}</p>
             <span className="mt-3 inline-block text-[11px] font-semibold text-cb-muted/70 tracking-wide">

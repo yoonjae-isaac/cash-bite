@@ -23,18 +23,7 @@
     "news": "マーケットニュース",
     "gurus": "巨匠ポートフォリオ",
     "macro": "マクロ指標",
-    "persona": "投資スタイル",
     "stock": "銘柄分析"
-  },
-  "persona": {
-    "title": "投資スタイル診断",
-    "subtitle": "4問でわかる投資スタイル + 近い巨匠",
-    "intro": "簡単な4つの質問であなたの投資スタイルを診断し、近い投資巨匠をおすすめします。",
-    "start": "診断を始める",
-    "resultTitle": "あなたの投資スタイル",
-    "matchedGurus": "あなたに近い巨匠",
-    "viewGurus": "巨匠ポートフォリオへ",
-    "restart": "もう一度"
   },
   "sidebar": {
     "myInvestTitle": "私の投資",
