@@ -146,6 +146,9 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* ── Quote of the Day (뉴스보다 위) ───────────────────── */}
+      <QuoteOfDay />
+
       {/* ── Market News Preview ──────────────────────────── */}
       <MarketNewsPreview />
 
@@ -205,9 +208,6 @@ const HomePage = () => {
           ))}
         </div>
       </section>
-
-      {/* ── Quote of the Day ─────────────────────────────── */}
-      <QuoteOfDay />
 
       {/* ── Financial Tips ────────────────────────────────── */}
       <section>
