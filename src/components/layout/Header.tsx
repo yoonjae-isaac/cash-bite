@@ -64,7 +64,7 @@ const Header = () => {
               decoding="async"
             />
           </div>
-          <h1 className="text-xl font-brand font-bold tracking-tight text-cb-foreground hidden sm:block leading-none">
+          <h1 className="text-xl font-brand font-bold tracking-tight text-cb-foreground leading-none">
             AntsUp
           </h1>
         </button>
