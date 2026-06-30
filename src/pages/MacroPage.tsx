@@ -15,7 +15,7 @@ const RANGES: MacroRange[] = ['1y', '3y', '5y', 'all'];
 // 실제 레이아웃(요약 카드 3 + 차트 카드)과 동일한 형태의 스켈레톤 — 시프트·빈 박스 방지.
 const MacroLoadingSkeleton = () => (
   <div className="space-y-4">
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       {[0, 1, 2].map((i) => (
         <div key={i} className="glass-panel rounded-xl p-4 space-y-2">
           <Skeleton className="h-3 w-12" />
@@ -41,7 +41,7 @@ const SummaryCards = ({ data }: { data: MacroSeriesData }) => {
   const t = useLanguageStore((s) => s.t);
   const { meta } = data;
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <div className="glass-panel rounded-xl p-4">
         <p className="text-xs text-cb-muted mb-1">{t.macro.latest}</p>
         <p className="text-xl md:text-2xl font-bold text-cb-foreground tabular-nums">
