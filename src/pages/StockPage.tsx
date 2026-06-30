@@ -253,6 +253,7 @@ const StockPage = () => {
           {t.stock.title}
         </h2>
         <p className="mt-1.5 text-cb-muted">{t.stock.subtitle}</p>
+        <p className="mt-1 text-xs text-cb-muted">{t.stock.examples}</p>
       </header>
 
       {/* 검색(자동완성) */}
@@ -261,8 +262,6 @@ const StockPage = () => {
         placeholder={t.stock.searchPlaceholder}
         searchLabel={t.stock.search}
       />
-
-      <p className="text-xs text-cb-muted px-1">{t.stock.examples}</p>
 
       {error && <ErrorRetry message={t.stock.error} retryLabel={t.stock.retry} onRetry={retry} />}
 

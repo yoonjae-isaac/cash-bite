@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react';
 import { useGuruStore } from '../../application/guru/useGuruStore';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { splitInvestorName } from '../../domain/guru/types';
@@ -13,7 +14,26 @@ const InvestorPicker = () => {
   return (
     <section aria-label={t.gurus.pickerLabel}>
       <p className="text-sm font-medium text-cb-muted mb-2 ml-1">{t.gurus.pickerLabel}</p>
-      <div className="flex flex-wrap gap-2">
+
+      {/* 모바일: 드롭다운 (칩 수가 많아 좁은 화면에서 세로 점유 큼) */}
+      <div className="relative sm:hidden">
+        <select
+          value={selectedKey}
+          onChange={(e) => selectInvestor(e.target.value)}
+          aria-label={t.gurus.pickerLabel}
+          className="w-full appearance-none bg-cb-surface border border-cb-border rounded-lg px-3 py-2.5 pr-9 text-sm font-semibold text-cb-foreground focus:outline-none focus:border-cb-accent/50"
+        >
+          {investors.map((inv) => (
+            <option key={inv.key} value={inv.key}>
+              {inv.name}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="w-4 h-4 text-cb-muted absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+      </div>
+
+      {/* 데스크톱: 칩 */}
+      <div className="hidden sm:flex flex-wrap gap-2">
         {investors.map((inv) => {
           const { firm, person } = splitInvestorName(inv.name);
           const active = inv.key === selectedKey;
