@@ -261,7 +261,6 @@ export interface TranslationSchema {
     marketUs: string;
     analysisTitle: string;
     analysisEmpty: string;
-    analysisArticles: string;
   };
   gurus: {
     title: string;

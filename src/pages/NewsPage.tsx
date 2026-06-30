@@ -150,14 +150,10 @@ const AnalysisPanel = ({ market, digests, loading, error, onRetry, locale }: Ana
           <div className="flex flex-col gap-4 overflow-y-auto pr-1 -mr-1">
             {digests.map((d) => (
               <article key={d.generatedAt} className="border-b border-cb-border/40 last:border-0 pb-4 last:pb-0">
-                <div className="flex items-center justify-between text-[11px] text-cb-muted/70 tabular-nums mb-2">
+                <div className="flex items-center text-[11px] text-cb-muted/70 tabular-nums mb-2">
                   <span className="inline-flex items-center gap-1 font-semibold text-cb-accent">
                     <span className="w-1.5 h-1.5 rounded-full bg-cb-accent" />
                     {digestTime(d.generatedAt, locale)}
-                  </span>
-                  <span>
-                    {d.articleCount}
-                    {t.news.analysisArticles}
                   </span>
                 </div>
                 <p className="text-sm text-cb-foreground/90 leading-relaxed whitespace-pre-line">
