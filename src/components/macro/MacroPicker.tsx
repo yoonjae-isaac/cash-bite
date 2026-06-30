@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { useMacroStore } from '../../application/macro/useMacroStore';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 
@@ -53,8 +54,25 @@ const MacroPicker = () => {
         ))}
       </div>
 
-      {/* 지표 칩 */}
-      <div className="flex flex-wrap gap-2">
+      {/* 지표: 모바일 드롭다운 (칩 수가 많아 좁은 화면에서 세로 점유 큼) */}
+      <div className="relative sm:hidden">
+        <select
+          value={selectedId}
+          onChange={(e) => selectSeries(e.target.value)}
+          aria-label={t.macro.title}
+          className="w-full appearance-none bg-cb-surface border border-cb-border rounded-lg px-3 py-2.5 pr-9 text-sm font-semibold text-cb-foreground focus:outline-none focus:border-cb-accent/50"
+        >
+          {filtered.map((entry) => (
+            <option key={entry.id} value={entry.id} disabled={!entry.isAvailable}>
+              {lang === 'ko' ? entry.label : (entry.labelEn ?? entry.label)}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="w-4 h-4 text-cb-muted absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+      </div>
+
+      {/* 지표: 데스크톱 칩 */}
+      <div className="hidden sm:flex flex-wrap gap-2">
         {filtered.map((entry) => {
           const active = entry.id === selectedId;
           const disabled = !entry.isAvailable;
