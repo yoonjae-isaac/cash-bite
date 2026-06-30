@@ -4,13 +4,13 @@ import { usePortfolioStore } from '../../../store/usePortfolioStore';
 import { useIndicesStore } from '../../../application/market/useIndicesStore';
 import { trackEvent } from '../../../infrastructure/analytics/ga';
 
-/** 지수 행에 노출할 항목 — 국기·코드(통화코드처럼 하드코딩, FX 아이템과 동일 컨벤션). */
-const INDEX_META: { symbol: string; flag: string; code: string }[] = [
-  { symbol: '^IXIC', flag: '🇺🇸', code: 'NASDAQ' },
-  { symbol: '^DJI', flag: '🇺🇸', code: 'DOW' },
-  { symbol: '^KS11', flag: '🇰🇷', code: 'KOSPI' },
-  { symbol: '^KQ11', flag: '🇰🇷', code: 'KOSDAQ' },
-  { symbol: '^N225', flag: '🇯🇵', code: 'NIKKEI' },
+/** 지수 행에 노출할 항목 — 코드(통화코드처럼 하드코딩, FX 아이템과 동일 컨벤션). */
+const INDEX_META: { symbol: string; code: string }[] = [
+  { symbol: '^IXIC', code: 'NASDAQ' },
+  { symbol: '^DJI', code: 'DOW' },
+  { symbol: '^KS11', code: 'KOSPI' },
+  { symbol: '^KQ11', code: 'KOSDAQ' },
+  { symbol: '^N225', code: 'NIKKEI' },
 ];
 
 function relativeTime(ts: number): string {
@@ -67,7 +67,6 @@ const ExchangeRateBar = () => {
               <Fragment key={meta.symbol}>
                 {i > 0 && <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />}
                 <span className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-sm">{meta.flag}</span>
                   <span className="text-xs font-semibold text-cb-muted">{meta.code}</span>
                   {q ? (
                     <>
@@ -115,7 +114,6 @@ const ExchangeRateBar = () => {
 
         <div className="flex items-center gap-4 min-w-0 overflow-x-auto scrollbar-none">
           <span className="flex items-center gap-1.5 shrink-0">
-            <span className="text-sm">🇺🇸</span>
             <span className="text-xs font-semibold text-cb-muted">USD</span>
             <span className="text-sm font-bold font-mono text-cb-accent">$1.00</span>
           </span>
@@ -123,7 +121,6 @@ const ExchangeRateBar = () => {
           <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />
 
           <span className="flex items-center gap-1.5 shrink-0">
-            <span className="text-sm">🇰🇷</span>
             <span className="text-xs font-semibold text-cb-muted">KRW</span>
             <span className="text-sm font-bold font-mono text-cb-foreground">
               ₩{krwRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -133,7 +130,6 @@ const ExchangeRateBar = () => {
           <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />
 
           <span className="flex items-center gap-1.5 shrink-0">
-            <span className="text-sm">🇯🇵</span>
             <span className="text-xs font-semibold text-cb-muted">JPY</span>
             <span className="text-sm font-bold font-mono text-cb-foreground">
               ¥{jpyRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
