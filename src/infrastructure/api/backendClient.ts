@@ -52,3 +52,29 @@ export async function backendGet<T>(path: string): Promise<T> {
   }
   return body.data;
 }
+
+export async function backendPost<T>(path: string, payload: unknown): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(`${getBackendBaseUrl()}${path}`, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    throw new BackendApiError(0, 'NETWORK_ERROR', 'Backend unreachable');
+  }
+
+  const body = (await res.json().catch(() => null)) as
+    | SuccessEnvelope<T>
+    | ErrorEnvelope
+    | null;
+
+  if (body && 'error' in body) {
+    throw new BackendApiError(body.error.statusCode, body.error.code, body.error.message);
+  }
+  if (!res.ok || !body || !('data' in body)) {
+    throw new BackendApiError(res.status, 'UNEXPECTED_RESPONSE', `Backend HTTP ${res.status}`);
+  }
+  return body.data;
+}

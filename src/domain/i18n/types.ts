@@ -9,7 +9,8 @@ export type PageId =
   | 'news'
   | 'gurus'
   | 'macro'
-  | 'stock';
+  | 'stock'
+  | 'persona';
 
 export interface TranslationSchema {
   common: {
@@ -37,6 +38,7 @@ export interface TranslationSchema {
     gurus: string;
     macro: string;
     stock: string;
+    persona: string;
   };
   sidebar: {
     myInvestTitle: string;
@@ -334,5 +336,52 @@ export interface TranslationSchema {
     allCategories: string;
     unavailable: string;
     source: string;
+  };
+  persona: {
+    title: string;
+    subtitle: string;
+    disclaimer: string;
+    pickerLabel: string;
+    addTitle: string;
+    searchPlaceholder: string;
+    searchLabel: string;
+    fetchError: string;
+    colTicker: string;
+    colQty: string;
+    colAvg: string;
+    colCurrent: string;
+    colReturn: string;
+    colWeight: string;
+    qtyPlaceholder: string;
+    remove: string;
+    totalValue: string;
+    totalReturn: string;
+    mixedCurrency: string;
+    emptyGroup: string;
+    evaluate: string;
+    evaluating: string;
+    needPositions: string;
+    needValues: string;
+    error: string;
+    retry: string;
+    resultTitle: string;
+    historyTitle: string;
+    clearHistory: string;
+    noHistory: string;
+    basisHoldings: string;
+    basisGeneral: string;
+    notReply: string;
+    step1: string;
+    step2: string;
+    step3: string;
+    groupKr: string;
+    groupUs: string;
+    subtotal: string;
+    positionsUnit: string;
+    next: string;
+    back: string;
+    reEvaluate: string;
+    editPortfolio: string;
+    recapTitle: string;
   };
 }

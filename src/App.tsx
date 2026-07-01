@@ -16,6 +16,7 @@ import NewsPage from './pages/NewsPage';
 const GuruPage = lazy(() => import('./pages/GuruPage'));
 const MacroPage = lazy(() => import('./pages/MacroPage'));
 const StockPage = lazy(() => import('./pages/StockPage'));
+const PersonaPage = lazy(() => import('./pages/PersonaPage'));
 
 function App() {
   const fetchExchangeRate = usePortfolioStore((state) => state.fetchExchangeRate);
@@ -59,6 +60,7 @@ function App() {
           {page === 'gurus' && <GuruPage />}
           {page === 'macro' && <MacroPage />}
           {page === 'stock' && <StockPage />}
+          {page === 'persona' && <PersonaPage />}
         </Suspense>
       </main>
 
