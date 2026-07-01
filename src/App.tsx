@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 import 'sonner/dist/styles.css';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import Reveal from './components/ui/Reveal';
 import { usePortfolioStore } from './store/usePortfolioStore';
 import { useThemeStore } from './application/theme/useThemeStore';
 import { usePageStore } from './store/usePageStore';
@@ -17,6 +18,7 @@ const GuruPage = lazy(() => import('./pages/GuruPage'));
 const MacroPage = lazy(() => import('./pages/MacroPage'));
 const StockPage = lazy(() => import('./pages/StockPage'));
 const PersonaPage = lazy(() => import('./pages/PersonaPage'));
+const CalendarPage = lazy(() => import('./pages/CalendarPage'));
 
 function App() {
   const fetchExchangeRate = usePortfolioStore((state) => state.fetchExchangeRate);
@@ -54,14 +56,21 @@ function App() {
 
       {/* 콘텐츠 최대폭 제한 + 중앙정렬 — 모든 페이지 좌우 여백 (헤더/환율바/푸터는 풀-너비 유지) */}
       <main className="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-6 py-8 md:py-10">
-        {page === 'home' && <HomePage />}
-        {page === 'news' && <NewsPage />}
-        <Suspense fallback={<div className="h-96 rounded-xl glass-panel animate-pulse" aria-hidden />}>
-          {page === 'gurus' && <GuruPage />}
-          {page === 'macro' && <MacroPage />}
-          {page === 'stock' && <StockPage />}
-          {page === 'persona' && <PersonaPage />}
-        </Suspense>
+        {/* 홈은 섹션별 스크롤 리빌(내부 처리), 그 외 페이지는 진입 시 페이지 단위 리빌 */}
+        {page === 'home' ? (
+          <HomePage />
+        ) : (
+          <Reveal key={page}>
+            {page === 'news' && <NewsPage />}
+            <Suspense fallback={<div className="h-96 rounded-xl glass-panel animate-pulse" aria-hidden />}>
+              {page === 'gurus' && <GuruPage />}
+              {page === 'macro' && <MacroPage />}
+              {page === 'stock' && <StockPage />}
+              {page === 'persona' && <PersonaPage />}
+              {page === 'calendar' && <CalendarPage />}
+            </Suspense>
+          </Reveal>
+        )}
       </main>
 
       <Footer />

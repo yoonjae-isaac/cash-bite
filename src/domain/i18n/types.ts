@@ -10,7 +10,8 @@ export type PageId =
   | 'gurus'
   | 'macro'
   | 'stock'
-  | 'persona';
+  | 'persona'
+  | 'calendar';
 
 export interface TranslationSchema {
   common: {
@@ -39,6 +40,7 @@ export interface TranslationSchema {
     macro: string;
     stock: string;
     persona: string;
+    calendar: string;
   };
   sidebar: {
     myInvestTitle: string;
@@ -383,5 +385,46 @@ export interface TranslationSchema {
     reEvaluate: string;
     editPortfolio: string;
     recapTitle: string;
+  };
+  calendar: {
+    title: string;
+    subtitle: string;
+    prevWeek: string;
+    nextWeek: string;
+    thisWeek: string;
+    filterAll: string;
+    filterEarnings: string;
+    filterIpo: string;
+    filterEconomic: string;
+    catEarnings: string;
+    catIpo: string;
+    catEconomic: string;
+    noEvents: string;
+    empty: string;
+    filteredEmpty: string;
+    loading: string;
+    error: string;
+    retry: string;
+    hourBmo: string;
+    hourAmc: string;
+    hourDmh: string;
+    epsEst: string;
+    revEst: string;
+    ipoPrice: string;
+    ipoValue: string;
+    impactHigh: string;
+    impactMed: string;
+    impactLow: string;
+    source: string;
+    indEmployment: string;
+    indCpi: string;
+    indPce: string;
+    indGdp: string;
+    indPpi: string;
+    indRetail: string;
+    indJolts: string;
+    indJobless: string;
+    indHousing: string;
+    indIndprod: string;
   };
 }
