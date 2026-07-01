@@ -4,6 +4,8 @@ import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { fetchUsCalendar } from '../infrastructure/api/calendarClient';
 import type { CalEarning, CalEconomic, CalIpo, UsCalendarWeek } from '../domain/calendar/types';
 import type { TranslationSchema } from '../domain/i18n/types';
+import type { StockSymbol } from '../domain/market/types';
+import nasdaqData from '../data/stockSymbols.nasdaq.json';
 import Skeleton from '../components/ui/Skeleton';
 import ErrorRetry from '../components/ui/ErrorRetry';
 
@@ -40,6 +42,17 @@ const fmtUsd = (n: number): string => {
 };
 const fmtRev = fmtUsd;
 const fmtEps = (n: number): string => n.toFixed(2);
+
+// 실적 티커 → 기업명 (NASDAQ 심볼 목록 기반). 매칭 없으면 null → 티커 그대로 노출.
+const SYMBOL_MAP = new Map<string, StockSymbol>(
+  (nasdaqData as StockSymbol[]).map((s) => [s.code, s]),
+);
+const companyName = (symbol: string, lang: string): string | null => {
+  const s = SYMBOL_MAP.get(symbol);
+  if (!s) return null;
+  const name = lang === 'ko' ? s.nameKo : s.nameEn || s.nameKo;
+  return name || null;
+};
 
 const CalendarPage = () => {
   const t = useLanguageStore((s) => s.t);
@@ -227,7 +240,7 @@ const CalendarPage = () => {
                   <p className="text-xs text-cb-muted/60">{t.calendar.noEvents}</p>
                 ) : (
                   <div className="space-y-4">
-                    {dayEarningsBlock(dayEarnings, t)}
+                    {dayEarningsBlock(dayEarnings, t, lang)}
                     {dayIpoBlock(dayIpos, t)}
                     {dayEconomic(dayEcon, t)}
                   </div>
@@ -283,7 +296,7 @@ const Metric = ({ label, value }: { label: string; value: string }) => (
   </span>
 );
 
-const dayEarningsBlock = (list: CalEarning[], t: T) =>
+const dayEarningsBlock = (list: CalEarning[], t: T, lang: string) =>
   list.length === 0 ? null : (
     <div>
       <CatLabel
@@ -294,15 +307,29 @@ const dayEarningsBlock = (list: CalEarning[], t: T) =>
       <div className="rounded-lg border border-cb-border divide-y divide-cb-border/50">
         {list.map((e, i) => {
           const hourLabel = e.hour && HOUR_KEY[e.hour] ? t.calendar[HOUR_KEY[e.hour]] : '';
+          const name = companyName(e.symbol, lang);
           return (
             <div
               key={`${e.symbol}-${i}`}
               className="flex flex-col gap-1 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
             >
-              <span className="flex items-center gap-1.5">
-                <span className="text-sm font-bold text-cb-foreground">{e.symbol}</span>
+              <span className="flex items-center gap-1.5 min-w-0">
+                <span className="min-w-0">
+                  {name ? (
+                    <>
+                      <span className="block truncate text-sm font-bold text-cb-foreground">
+                        {name}
+                      </span>
+                      <span className="block text-[10px] font-semibold text-cb-muted tabular-nums">
+                        {e.symbol}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="block text-sm font-bold text-cb-foreground">{e.symbol}</span>
+                  )}
+                </span>
                 {hourLabel && (
-                  <span className="text-[10px] font-semibold text-cb-muted bg-[var(--cb-input-bg)] px-1.5 py-0.5 rounded">
+                  <span className="shrink-0 text-[10px] font-semibold text-cb-muted bg-[var(--cb-input-bg)] px-1.5 py-0.5 rounded">
                     {hourLabel}
                   </span>
                 )}
