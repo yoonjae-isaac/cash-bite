@@ -54,8 +54,8 @@ const MacroPicker = () => {
         ))}
       </div>
 
-      {/* 지표: 모바일 드롭다운 (칩 수가 많아 좁은 화면에서 세로 점유 큼) */}
-      <div className="relative sm:hidden">
+      {/* 지표: 드롭다운 (PC·모바일 통일). 사용 불가 지표는 option disabled */}
+      <div className="relative sm:max-w-xs">
         <select
           value={selectedId}
           onChange={(e) => selectSeries(e.target.value)}
@@ -69,34 +69,6 @@ const MacroPicker = () => {
           ))}
         </select>
         <ChevronDown className="w-4 h-4 text-cb-muted absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-      </div>
-
-      {/* 지표: 데스크톱 칩 */}
-      <div className="hidden sm:flex flex-wrap gap-2">
-        {filtered.map((entry) => {
-          const active = entry.id === selectedId;
-          const disabled = !entry.isAvailable;
-          const label = lang === 'ko' ? entry.label : (entry.labelEn ?? entry.label);
-          return (
-            <button
-              key={entry.id}
-              onClick={() => !disabled && selectSeries(entry.id)}
-              disabled={disabled}
-              aria-pressed={active}
-              title={disabled ? t.macro.unavailable : entry.description}
-              className={[
-                'px-3 py-1.5 rounded-lg border text-sm font-medium transition-all',
-                disabled
-                  ? 'border-cb-border text-cb-muted/50 cursor-not-allowed line-through'
-                  : active
-                    ? 'border-cb-accent bg-cb-accent/10 text-cb-accent shadow-[0_0_0_1px_var(--cb-accent)]'
-                    : 'border-cb-border text-cb-foreground hover:border-cb-accent/40 hover:bg-[var(--cb-hover)]',
-              ].join(' ')}
-            >
-              {label}
-            </button>
-          );
-        })}
       </div>
     </section>
   );

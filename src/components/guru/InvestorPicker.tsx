@@ -1,7 +1,6 @@
 import { ChevronDown } from 'lucide-react';
 import { useGuruStore } from '../../application/guru/useGuruStore';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
-import { splitInvestorName } from '../../domain/guru/types';
 
 const InvestorPicker = () => {
   const t = useLanguageStore((s) => s.t);
@@ -15,8 +14,8 @@ const InvestorPicker = () => {
     <section aria-label={t.gurus.pickerLabel}>
       <p className="text-sm font-medium text-cb-muted mb-2 ml-1">{t.gurus.pickerLabel}</p>
 
-      {/* 모바일: 드롭다운 (칩 수가 많아 좁은 화면에서 세로 점유 큼) */}
-      <div className="relative sm:hidden">
+      {/* 드롭다운 (PC·모바일 통일) */}
+      <div className="relative sm:max-w-xs">
         <select
           value={selectedKey}
           onChange={(e) => selectInvestor(e.target.value)}
@@ -30,37 +29,6 @@ const InvestorPicker = () => {
           ))}
         </select>
         <ChevronDown className="w-4 h-4 text-cb-muted absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-      </div>
-
-      {/* 데스크톱: 칩 */}
-      <div className="hidden sm:flex flex-wrap gap-2">
-        {investors.map((inv) => {
-          const { firm, person } = splitInvestorName(inv.name);
-          const active = inv.key === selectedKey;
-          return (
-            <button
-              key={inv.key}
-              onClick={() => selectInvestor(inv.key)}
-              aria-pressed={active}
-              className={[
-                'px-3 py-1.5 rounded-full border text-left transition-all duration-150',
-                active
-                  ? 'border-cb-accent bg-cb-accent/12 shadow-[0_0_0_1px_var(--cb-accent)]'
-                  : 'border-cb-border hover:border-cb-accent/40 hover:bg-[var(--cb-hover)]',
-              ].join(' ')}
-            >
-              <span
-                className={[
-                  'block text-sm font-semibold leading-tight',
-                  active ? 'text-cb-accent' : 'text-cb-foreground',
-                ].join(' ')}
-              >
-                {person}
-              </span>
-              <span className="block text-[11px] text-cb-muted leading-tight">{firm}</span>
-            </button>
-          );
-        })}
       </div>
     </section>
   );
