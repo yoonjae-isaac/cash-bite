@@ -42,7 +42,7 @@ const Footer = () => {
             </div>
             <p className="mt-3 text-sm text-cb-muted leading-relaxed">{t.footer.tagline}</p>
             <span className="mt-3 inline-block text-[11px] font-semibold text-cb-muted/70 tracking-wide">
-              v1 · {language.toUpperCase()}
+              v1 / {language.toUpperCase()}
             </span>
           </div>
 

@@ -70,3 +70,37 @@ export interface Financials {
   balance: BalanceRow[];
   cashflow: CashflowRow[];
 }
+
+// ── 기술적 분석 — `GET /market/technical` 응답 (libs/market TechnicalResult) ──
+
+/** 차트 조회 구간. */
+export type TechRange = '3M' | '6M' | '1Y';
+
+/** 일봉 1개 — OHLC + 종가 기준 이동평균(SMA). MA 는 데이터 부족 구간 null. */
+export interface TechnicalPoint {
+  date: string; // YYYY-MM-DD
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  ma5: number | null;
+  ma20: number | null;
+  ma60: number | null;
+  ma120: number | null;
+}
+
+/** 최신 시점 기준 교육용 상태 신호 (매수/매도 권유 아님). */
+export interface TechnicalSignals {
+  alignment: 'bullish' | 'bearish' | 'mixed'; // 정배열 / 역배열 / 혼조
+  cross: 'golden' | 'dead' | 'none'; // 최근 5-20일선 교차
+  priceVsMa20: 'above' | 'below';
+  priceVsMa60: 'above' | 'below';
+}
+
+export interface TechnicalResult {
+  ticker: string;
+  range: TechRange;
+  currency: string;
+  series: TechnicalPoint[];
+  signals: TechnicalSignals;
+}

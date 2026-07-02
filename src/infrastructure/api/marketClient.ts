@@ -1,5 +1,11 @@
 import { backendGet } from './backendClient';
-import type { Financials, IndexQuote, StatementPeriod } from '../../domain/market/types';
+import type {
+  Financials,
+  IndexQuote,
+  StatementPeriod,
+  TechRange,
+  TechnicalResult,
+} from '../../domain/market/types';
 
 /** 주요 지수 시세 묶음 (NASDAQ/Dow/KOSPI/KOSDAQ/Nikkei). */
 export const fetchIndices = (): Promise<IndexQuote[]> => backendGet<IndexQuote[]>('/market/indices');
@@ -8,4 +14,10 @@ export const fetchIndices = (): Promise<IndexQuote[]> => backendGet<IndexQuote[]
 export const fetchFinancials = (ticker: string, period: StatementPeriod): Promise<Financials> =>
   backendGet<Financials>(
     `/market/financials?ticker=${encodeURIComponent(ticker)}&period=${period}`,
+  );
+
+/** 기술적 분석 — 일봉 OHLC + 이동평균 + 교육 신호 (range: 3M|6M|1Y). */
+export const fetchTechnical = (ticker: string, range: TechRange): Promise<TechnicalResult> =>
+  backendGet<TechnicalResult>(
+    `/market/technical?ticker=${encodeURIComponent(ticker)}&range=${range}`,
   );

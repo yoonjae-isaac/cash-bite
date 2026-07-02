@@ -24,7 +24,7 @@
   --cb-point: #5b8def;
   --cb-point-hover: #7aa4f3;
   --cb-on-point: #ffffff;
-  --cb-positive: #22c55e;
+  --cb-positive: #3b82f6;
   --cb-negative: #f04452;
   --cb-shadow-elevated: 0 2px 12px -4px rgba(0, 0, 0, 0.4);
   --cb-shadow-soft: none;
@@ -32,6 +32,11 @@
   --cb-orb-2: transparent;
   --cb-globe: 0.08;
   --cb-globe-hover: 0.14;
+  /* 이동평균선 데이터-비주얼 팔레트 (빠른선 → 느린선). ma5=청록: 상승 캔들(파랑)과 구분 */
+  --cb-ma5: #22d3ee;
+  --cb-ma20: #22c55e;
+  --cb-ma60: #f5a623;
+  --cb-ma120: #b98bff;
 }
 
 :root[data-theme='light'] {
@@ -52,7 +57,7 @@
   --cb-point: #2563eb;
   --cb-point-hover: #1d4ed8;
   --cb-on-point: #ffffff;
-  --cb-positive: #188038;
+  --cb-positive: #2563eb;
   --cb-negative: #d93025;
   --cb-shadow-elevated: 0 1px 3px rgba(60, 64, 67, 0.08);
   --cb-shadow-soft: none;
@@ -60,6 +65,25 @@
   --cb-orb-2: transparent;
   --cb-globe: 0.07;
   --cb-globe-hover: 0.11;
+  /* 이동평균선 데이터-비주얼 팔레트 (빠른선 → 느린선). ma5=청록: 상승 캔들(파랑)과 구분 */
+  --cb-ma5: #0891b2;
+  --cb-ma20: #188038;
+  --cb-ma60: #c77700;
+  --cb-ma120: #7c3aed;
+}
+
+/*
+ * 상승/하락 색 스위칭 (data-updown)
+ * 기본(default): 상승 파랑 / 하락 빨강 (위 :root 정의 그대로)
+ * swap: 상승 빨강 / 하락 파랑 (positive/negative 스왑). 다크/라이트 각각.
+ */
+:root[data-updown='swap'] {
+  --cb-positive: #f04452;
+  --cb-negative: #3b82f6;
+}
+:root[data-theme='light'][data-updown='swap'] {
+  --cb-positive: #d93025;
+  --cb-negative: #2563eb;
 }
 
 @theme {

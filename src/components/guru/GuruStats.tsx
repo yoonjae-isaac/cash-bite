@@ -56,7 +56,7 @@ const GuruStats = () => {
           {stats.investorCount}
           {t.gurus.statsInvestorsUnit}
         </span>
-        <span className="text-cb-border">·</span>
+        {', '}
         {toQuarterLabel(stats.asOf)}
       </div>
 

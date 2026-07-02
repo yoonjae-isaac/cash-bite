@@ -28,7 +28,7 @@ const GuruExits = ({ exits }: { exits: GuruExit[] }) => {
                 {exit.ticker ?? formatIssuerName(exit.nameOfIssuer)}
               </span>
               <span className="block text-[11px] text-cb-muted truncate">
-                {formatShares(exit.prevShares)} · {exit.ticker ? formatIssuerName(exit.nameOfIssuer) : exit.titleOfClass}
+                {formatShares(exit.prevShares)} / {exit.ticker ? formatIssuerName(exit.nameOfIssuer) : exit.titleOfClass}
               </span>
             </div>
             <div className="text-right shrink-0">

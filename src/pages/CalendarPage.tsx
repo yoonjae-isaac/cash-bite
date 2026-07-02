@@ -365,7 +365,7 @@ const dayIpoBlock = (list: CalIpo[], t: T) =>
               <span className="block truncate text-sm font-bold text-cb-foreground">{e.name}</span>
               {(e.symbol || e.exchange) && (
                 <span className="block text-[10px] font-semibold text-cb-muted">
-                  {[e.symbol, e.exchange].filter(Boolean).join(' · ')}
+                  {[e.symbol, e.exchange].filter(Boolean).join(', ')}
                 </span>
               )}
             </span>

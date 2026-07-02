@@ -36,8 +36,8 @@ const PriceTargetCard = ({ priceTarget, currentPrice }: Props) => {
           <span className="font-mono">${currentPrice.toFixed(2)}</span>
         </div>
         <div className="flex justify-between">
-          <span>Low — High</span>
-          <span className="font-mono">${priceTarget.targetLow.toFixed(0)} — ${priceTarget.targetHigh.toFixed(0)}</span>
+          <span>Low ~ High</span>
+          <span className="font-mono">${priceTarget.targetLow.toFixed(0)} ~ ${priceTarget.targetHigh.toFixed(0)}</span>
         </div>
       </div>
     </div>

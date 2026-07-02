@@ -1,41 +1,22 @@
-import {
-  Home,
-  Newspaper,
-  Crown,
-  LineChart,
-  BarChart3,
-  ClipboardCheck,
-  CalendarDays,
-  Menu,
-  X,
-} from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import LanguageSwitcher from '../../presentation/components/i18n/LanguageSwitcher';
 import ThemeToggle from '../../presentation/components/theme/ThemeToggle';
+import UpDownToggle from '../../presentation/components/updown/UpDownToggle';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { usePageStore } from '../../store/usePageStore';
 import type { PageId } from '../../domain/i18n/types';
-
-type NavItem = { id: PageId; icon: React.ReactNode };
 
 const Header = () => {
   const t = useLanguageStore((state) => state.t);
   const { page, navigate } = usePageStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // 데스크톱 탭: 콘텐츠 페이지만 — 개인 도구는 RightRail (토스 스타일)
-  const navItems: NavItem[] = [
-    { id: 'home', icon: <Home className="w-4 h-4" /> },
-    { id: 'news', icon: <Newspaper className="w-4 h-4" /> },
-    { id: 'gurus', icon: <Crown className="w-4 h-4" /> },
-    { id: 'persona', icon: <ClipboardCheck className="w-4 h-4" /> },
-    { id: 'stock', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'macro', icon: <LineChart className="w-4 h-4" /> },
-    { id: 'calendar', icon: <CalendarDays className="w-4 h-4" /> },
-  ];
+  // 데스크톱 탭: 콘텐츠 페이지만 (텍스트 전용). 홈은 로고 클릭으로 이동.
+  const navItems: PageId[] = ['news', 'gurus', 'persona', 'stock', 'macro', 'calendar'];
 
-  // 모바일 드로워 = 데스크톱 탭 (복리·배당포트폴리오·물타기 기능 비활성)
-  const mobileItems: NavItem[] = navItems;
+  // 모바일 드로워 = 데스크톱 탭
+  const mobileItems: PageId[] = navItems;
 
   const navLabels: Record<PageId, string> = {
     home: t.nav.home,
@@ -59,14 +40,14 @@ const Header = () => {
   return (
     <header className="glass-header">
       {/* Single row: logo | desktop-nav (flush bottom) | controls */}
-      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 flex items-stretch justify-between min-h-[52px]">
-        {/* 좌측 그룹: 로고 + 탭 (토스 스타일 좌측정렬) */}
-        <div className="flex items-stretch min-w-0">
+      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 flex items-center justify-between min-h-[52px]">
+        {/* 좌측 그룹: 로고 + 탭 (세로 중앙 정렬 — 탭 레이어와 일치) */}
+        <div className="flex items-center min-w-0">
 
         {/* Logo */}
         <button
           onClick={() => handleNav('home')}
-          className="flex items-end gap-1.5 pb-2.5 pr-4 shrink-0 group"
+          className="flex items-center gap-1.5 pr-4 shrink-0 group"
         >
           <div className="w-8 h-8 rounded-md overflow-hidden shrink-0">
             <img
@@ -83,28 +64,28 @@ const Header = () => {
           </h1>
         </button>
 
-        {/* Desktop nav — flush to header bottom via border-b-2 -mb-px */}
+        {/* Desktop nav — 텍스트 전용 필드 탭 (선택 시 채움) */}
         <nav
-          className="hidden md:flex items-stretch"
+          className="hidden md:flex items-center gap-1"
           role="navigation"
           aria-label="Main navigation"
         >
-          {navItems.map((item) => {
-            const active = page === item.id;
+          {navItems.map((id) => {
+            const active = page === id;
             return (
               <button
-                key={item.id}
-                onClick={() => handleNav(item.id)}
+                key={id}
+                onClick={() => handleNav(id)}
                 aria-current={active ? 'page' : undefined}
                 className={[
-                  'flex items-end gap-1.5 px-3.5 pb-2.5 text-sm font-medium border-b-2 -mb-px transition-colors duration-150 whitespace-nowrap',
+                  'px-3.5 py-1.5 rounded-lg text-sm whitespace-nowrap',
+                  'transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]',
                   active
-                    ? 'border-cb-accent text-cb-accent'
-                    : 'border-transparent text-cb-muted hover:text-cb-foreground hover:border-cb-border',
+                    ? 'bg-cb-accent text-cb-on-accent font-semibold hover:bg-cb-accent-hover'
+                    : 'font-normal text-cb-muted hover:text-cb-foreground hover:bg-[var(--cb-hover)]',
                 ].join(' ')}
               >
-                {item.icon}
-                {navLabels[item.id]}
+                {navLabels[id]}
               </button>
             );
           })}
@@ -112,7 +93,8 @@ const Header = () => {
         </div>
 
         {/* Right controls */}
-        <div className="flex items-end gap-2 pb-2.5 pl-4">
+        <div className="flex items-center gap-2 pl-4">
+          <UpDownToggle />
           <ThemeToggle />
           <LanguageSwitcher />
           {/* Mobile menu toggle */}
@@ -133,22 +115,22 @@ const Header = () => {
           aria-label="Mobile navigation"
         >
           <div className="w-full max-w-[1280px] mx-auto px-4 py-2 flex flex-col gap-0.5">
-            {mobileItems.map((item) => {
-              const active = page === item.id;
+            {mobileItems.map((id) => {
+              const active = page === id;
               return (
                 <button
-                  key={item.id}
-                  onClick={() => handleNav(item.id)}
+                  key={id}
+                  onClick={() => handleNav(id)}
                   aria-current={active ? 'page' : undefined}
                   className={[
-                    'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all text-left',
+                    'px-4 py-3 rounded-lg text-sm text-left',
+                    'transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]',
                     active
-                      ? 'bg-cb-accent/12 text-cb-accent'
-                      : 'text-cb-foreground hover:bg-[var(--cb-hover)]',
+                      ? 'bg-cb-accent/12 text-cb-accent font-semibold'
+                      : 'font-normal text-cb-foreground hover:bg-[var(--cb-hover)]',
                   ].join(' ')}
                 >
-                  <span className={active ? 'text-cb-accent' : 'text-cb-muted'}>{item.icon}</span>
-                  {navLabels[item.id]}
+                  {navLabels[id]}
                 </button>
               );
             })}

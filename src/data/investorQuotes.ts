@@ -80,7 +80,7 @@ export const investorQuotes: InvestorQuote[] = [
   },
   {
     ko: "시드 몰빵하지 마라. 분할 매수하고, 분할 매도하고, 현금 비중 확보해라. 레버리지로 단타 치는 사람들, 장기 투자자한테 결국 수익률 밀린다. 기업 분석 못 하겠으면 S&P500 따라가면 된다. 그것도 싫으면 내가 대신 해줄 테니 버크셔 해서웨이 사면 된다. 비싸다고 해서 B주까지 만들어줬다.",
-    en: "Don't go all-in. Buy in tranches, sell in tranches, keep cash reserves. Leveraged day traders will eventually lose to patient long-term investors. Can't analyze companies? Just buy the S&P 500. Still too hard? Buy Berkshire Hathaway — I'll do it for you. Too expensive? That's why we made B shares.",
+    en: "Don't go all-in. Buy in tranches, sell in tranches, keep cash reserves. Leveraged day traders will eventually lose to patient long-term investors. Can't analyze companies? Just buy the S&P 500. Still too hard? Buy Berkshire Hathaway, I'll do it for you. Too expensive? That's why we made B shares.",
     ja: "全額つぎ込むな。分割で買い、分割で売り、現金比率を確保しろ。レバレッジで短期売買する人間は、長期投資家に最終的に負ける。企業分析ができないならS&P500を買えばいい。それも嫌なら、代わりにやってやるからバークシャー・ハサウェイを買え。高いと言うからB株まで作ってやった。",
     author: "Warren Buffett",
     authorKo: "워런 버핏",
@@ -250,7 +250,7 @@ export const investorQuotes: InvestorQuote[] = [
   },
   {
     ko: "분산 투자는 수익을 줄이지 않고 리스크를 줄이는 유일한 방법이다.",
-    en: "Diversification is the holy grail of investing — reducing risk without reducing returns.",
+    en: "Diversification is the holy grail of investing, reducing risk without reducing returns.",
     ja: "分散投資は投資の聖杯だ。リターンを下げずにリスクを下げる唯一の方法だ。",
     author: "Ray Dalio",
     authorKo: "레이 달리오",

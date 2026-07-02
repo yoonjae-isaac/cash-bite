@@ -270,7 +270,7 @@ const PersonaPage = () => {
                   >
                     {personas.map((p) => (
                       <option key={p.key} value={p.key}>
-                        {p.displayName} · {p.firm}
+                        {p.displayName}, {p.firm}
                       </option>
                     ))}
                   </select>
@@ -499,13 +499,13 @@ const MarketSection = ({
         <span className="text-sm font-bold text-cb-foreground">
           {label}
           <span className="ml-2 text-xs font-medium text-cb-muted">
-            {currency} · {list.length}
+            {currency} {list.length}
             {t.persona.positionsUnit}
           </span>
         </span>
         {list.length > 0 && (
           <span className="text-xs text-cb-muted tabular-nums">
-            {t.persona.subtotal} {currency} {fmtNum(gv)} ·{' '}
+            {t.persona.subtotal} {currency} {fmtNum(gv)}{' '}
             <b className={gr >= 0 ? 'text-cb-positive' : 'text-cb-negative'}>{fmtPct(gr)}</b>
           </span>
         )}

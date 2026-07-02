@@ -1,7 +1,7 @@
 import type { Language } from '../i18n/types';
 import type { StatementPeriod } from './types';
 
-const DASH = '—';
+const DASH = '';
 
 const currencySymbol = (currency: string): string => {
   switch (currency) {

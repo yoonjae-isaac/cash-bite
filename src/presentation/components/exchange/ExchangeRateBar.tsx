@@ -1,10 +1,10 @@
-import { Fragment, useEffect } from 'react';
-import { TrendingUp, BarChart3, RefreshCcw, Clock } from 'lucide-react';
+import { useEffect } from 'react';
+import { RefreshCcw, Clock } from 'lucide-react';
 import { usePortfolioStore } from '../../../store/usePortfolioStore';
 import { useIndicesStore } from '../../../application/market/useIndicesStore';
 import { trackEvent } from '../../../infrastructure/analytics/ga';
 
-/** 지수 행에 노출할 항목 — 코드(통화코드처럼 하드코딩, FX 아이템과 동일 컨벤션). */
+/** 지수 행에 노출할 항목 — 코드(하드코딩, FX 아이템과 동일 컨벤션). */
 const INDEX_META: { symbol: string; code: string }[] = [
   { symbol: '^IXIC', code: 'NASDAQ' },
   { symbol: '^DJI', code: 'DOW' },
@@ -14,16 +14,40 @@ const INDEX_META: { symbol: string; code: string }[] = [
 ];
 
 function relativeTime(ts: number): string {
-  const diffMs = Date.now() - ts;
-  const diffMin = Math.floor(diffMs / 60_000);
+  const diffMin = Math.floor((Date.now() - ts) / 60_000);
   if (diffMin < 1) return '방금';
   if (diffMin < 60) return `${diffMin}분 전`;
-  const diffHour = Math.floor(diffMin / 60);
-  return `${diffHour}시간 전`;
+  return `${Math.floor(diffMin / 60)}시간 전`;
 }
 
 const formatPrice = (n: number): string =>
   n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+type Tone = 'up' | 'down' | 'neutral';
+
+/** 방향 색 틴트 칩 — 상승/하락은 은은한 배경, 중립(환율)은 기본 입력색. */
+const chipStyle = (tone: Tone): React.CSSProperties => {
+  if (tone === 'up')
+    return {
+      background: 'color-mix(in srgb, var(--cb-positive) 12%, transparent)',
+      borderColor: 'color-mix(in srgb, var(--cb-positive) 24%, transparent)',
+    };
+  if (tone === 'down')
+    return {
+      background: 'color-mix(in srgb, var(--cb-negative) 12%, transparent)',
+      borderColor: 'color-mix(in srgb, var(--cb-negative) 24%, transparent)',
+    };
+  return { background: 'var(--cb-input-bg)', borderColor: 'var(--cb-border-subtle)' };
+};
+
+const Chip = ({ tone, children }: { tone: Tone; children: React.ReactNode }) => (
+  <span
+    className="inline-flex items-center gap-1.5 shrink-0 px-2.5 py-1 rounded-lg border"
+    style={chipStyle(tone)}
+  >
+    {children}
+  </span>
+);
 
 const ExchangeRateBar = () => {
   const { rates, fetchExchangeRate, isLoading, ratesLastFetched } = usePortfolioStore();
@@ -32,7 +56,7 @@ const ExchangeRateBar = () => {
   const krwRate = rates?.KRW ?? 0;
   const jpyRate = rates?.JPY ?? 0;
 
-  // 마운트 시 1회 + 60s 폴링 (장중 시세 갱신). 30s TTL 가드로 중복 요청은 store 가 무시.
+  // 마운트 시 1회 + 60s 폴링. 30s TTL 가드로 중복 요청은 store 가 무시.
   useEffect(() => {
     fetchIndices();
     const id = setInterval(() => fetchIndices(), 60_000);
@@ -41,7 +65,7 @@ const ExchangeRateBar = () => {
 
   const bySymbol = Object.fromEntries(indices.map((q) => [q.symbol, q]));
   const busy = isLoading || indicesLoading;
-  const loadingIndices = indicesLoading && indices.length === 0; // 최초 로딩(데이터 없음+요청중)
+  const loadingIndices = indicesLoading && indices.length === 0;
 
   const refresh = () => {
     trackEvent('exchange_rate_refresh', { source: 'bar' });
@@ -49,50 +73,75 @@ const ExchangeRateBar = () => {
     fetchIndices(true);
   };
 
+  const fxItems: { code: string; val: string }[] = [
+    { code: 'USD', val: '$1.00' },
+    { code: 'KRW', val: `₩${formatPrice(krwRate)}` },
+    { code: 'JPY', val: `¥${formatPrice(jpyRate)}` },
+  ];
+
   return (
     <div className="sticky top-[52px] z-40 w-full border-b border-[var(--cb-border-subtle)] bg-[color-mix(in_srgb,var(--cb-bg)_94%,transparent)] backdrop-blur-md">
-      {/* Row 1: 지수 (IDX) */}
-      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 h-10 flex items-center gap-4 border-b border-[var(--cb-border-subtle)]">
-        <span className="flex items-center gap-1.5 shrink-0 text-[11px] font-bold text-cb-muted uppercase tracking-wider">
-          <BarChart3 className="w-3 h-3 text-cb-accent" />
-          IDX
-        </span>
-        <div className="w-px h-4 bg-[var(--cb-border-strong)] shrink-0" />
+      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 h-11 flex items-center gap-3">
+        <div className="flex items-center gap-2 min-w-0 overflow-x-auto scrollbar-none">
+          {/* 지수 (방향 색 칩) */}
+          {loadingIndices
+            ? INDEX_META.map((meta) => (
+                <Chip key={meta.symbol} tone="neutral">
+                  <span className="text-[11px] font-bold text-cb-muted">{meta.code}</span>
+                  <span className="inline-block w-12 h-3 rounded bg-cb-muted/20 animate-pulse" aria-hidden />
+                </Chip>
+              ))
+            : INDEX_META.map((meta) => {
+                const q = bySymbol[meta.symbol];
+                if (!q) {
+                  return (
+                    <Chip key={meta.symbol} tone="neutral">
+                      <span className="text-[11px] font-bold text-cb-muted">{meta.code}</span>
+                      <span className="text-xs font-mono text-cb-muted/50" />
+                    </Chip>
+                  );
+                }
+                const up = q.changePercent >= 0;
+                return (
+                  <Chip key={meta.symbol} tone={up ? 'up' : 'down'}>
+                    <span className="text-[11px] font-bold text-cb-foreground">{meta.code}</span>
+                    <span className="text-xs font-bold font-mono text-cb-foreground">
+                      {formatPrice(q.price)}
+                    </span>
+                    <span
+                      className={`text-[11px] font-bold font-mono ${up ? 'text-cb-positive' : 'text-cb-negative'}`}
+                    >
+                      {up ? '▲' : '▼'}
+                      {Math.abs(q.changePercent).toFixed(2)}%
+                    </span>
+                  </Chip>
+                );
+              })}
 
-        <div className="flex items-center gap-4 min-w-0 overflow-x-auto scrollbar-none">
-          {INDEX_META.map((meta, i) => {
-            const q = bySymbol[meta.symbol];
-            const up = (q?.changePercent ?? 0) >= 0;
-            return (
-              <Fragment key={meta.symbol}>
-                {i > 0 && <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />}
-                <span className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-xs font-semibold text-cb-muted">{meta.code}</span>
-                  {q ? (
-                    <>
-                      <span className="text-sm font-bold font-mono text-cb-foreground">
-                        {formatPrice(q.price)}
-                      </span>
-                      <span
-                        className={`text-xs font-semibold font-mono ${up ? 'text-cb-positive' : 'text-cb-negative'}`}
-                      >
-                        {up ? '+' : ''}
-                        {q.changePercent.toFixed(2)}%
-                      </span>
-                    </>
-                  ) : loadingIndices ? (
-                    <span className="inline-block w-12 h-3 rounded bg-cb-muted/20 animate-pulse" aria-hidden />
-                  ) : (
-                    <span className="text-sm font-mono text-cb-muted/50">—</span>
-                  )}
-                </span>
-              </Fragment>
-            );
-          })}
+          {/* 지수 | 환율 구분 */}
+          <div className="w-px h-5 bg-[var(--cb-border-strong)] shrink-0 mx-0.5" />
+
+          {/* 환율 (중립 칩) */}
+          {fxItems.map((fx) => (
+            <Chip key={fx.code} tone="neutral">
+              <span className="text-[11px] font-bold text-cb-muted">{fx.code}</span>
+              <span
+                className={`text-xs font-bold font-mono ${fx.code === 'USD' ? 'text-cb-accent' : 'text-cb-foreground'}`}
+              >
+                {fx.val}
+              </span>
+            </Chip>
+          ))}
         </div>
 
-        {/* 새로고침 (환율·지수 동시 갱신) */}
-        <div className="flex items-center ml-auto shrink-0">
+        {/* 갱신 시각 + 새로고침 */}
+        <div className="flex items-center gap-2 ml-auto shrink-0">
+          {ratesLastFetched && (
+            <span className="hidden sm:flex items-center gap-1 text-[10px] text-cb-muted/50">
+              <Clock className="w-2.5 h-2.5" />
+              {relativeTime(ratesLastFetched)}
+            </span>
+          )}
           <button
             onClick={refresh}
             disabled={busy}
@@ -101,50 +150,6 @@ const ExchangeRateBar = () => {
           >
             <RefreshCcw className={`w-3 h-3 ${busy ? 'animate-spin' : ''}`} />
           </button>
-        </div>
-      </div>
-
-      {/* Row 2: 환율 (FX) */}
-      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 h-10 flex items-center gap-4">
-        <span className="flex items-center gap-1.5 shrink-0 text-[11px] font-bold text-cb-muted uppercase tracking-wider">
-          <TrendingUp className="w-3 h-3 text-cb-accent" />
-          FX
-        </span>
-        <div className="w-px h-4 bg-[var(--cb-border-strong)] shrink-0" />
-
-        <div className="flex items-center gap-4 min-w-0 overflow-x-auto scrollbar-none">
-          <span className="flex items-center gap-1.5 shrink-0">
-            <span className="text-xs font-semibold text-cb-muted">USD</span>
-            <span className="text-sm font-bold font-mono text-cb-accent">$1.00</span>
-          </span>
-
-          <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />
-
-          <span className="flex items-center gap-1.5 shrink-0">
-            <span className="text-xs font-semibold text-cb-muted">KRW</span>
-            <span className="text-sm font-bold font-mono text-cb-foreground">
-              ₩{krwRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </span>
-
-          <div className="w-px h-4 bg-[var(--cb-border-subtle)] shrink-0" />
-
-          <span className="flex items-center gap-1.5 shrink-0">
-            <span className="text-xs font-semibold text-cb-muted">JPY</span>
-            <span className="text-sm font-bold font-mono text-cb-foreground">
-              ¥{jpyRate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-          </span>
-        </div>
-
-        {/* 갱신 시각 (환율 기준) */}
-        <div className="flex items-center ml-auto shrink-0">
-          {ratesLastFetched && (
-            <span className="hidden sm:flex items-center gap-1 text-[10px] text-cb-muted/50">
-              <Clock className="w-2.5 h-2.5" />
-              {relativeTime(ratesLastFetched)}
-            </span>
-          )}
         </div>
       </div>
     </div>

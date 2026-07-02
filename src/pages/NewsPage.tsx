@@ -66,7 +66,7 @@ const NewsCard = ({ item, translation, locale }: NewsCardProps) => (
           className="text-[10px] text-cb-muted/60 shrink-0 tabular-nums"
           title={item.datetime ? relativeTime(item.datetime, locale) : undefined}
         >
-          {item.datetime ? absoluteTime(item.datetime, locale) : '—'}
+          {item.datetime ? absoluteTime(item.datetime, locale) : ''}
         </span>
       </div>
 

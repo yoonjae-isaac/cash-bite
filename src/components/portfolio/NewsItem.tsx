@@ -20,7 +20,6 @@ const NewsItem = ({ article }: Props) => {
         <span className="text-[10px] font-semibold text-cb-muted uppercase tracking-wide">
           {article.source}
         </span>
-        <span className="text-[10px] text-cb-muted/60">·</span>
         <span className="text-[10px] text-cb-muted/60">{date}</span>
       </div>
       <a
