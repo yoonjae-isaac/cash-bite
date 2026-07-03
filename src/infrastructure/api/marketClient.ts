@@ -11,6 +11,10 @@ import type {
 /** 주요 지수 시세 묶음 (NASDAQ/Dow/KOSPI/KOSDAQ/Nikkei). */
 export const fetchIndices = (): Promise<IndexQuote[]> => backendGet<IndexQuote[]>('/market/indices');
 
+/** USD/KRW 환율 — 혼합 통화 포트폴리오 비중 환산용. 실패 시 usdKrw=null. */
+export const fetchFx = (): Promise<{ usdKrw: number | null }> =>
+  backendGet<{ usdKrw: number | null }>('/market/fx');
+
 /** 종목 재무제표 + 밸류에이션 (period: annual|quarterly). KR 은 005930.KS / 035720.KQ 형식. */
 export const fetchFinancials = (ticker: string, period: StatementPeriod): Promise<Financials> =>
   backendGet<Financials>(

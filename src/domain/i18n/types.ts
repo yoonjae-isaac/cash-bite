@@ -497,6 +497,23 @@ export interface TranslationSchema {
     reEvaluate: string;
     editPortfolio: string;
     recapTitle: string;
+    summaryTitle: string;
+    totalValueKrw: string;
+    balanceTitle: string;
+    guruVerdictTitle: string;
+    concMax: string;
+    concTop3: string;
+    concMarket: string;
+    concCount: string;
+    othersLabel: string;
+    reviewTitle: string;
+    indicatorsTitle: string;
+    noIndicators: string;
+    guruNoteTitle: string;
+    overlapHeld: string;
+    chipTrendLong: string;
+    chipTrendShort: string;
+    chipDisparity: string;
   };
   calendar: {
     title: string;

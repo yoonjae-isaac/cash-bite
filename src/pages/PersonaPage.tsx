@@ -3,13 +3,16 @@ import { ClipboardCheck, Trash2, Info, ChevronDown, Sparkles, ArrowLeft, ArrowRi
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { usePortfolioEvalStore } from '../store/usePortfolioEvalStore';
 import { fetchPersonas, evaluatePortfolio } from '../infrastructure/api/personaClient';
-import { fetchFinancials } from '../infrastructure/api/marketClient';
+import { fetchFinancials, fetchFx } from '../infrastructure/api/marketClient';
 import type { EvalHolding, EvalPosition, PersonaSummary } from '../domain/persona/types';
+import { computeBalance } from '../domain/persona/balance';
 import type { StockSymbol } from '../domain/market/types';
 import type { TranslationSchema } from '../domain/i18n/types';
 import kospiData from '../data/stockSymbols.kospi.json';
 import nasdaqData from '../data/stockSymbols.nasdaq.json';
 import TickerAutocomplete from '../components/stock/TickerAutocomplete';
+import PortfolioSummaryPanel from '../components/persona/PortfolioSummaryPanel';
+import StockReviewCard from '../components/persona/StockReviewCard';
 import Skeleton from '../components/ui/Skeleton';
 import ErrorRetry from '../components/ui/ErrorRetry';
 
@@ -52,6 +55,7 @@ const PersonaPage = () => {
   const [evaluating, setEvaluating] = useState(false);
   const [evalError, setEvalError] = useState(false);
   const [phase, setPhase] = useState<Phase>('input');
+  const [usdKrw, setUsdKrw] = useState<number | null>(null);
 
   const loadPersonas = useCallback(() => {
     fetchPersonas()
@@ -67,6 +71,9 @@ const PersonaPage = () => {
 
   useEffect(() => {
     loadPersonas();
+    fetchFx()
+      .then((r) => setUsdKrw(r.usdKrw))
+      .catch(() => setUsdKrw(null));
   }, [loadPersonas]);
 
   const selected = personas.find((p) => p.key === selectedKey);
@@ -136,7 +143,9 @@ const PersonaPage = () => {
           id: crypto.randomUUID(),
           key: res.key,
           displayName: res.displayName,
-          evaluation: res.evaluation,
+          verdict: res.verdict,
+          checkpoints: res.checkpoints,
+          holdings: res.holdings,
           usedHoldings: res.usedHoldings,
           ...(res.reportDate ? { reportDate: res.reportDate } : {}),
           tickers: positions.map((p) => p.ticker),
@@ -371,34 +380,73 @@ const PersonaPage = () => {
             )}
           </div>
 
-          {evaluations.map((ev) => (
-            <div key={ev.id} className="glass-panel rounded-xl p-4">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="flex items-center gap-2 min-w-0">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-full bg-cb-accent/15 text-cb-accent text-xs font-bold shrink-0">
-                    {ev.displayName.slice(0, 1)}
+          {(() => {
+            const latest = evaluations[0];
+            if (!latest) {
+              return null;
+            }
+            const balance = computeBalance(positions, usdKrw);
+            const reviewByTicker = new Map(
+              latest.holdings.map((h) => [h.ticker.toUpperCase(), h]),
+            );
+            return (
+              <>
+                <PortfolioSummaryPanel
+                  balance={balance}
+                  verdict={latest.verdict}
+                  checkpoints={latest.checkpoints}
+                  displayName={latest.displayName}
+                  usedHoldings={latest.usedHoldings}
+                  reportDate={latest.reportDate}
+                />
+
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wide text-cb-muted">
+                    {t.persona.reviewTitle}
                   </span>
-                  <span className="text-sm font-bold text-cb-foreground truncate">
-                    {ev.displayName}
-                  </span>
-                </span>
-                <span className="text-[11px] text-cb-muted shrink-0">
-                  {new Date(ev.at).toLocaleString(lang)}
-                </span>
-              </div>
-              <p className="text-sm text-cb-foreground whitespace-pre-wrap leading-relaxed">
-                {ev.evaluation}
+                  <span className="h-px flex-1 bg-cb-border" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {positions.map((pos) => (
+                    <StockReviewCard
+                      key={pos.id}
+                      position={pos}
+                      weight={
+                        balance.weights.find((w) => w.ticker === pos.ticker)?.weight ?? null
+                      }
+                      review={reviewByTicker.get(pos.ticker.toUpperCase())}
+                    />
+                  ))}
+                </div>
+
+                <p className="text-xs text-cb-muted leading-relaxed pt-1">{t.persona.notReply}</p>
+              </>
+            );
+          })()}
+
+          {/* 지난 평가 기록 (최신 제외) — 총평 스니펫 */}
+          {evaluations.length > 1 && (
+            <section className="pt-2 space-y-2">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-cb-muted">
+                {t.persona.historyTitle}
               </p>
-              <div className="mt-2 pt-2 border-t border-cb-border/50 space-y-1">
-                <p className="text-[10px] text-cb-muted">
-                  {ev.usedHoldings
-                    ? `${ev.reportDate ?? ''} ${t.persona.basisHoldings}`.trim()
-                    : t.persona.basisGeneral}
-                </p>
-                <p className="text-xs text-cb-muted leading-relaxed">{t.persona.notReply}</p>
-              </div>
-            </div>
-          ))}
+              {evaluations.slice(1).map((ev) => (
+                <div key={ev.id} className="rounded-xl border border-cb-border bg-cb-surface/60 p-3">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="text-xs font-bold text-cb-foreground truncate">
+                      {ev.displayName}{' '}
+                      <span className="font-normal text-cb-muted">{ev.tickers.join(', ')}</span>
+                    </span>
+                    <span className="text-[10px] text-cb-muted shrink-0">
+                      {new Date(ev.at).toLocaleString(lang)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-cb-muted leading-relaxed line-clamp-2">{ev.verdict}</p>
+                </div>
+              ))}
+            </section>
+          )}
         </div>
       )}
     </div>

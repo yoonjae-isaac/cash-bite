@@ -20,20 +20,33 @@ export interface EvalPosition {
 /** 평가 API 요청 종목. */
 export interface EvalHolding {
   ticker: string;
+  name: string;
   currency: string;
   quantity: number;
   avgPrice: number;
   currentPrice: number;
 }
 
-/** 평가 API 응답. */
+/** 종목별 거장 코멘트 + 거장 13F 겹침 여부. */
+export interface HoldingReview {
+  ticker: string;
+  note: string;
+  overlap: { held: boolean; reportDate?: string };
+}
+
+/** 평가 API 응답 (구조화). */
 export interface PortfolioEvaluation {
   key: string;
   displayName: string;
-  evaluation: string;
-  disclaimer: string;
+  /** 포트폴리오 전체 총평. */
+  verdict: string;
+  /** 스스로 점검할 질문. */
+  checkpoints: string[];
+  /** 종목별 코멘트 + 13F 겹침. */
+  holdings: HoldingReview[];
   usedHoldings: boolean;
   reportDate?: string;
+  disclaimer: string;
 }
 
 /** 브라우저에 저장하는 평가 기록 한 건. */
@@ -41,7 +54,9 @@ export interface StoredEvaluation {
   id: string;
   key: string;
   displayName: string;
-  evaluation: string;
+  verdict: string;
+  checkpoints: string[];
+  holdings: HoldingReview[];
   usedHoldings: boolean;
   reportDate?: string;
   tickers: string[];
