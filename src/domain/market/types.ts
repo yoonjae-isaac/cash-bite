@@ -104,3 +104,16 @@ export interface TechnicalResult {
   series: TechnicalPoint[];
   signals: TechnicalSignals;
 }
+
+// ── AI 종합 분석 — `GET /market/analysis` 응답 (libs/stock-ai StockAnalysis) ──
+
+export interface StockAnalysis {
+  ticker: string;
+  summary: string; // 한줄 요약
+  technical: string[]; // 기술적 관점 불릿
+  valuation: string; // 밸류에이션 한 줄
+  annual: string; // 연간 실적 추이
+  quarterly: string; // 분기 실적 추이 (없으면 빈 문자열)
+  checkpoints: string[]; // 유의점 불릿
+  disclaimer: string;
+}

@@ -3,6 +3,7 @@ import type {
   Financials,
   IndexQuote,
   StatementPeriod,
+  StockAnalysis,
   TechRange,
   TechnicalResult,
 } from '../../domain/market/types';
@@ -20,4 +21,10 @@ export const fetchFinancials = (ticker: string, period: StatementPeriod): Promis
 export const fetchTechnical = (ticker: string, range: TechRange): Promise<TechnicalResult> =>
   backendGet<TechnicalResult>(
     `/market/technical?ticker=${encodeURIComponent(ticker)}&range=${range}`,
+  );
+
+/** AI 종합 분석 (기술 + 펀더멘탈, LLM). locale: ko|en|ja. */
+export const fetchStockAnalysis = (ticker: string, locale: string): Promise<StockAnalysis> =>
+  backendGet<StockAnalysis>(
+    `/market/analysis?ticker=${encodeURIComponent(ticker)}&locale=${locale}`,
   );

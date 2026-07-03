@@ -199,6 +199,19 @@
     "valGroupValuation": "バリュエーション",
     "valGroupProfit": "収益性・株主還元",
     "trendTitle": "主要指標の推移",
+    "ai": {
+      "button": "AI分析",
+      "title": "AI総合分析",
+      "loading": "AIがテクニカルとファンダメンタルのデータを分析しています...",
+      "error": "AI分析を生成できませんでした。しばらくしてから再試行してください。",
+      "secSummary": "要約",
+      "secTechnical": "テクニカル",
+      "secFundamental": "ファンダメンタル",
+      "subValuation": "バリュエーション",
+      "subAnnual": "年次",
+      "subQuarterly": "四半期",
+      "secCheckpoints": "チェックポイント"
+    },
     "tech": {
       "chartTitle": "価格・移動平均線",
       "chartSub": "日足OHLCと単純移動平均(SMA) 5・20・60・120日",

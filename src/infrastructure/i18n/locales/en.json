@@ -199,6 +199,19 @@
     "valGroupValuation": "Valuation",
     "valGroupProfit": "Profitability, Payout",
     "trendTitle": "Key metric trends",
+    "ai": {
+      "button": "AI Analysis",
+      "title": "AI Overview",
+      "loading": "AI is analyzing technical and fundamental data...",
+      "error": "Could not generate the AI analysis. Please try again shortly.",
+      "secSummary": "Summary",
+      "secTechnical": "Technical",
+      "secFundamental": "Fundamental",
+      "subValuation": "Valuation",
+      "subAnnual": "Annual",
+      "subQuarterly": "Quarterly",
+      "secCheckpoints": "Checkpoints"
+    },
     "tech": {
       "chartTitle": "Price, Moving Averages",
       "chartSub": "Daily OHLC with simple moving averages (SMA) 5, 20, 60, 120D",

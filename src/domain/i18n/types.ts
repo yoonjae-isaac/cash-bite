@@ -214,6 +214,19 @@ export interface TranslationSchema {
     valGroupValuation: string;
     valGroupProfit: string;
     trendTitle: string;
+    ai: {
+      button: string;
+      title: string;
+      loading: string;
+      error: string;
+      secSummary: string;
+      secTechnical: string;
+      secFundamental: string;
+      subValuation: string;
+      subAnnual: string;
+      subQuarterly: string;
+      secCheckpoints: string;
+    };
     tech: {
       chartTitle: string;
       chartSub: string;

@@ -199,6 +199,19 @@
     "valGroupValuation": "가치평가",
     "valGroupProfit": "수익성, 주주환원",
     "trendTitle": "핵심 지표 추이",
+    "ai": {
+      "button": "AI 분석",
+      "title": "AI 종합 분석",
+      "loading": "AI가 기술적, 펀더멘탈 데이터를 분석하고 있어요...",
+      "error": "AI 분석을 생성하지 못했습니다. 잠시 후 다시 시도해주세요.",
+      "secSummary": "한줄 요약",
+      "secTechnical": "기술적 관점",
+      "secFundamental": "펀더멘탈 관점",
+      "subValuation": "밸류에이션",
+      "subAnnual": "연간 실적",
+      "subQuarterly": "분기 실적",
+      "secCheckpoints": "체크포인트"
+    },
     "tech": {
       "chartTitle": "가격, 이동평균선",
       "chartSub": "일봉 OHLC와 단순이동평균(SMA) 5, 20, 60, 120일",

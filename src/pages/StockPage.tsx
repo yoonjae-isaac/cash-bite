@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, Sparkles, ChevronDown } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
-import { fetchFinancials, fetchTechnical } from '../infrastructure/api/marketClient';
+import { fetchFinancials, fetchTechnical, fetchStockAnalysis } from '../infrastructure/api/marketClient';
 import TickerAutocomplete from '../components/stock/TickerAutocomplete';
 import PriceMaChart from '../components/stock/PriceMaChart';
 import TechnicalSignals from '../components/stock/TechnicalSignals';
+import AiAnalysisPanel, { AiLoading } from '../components/stock/AiAnalysisPanel';
 import type {
   Financials,
   StatementPeriod,
+  StockAnalysis,
   TechRange,
   TechnicalResult,
 } from '../domain/market/types';
@@ -364,6 +366,7 @@ const DeltaChip = ({ label, hint, value }: { label: string; hint: string; value:
 
 const StockPage = () => {
   const t = useLanguageStore((s) => s.t);
+  const lang = useLanguageStore((s) => s.language);
 
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<Tab>('technical');
@@ -377,6 +380,12 @@ const StockPage = () => {
   const [fin, setFin] = useState<Financials | null>(null);
   const [finLoading, setFinLoading] = useState(false);
   const [finError, setFinError] = useState(false);
+
+  // AI 분석 — 버튼 클릭 시 온디맨드 (기술+펀더멘탈 취합, LLM)
+  const [aiOpen, setAiOpen] = useState(false);
+  const [ai, setAi] = useState<StockAnalysis | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(false);
 
   // 비동기 경로에서만 setState — 로딩=true 는 이벤트 핸들러에서.
   const loadTech = useCallback((q: string, r: TechRange) => {
@@ -399,6 +408,16 @@ const StockPage = () => {
       .finally(() => setFinLoading(false));
   }, []);
 
+  const loadAi = useCallback((q: string, locale: string) => {
+    fetchStockAnalysis(q, locale)
+      .then((res) => {
+        setAi(res);
+        setAiError(false);
+      })
+      .catch(() => setAiError(true))
+      .finally(() => setAiLoading(false));
+  }, []);
+
   useEffect(() => {
     if (query) loadTech(query, range);
   }, [query, range, loadTech]);
@@ -414,12 +433,35 @@ const StockPage = () => {
     setFinLoading(true);
     setTechError(false);
     setFinError(false);
+    // 새 종목 검색 시 이전 AI 분석 초기화 (닫고 비움)
+    setAiOpen(false);
+    setAi(null);
+    setAiError(false);
+    setAiLoading(false);
     if (q === query) {
       loadTech(q, range);
       loadFin(q, period);
     } else {
       setQuery(q);
     }
+  };
+
+  const toggleAi = () => {
+    if (aiOpen) {
+      setAiOpen(false);
+      return;
+    }
+    setAiOpen(true);
+    if (!ai && !aiLoading) {
+      setAiLoading(true);
+      setAiError(false);
+      loadAi(query, lang);
+    }
+  };
+  const retryAi = () => {
+    setAiError(false);
+    setAiLoading(true);
+    loadAi(query, lang);
   };
 
   const changeRange = (r: TechRange) => {
@@ -539,6 +581,38 @@ const StockPage = () => {
               <DeltaChip label={t.stock.tech.fromLow} hint={t.glossary.fromLow} value={rangeStats.fromLow} />
             </div>
           )}
+
+          {/* AI 종합 분석 — 버튼 + 인라인 확장 카드 (기술 + 펀더멘탈) */}
+          <div>
+            <button
+              type="button"
+              onClick={toggleAi}
+              aria-expanded={aiOpen}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cb-accent text-cb-on-accent font-bold text-sm hover:bg-cb-accent-hover transition-colors"
+            >
+              <Sparkles className="w-4 h-4" />
+              {t.stock.ai.button}
+              <ChevronDown
+                className={`w-4 h-4 transition-transform ${aiOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {aiOpen && (
+              <div className="mt-3 glass-panel rounded-xl p-5">
+                <h3 className="flex items-center gap-2 text-[15px] font-bold text-cb-foreground mb-4">
+                  <Sparkles className="w-4 h-4 text-cb-point" />
+                  {t.stock.ai.title}
+                </h3>
+                {aiError ? (
+                  <ErrorRetry message={t.stock.ai.error} retryLabel={t.stock.retry} onRetry={retryAi} />
+                ) : !ai ? (
+                  <AiLoading />
+                ) : (
+                  <AiAnalysisPanel data={ai} />
+                )}
+              </div>
+            )}
+          </div>
 
           {/* 탭 */}
           <div className="flex gap-6 border-b border-cb-border" role="tablist" aria-label={t.stock.title}>
