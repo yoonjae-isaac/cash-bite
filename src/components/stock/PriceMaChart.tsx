@@ -375,6 +375,20 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
                 ) : null,
               )}
             </div>
+            <div className="mt-1.5 pt-1.5 border-t border-cb-border space-y-0.5 tabular-nums">
+              {hp.rsi != null && (
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-cb-muted whitespace-nowrap">RSI</span>
+                  <b className="text-cb-foreground font-semibold">{hp.rsi.toFixed(0)}</b>
+                </div>
+              )}
+              {hp.volume > 0 && (
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-cb-muted whitespace-nowrap">{t.stock.tech.tVolume}</span>
+                  <b className="text-cb-foreground font-semibold">{hp.volume.toLocaleString()}</b>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

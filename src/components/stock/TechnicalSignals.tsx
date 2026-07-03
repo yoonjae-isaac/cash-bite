@@ -38,7 +38,7 @@ const SigCard = ({
       <InfoHint label={label} content={hint} />
     </p>
     <div className="flex items-center gap-1.5 flex-wrap min-h-[26px]">{children}</div>
-    <p className="text-[11.5px] text-cb-muted mt-2 leading-snug">{note}</p>
+    {note && <p className="text-[11.5px] text-cb-muted mt-2 leading-snug">{note}</p>}
   </div>
 );
 
@@ -46,10 +46,12 @@ const TechnicalSignals = ({
   signals,
   disparity20,
   disparity60,
+  vix,
 }: {
   signals: Signals;
   disparity20: number | null;
   disparity60: number | null;
+  vix: number | null;
 }) => {
   const t = useLanguageStore((s) => s.t);
   const tt = t.stock.tech;
@@ -67,6 +69,41 @@ const TechnicalSignals = ({
       : signals.cross === 'dead'
         ? { tone: 'neg' as Tone, text: tt.crossDead, note: tt.crossDeadNote }
         : { tone: 'neu' as Tone, text: tt.crossNone, note: tt.crossNoneNote };
+
+  // RSI — 과매수(주의) / 과매도(반등 여지) / 중립
+  const rsi =
+    signals.rsiState === 'overbought'
+      ? { tone: 'neg' as Tone, text: tt.rsiOverbought }
+      : signals.rsiState === 'oversold'
+        ? { tone: 'pos' as Tone, text: tt.rsiOversold }
+        : { tone: 'neu' as Tone, text: tt.rsiNeutral };
+
+  const trendLabel = (tr: Signals['trendLong']): { tone: Tone; text: string } =>
+    tr === 'up'
+      ? { tone: 'pos', text: tt.trendUp }
+      : tr === 'down'
+        ? { tone: 'neg', text: tt.trendDown }
+        : { tone: 'neu', text: tt.trendFlat };
+  const trends = [
+    { label: tt.tfLong, tr: signals.trendLong },
+    { label: tt.tfMid, tr: signals.trendMid },
+    { label: tt.tfShort, tr: signals.trendShort },
+  ];
+
+  const volDemand =
+    signals.volumeDemand === 'up'
+      ? { tone: 'pos' as Tone, text: tt.volDemandUp }
+      : { tone: 'neg' as Tone, text: tt.volDemandDown };
+
+  // VIX — 40↑ 극단 공포(역발상), 20↓ 안도, 그 사이 중립
+  const vixState =
+    vix == null
+      ? { tone: 'neu' as Tone, text: tt.vixNoData }
+      : vix >= 40
+        ? { tone: 'pos' as Tone, text: tt.vixFear }
+        : vix <= 20
+          ? { tone: 'neu' as Tone, text: tt.vixCalm }
+          : { tone: 'neu' as Tone, text: tt.vixNeutral };
 
   // 이격도 밴드 A — ≥110 과열(주의), ≤90 과매도(반등 여지), 그 사이 중립.
   const dispState = (d: number | null): { tone: Tone; text: string } => {
@@ -108,6 +145,42 @@ const TechnicalSignals = ({
             })}
           </div>
         </SigCard>
+
+        <SigCard label={tt.tfLabel} hint={tt.tfHint} note={tt.tfNote}>
+          <div className="w-full flex flex-col gap-2">
+            {trends.map(({ label, tr }) => {
+              const s = trendLabel(tr);
+              return (
+                <div key={label} className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-cb-muted">{label}</span>
+                  <Pill tone={s.tone}>{s.text}</Pill>
+                </div>
+              );
+            })}
+          </div>
+        </SigCard>
+
+        <SigCard label={tt.rsiLabel} hint={tt.rsiHint} note={tt.rsiNote}>
+          <div className="flex items-center gap-2">
+            <b className="text-[17px] text-cb-foreground tabular-nums">
+              {signals.rsi == null ? '' : signals.rsi.toFixed(0)}
+            </b>
+            <Pill tone={rsi.tone}>{rsi.text}</Pill>
+          </div>
+        </SigCard>
+
+        <SigCard label={tt.volLabel} hint={tt.volHint} note={signals.volumeSpikeWick ? tt.volWick : tt.volWickNone}>
+          <Pill tone={volDemand.tone}>{volDemand.text}</Pill>
+        </SigCard>
+
+        {vix != null && (
+          <SigCard label={tt.vixLabel} hint={tt.vixHint} note="">
+            <div className="flex items-center gap-2">
+              <b className="text-[17px] text-cb-foreground tabular-nums">{vix.toFixed(1)}</b>
+              <Pill tone={vixState.tone}>{vixState.text}</Pill>
+            </div>
+          </SigCard>
+        )}
       </div>
 
       <p className="text-[11.5px] text-cb-muted mt-3.5 pt-3.5 border-t border-cb-border leading-relaxed">

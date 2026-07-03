@@ -83,11 +83,16 @@ export interface TechnicalPoint {
   high: number;
   low: number;
   close: number;
+  volume: number; // 거래량 (없으면 0)
+  rsi: number | null; // RSI(14), 데이터 부족 구간 null
   ma5: number | null;
   ma20: number | null;
   ma60: number | null;
   ma120: number | null;
 }
+
+/** 이평선 기울기 근사 추세. */
+export type Trend = 'up' | 'down' | 'flat';
 
 /** 최신 시점 기준 교육용 상태 신호 (매수/매도 권유 아님). */
 export interface TechnicalSignals {
@@ -95,6 +100,13 @@ export interface TechnicalSignals {
   cross: 'golden' | 'dead' | 'none'; // 최근 5-20일선 교차
   priceVsMa20: 'above' | 'below';
   priceVsMa60: 'above' | 'below';
+  rsi: number | null; // RSI(14) 최신값
+  rsiState: 'overbought' | 'oversold' | 'neutral'; // 70↑ / 30↓ / 중립
+  trendLong: Trend; // 120일선 기울기 (장기)
+  trendMid: Trend; // 60일선 기울기 (중기)
+  trendShort: Trend; // 20일선 기울기 (단기)
+  volumeDemand: 'up' | 'down'; // 최근 10거래일 상승/하락일 거래량 우위
+  volumeSpikeWick: boolean; // 고점권 대량거래+긴 윗꼬리 경고
 }
 
 export interface TechnicalResult {
@@ -103,6 +115,7 @@ export interface TechnicalResult {
   currency: string;
   series: TechnicalPoint[];
   signals: TechnicalSignals;
+  vix: number | null; // ^VIX 최신값 (없으면 null)
 }
 
 // ── AI 종합 분석 — `GET /market/analysis` 응답 (libs/stock-ai StockAnalysis) ──
@@ -110,6 +123,7 @@ export interface TechnicalResult {
 export interface StockAnalysis {
   ticker: string;
   summary: string; // 한줄 요약
+  plainSummary: string; // 명료한 요약 (주린이용 친근한 구어체)
   technical: string[]; // 기술적 관점 불릿
   valuation: string; // 밸류에이션 한 줄
   annual: string; // 연간 실적 추이

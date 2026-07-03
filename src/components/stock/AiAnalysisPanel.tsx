@@ -81,6 +81,15 @@ const AiAnalysisPanel = ({ data }: { data: StockAnalysis }) => {
         </div>
       )}
 
+      {data.plainSummary && (
+        <div className="rounded-xl border border-cb-border bg-[var(--cb-input-bg)] p-3.5 mb-4">
+          <p className="text-[11px] font-extrabold text-cb-muted mb-1.5 tracking-wide">
+            {ai.secPlain}
+          </p>
+          <p className="text-[13.5px] text-cb-foreground leading-relaxed">{data.plainSummary}</p>
+        </div>
+      )}
+
       {data.technical.length > 0 && (
         <Sec dot="var(--cb-ma5)" label={ai.secTechnical}>
           <Bullets items={data.technical} />

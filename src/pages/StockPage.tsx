@@ -664,6 +664,7 @@ const StockPage = () => {
                     signals={tech.signals}
                     disparity20={disparity20}
                     disparity60={disparity60}
+                    vix={tech.vix}
                   />
                 </section>
               )}
