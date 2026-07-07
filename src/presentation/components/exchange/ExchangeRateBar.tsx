@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 import { RefreshCcw, Clock } from 'lucide-react';
 import { usePortfolioStore } from '../../../store/usePortfolioStore';

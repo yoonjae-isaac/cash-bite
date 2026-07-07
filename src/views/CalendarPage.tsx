@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CalendarDays, ChevronLeft, ChevronRight, Landmark, Rocket, TrendingUp } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';

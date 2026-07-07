@@ -1,7 +1,10 @@
+'use client';
+
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
-import { usePageStore } from '../../store/usePageStore';
+import { PATH_OF } from '../../application/routing/pages';
 import { fetchNewsDigest } from '../../infrastructure/api/backendNewsClient';
 import type { NewsDigest } from '../../domain/news/types';
 import Skeleton from '../ui/Skeleton';
@@ -13,7 +16,6 @@ import ErrorRetry from '../ui/ErrorRetry';
  */
 const MarketNewsPreview = () => {
   const t = useLanguageStore((s) => s.t);
-  const navigate = usePageStore((s) => s.navigate);
   const [kr, setKr] = useState<NewsDigest | null>(null);
   const [us, setUs] = useState<NewsDigest | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,13 +54,13 @@ const MarketNewsPreview = () => {
           <Sparkles className="w-5 h-5 text-cb-accent" />
           {t.marketNews.title}
         </h3>
-        <button
-          onClick={() => navigate('news')}
+        <Link
+          href={PATH_OF.news}
           className="flex items-center gap-1 text-xs font-semibold text-cb-accent hover:text-cb-accent-hover transition-colors"
         >
           {t.marketNews.viewAll}
           <ArrowRight className="w-3.5 h-3.5" />
-        </button>
+        </Link>
       </div>
 
       {loading ? (

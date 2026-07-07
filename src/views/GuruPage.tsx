@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { Crown, ExternalLink, User, BarChart3 } from 'lucide-react';
 import { useGuruStore } from '../application/guru/useGuruStore';

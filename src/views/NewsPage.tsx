@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useState } from 'react';
 import { Newspaper, RefreshCcw, ExternalLink, Globe, Loader2, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';

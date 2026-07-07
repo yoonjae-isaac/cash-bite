@@ -23,6 +23,8 @@ export const useLanguageStore = create<LanguageState>()(
     }),
     {
       name: 'language-storage',
+      // SSR: 서버·첫 클라 렌더는 기본 ko 로 일치시키고, 마운트 후 ClientInit 에서 rehydrate.
+      skipHydration: true,
       // We only want to persist the language code, not the whole translation object
       // But for simplicity in this implementation, we can persist both or re-hydrate
       partialize: (state) => ({ language: state.language }),

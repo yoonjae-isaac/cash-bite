@@ -6,18 +6,9 @@ export type UpDownMode = 'default' | 'swap';
 
 export const UPDOWN_STORAGE_KEY = 'updown-storage';
 
-function readStored(): UpDownMode {
-  try {
-    const raw = localStorage.getItem(UPDOWN_STORAGE_KEY);
-    if (!raw) return 'default';
-    const parsed = JSON.parse(raw) as { state?: { mode?: string } };
-    return parsed.state?.mode === 'swap' ? 'swap' : 'default';
-  } catch {
-    return 'default';
-  }
-}
-
+// SSR 안전: 서버에는 document 가 없다. 첫 페인트는 layout 프리하이드레이션 스크립트가 data-updown 로 반영.
 function applyDataUpDown(mode: UpDownMode): void {
+  if (typeof document === 'undefined') return;
   document.documentElement.dataset.updown = mode;
 }
 
@@ -30,7 +21,8 @@ interface UpDownState {
 export const useUpDownStore = create<UpDownState>()(
   persist(
     (set, get) => ({
-      mode: readStored(),
+      // 기본값 default. 실제 저장값은 rehydrate 로 복원.
+      mode: 'default',
       toggle: () => {
         const next: UpDownMode = get().mode === 'swap' ? 'default' : 'swap';
         applyDataUpDown(next);
@@ -44,6 +36,7 @@ export const useUpDownStore = create<UpDownState>()(
     {
       name: UPDOWN_STORAGE_KEY,
       partialize: (state) => ({ mode: state.mode }),
+      skipHydration: true,
       onRehydrateStorage: () => (state) => {
         if (state) applyDataUpDown(state.mode);
       },

@@ -129,6 +129,8 @@ export const usePortfolioStore = create<PortfolioStore>()(
     {
       name: 'portfolio-storage',
       storage: createJSONStorage(() => localStorage),
+      // SSR: 마운트 후 ClientInit 에서 rehydrate.
+      skipHydration: true,
     }
   )
 );

@@ -1,16 +1,21 @@
+'use client';
+
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import LanguageSwitcher from '../../presentation/components/i18n/LanguageSwitcher';
 import ThemeToggle from '../../presentation/components/theme/ThemeToggle';
 import UpDownToggle from '../../presentation/components/updown/UpDownToggle';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
-import { usePageStore } from '../../store/usePageStore';
 import { FEATURES } from '../../config/features';
+import { PATH_OF } from '../../application/routing/pages';
+import Wordmark from './Wordmark';
 import type { PageId } from '../../domain/i18n/types';
 
 const Header = () => {
   const t = useLanguageStore((state) => state.t);
-  const { page, navigate } = usePageStore();
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // 데스크톱 탭: 콘텐츠 페이지만 (텍스트 전용). 홈은 로고 클릭으로 이동.
@@ -35,8 +40,11 @@ const Header = () => {
     calendar: t.nav.calendar,
   };
 
-  const handleNav = (id: PageId) => {
-    navigate(id);
+  // 투자 도구는 PageId 체계 밖(별도 계산기 섹션) — 전용 링크로 취급.
+  const toolsActive = pathname.startsWith('/tools');
+
+  // 링크 클릭 시 모바일 드로워 닫기 + 상단으로 (기존 handleNav 동작 유지). 이동 자체는 <Link> 가 처리.
+  const closeMobile = () => {
     setMobileOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -49,24 +57,13 @@ const Header = () => {
         <div className="flex items-center min-w-0">
 
         {/* Logo */}
-        <button
-          onClick={() => handleNav('home')}
-          className="flex items-center gap-1.5 pr-4 shrink-0 group"
+        <Link
+          href="/"
+          onClick={closeMobile}
+          className="flex items-center pr-4 shrink-0 group"
         >
-          <div className="w-8 h-8 rounded-md overflow-hidden shrink-0">
-            <img
-              src="/logo.png"
-              width={32}
-              height={32}
-              alt="AntsUp"
-              className="w-full h-full object-cover"
-              decoding="async"
-            />
-          </div>
-          <h1 className="text-xl font-brand font-bold tracking-tight text-cb-foreground leading-none">
-            AntsUp
-          </h1>
-        </button>
+          <Wordmark as="h1" className="text-xl" />
+        </Link>
 
         {/* Desktop nav — 텍스트 전용 필드 탭 (선택 시 채움) */}
         <nav
@@ -75,11 +72,12 @@ const Header = () => {
           aria-label="Main navigation"
         >
           {navItems.map((id) => {
-            const active = page === id;
+            const active = pathname === PATH_OF[id];
             return (
-              <button
+              <Link
                 key={id}
-                onClick={() => handleNav(id)}
+                href={PATH_OF[id]}
+                onClick={closeMobile}
                 aria-current={active ? 'page' : undefined}
                 className={[
                   'px-3.5 py-1.5 rounded-lg text-sm whitespace-nowrap',
@@ -90,9 +88,23 @@ const Header = () => {
                 ].join(' ')}
               >
                 {navLabels[id]}
-              </button>
+              </Link>
             );
           })}
+          <Link
+            href="/tools"
+            onClick={closeMobile}
+            aria-current={toolsActive ? 'page' : undefined}
+            className={[
+              'px-3.5 py-1.5 rounded-lg text-sm whitespace-nowrap',
+              'transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]',
+              toolsActive
+                ? 'bg-cb-accent text-cb-on-accent font-semibold hover:bg-cb-accent-hover'
+                : 'font-normal text-cb-muted hover:text-cb-foreground hover:bg-[var(--cb-hover)]',
+            ].join(' ')}
+          >
+            투자 도구
+          </Link>
         </nav>
         </div>
 
@@ -120,11 +132,12 @@ const Header = () => {
         >
           <div className="w-full max-w-[1280px] mx-auto px-4 py-2 flex flex-col gap-0.5">
             {mobileItems.map((id) => {
-              const active = page === id;
+              const active = pathname === PATH_OF[id];
               return (
-                <button
+                <Link
                   key={id}
-                  onClick={() => handleNav(id)}
+                  href={PATH_OF[id]}
+                  onClick={closeMobile}
                   aria-current={active ? 'page' : undefined}
                   className={[
                     'px-4 py-3 rounded-lg text-sm text-left',
@@ -135,9 +148,23 @@ const Header = () => {
                   ].join(' ')}
                 >
                   {navLabels[id]}
-                </button>
+                </Link>
               );
             })}
+            <Link
+              href="/tools"
+              onClick={closeMobile}
+              aria-current={toolsActive ? 'page' : undefined}
+              className={[
+                'px-4 py-3 rounded-lg text-sm text-left',
+                'transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]',
+                toolsActive
+                  ? 'bg-cb-accent/12 text-cb-accent font-semibold'
+                  : 'font-normal text-cb-foreground hover:bg-[var(--cb-hover)]',
+              ].join(' ')}
+            >
+              투자 도구
+            </Link>
           </div>
         </nav>
       )}

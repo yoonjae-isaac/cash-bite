@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useState } from 'react';
 import { BarChart3, Sparkles, ChevronDown } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';

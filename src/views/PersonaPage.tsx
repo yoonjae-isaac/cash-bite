@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useState } from 'react';
 import { ClipboardCheck, Trash2, Info, ChevronDown, Sparkles, ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';

@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 interface RevealProps {
@@ -13,20 +15,27 @@ const reducedMotion = (): boolean =>
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const ioSupported = typeof IntersectionObserver !== 'undefined';
+const ioSupported = (): boolean => typeof IntersectionObserver !== 'undefined';
 
 /**
  * 스크롤 리빌 — 뷰포트 진입 시 opacity/transform 으로 1회 등장.
  * IntersectionObserver + CSS transition 조합(별도 애니메이션 라이브러리 없음).
  * 모션 최소화 선호·IO 미지원 환경에서는 즉시 노출(정적 폴백).
+ *
+ * SSR: 서버와 첫 클라 렌더가 항상 동일하도록 초기 visible=false 로 고정하고,
+ * 폴백(모션 최소화·IO 미지원) 판정은 이펙트(클라 전용)로 옮긴다 → 하이드레이션 미스매치 방지.
  */
 const Reveal = ({ children, className = '', delay = 0 }: RevealProps) => {
-  // 초기값에서 폴백 판정 → 이펙트 내 동기 setState 회피(reveal 은 observer 콜백에서만).
-  const [visible, setVisible] = useState<boolean>(() => reducedMotion() || !ioSupported);
+  const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (visible) return; // 폴백으로 이미 노출됐거나 이미 등장 완료
+    if (visible) return; // 이미 등장 완료
+    // 폴백: 모션 최소화 선호·IO 미지원 → 즉시 노출(모션은 CSS motion-reduce 로 억제).
+    if (reducedMotion() || !ioSupported()) {
+      setVisible(true);
+      return;
+    }
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(

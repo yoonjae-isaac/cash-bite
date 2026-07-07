@@ -12,11 +12,11 @@ function push(payload: Record<string, unknown>): void {
   window.dataLayer.push(payload);
 }
 
-export function trackPageView(page: string): void {
+export function trackPageView(path: string): void {
   push({
     event: 'page_view',
-    page_path: `/${page}`,
-    page_title: page,
+    page_path: path,
+    page_title: path,
   });
 }
 

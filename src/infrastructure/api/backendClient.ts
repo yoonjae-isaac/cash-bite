@@ -25,7 +25,7 @@ interface ErrorEnvelope {
 }
 
 function getBackendBaseUrl(): string {
-  const fromEnv = import.meta.env.VITE_API_BASE_URL as string | undefined;
+  const fromEnv = process.env.NEXT_PUBLIC_API_BASE_URL;
   return (fromEnv || DEFAULT_BASE_URL).replace(/\/$/, '');
 }
 

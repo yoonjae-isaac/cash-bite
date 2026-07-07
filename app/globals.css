@@ -26,6 +26,8 @@
   --cb-on-point: #ffffff;
   --cb-positive: #3b82f6;
   --cb-negative: #f04452;
+  /* 워드마크 'Up' 색 — 상승(positive) 방향을 따라감. 기본 파랑(요청 컬러 #378ADD). */
+  --cb-wordmark-up: #378add;
   --cb-shadow-elevated: 0 2px 12px -4px rgba(0, 0, 0, 0.4);
   --cb-shadow-soft: none;
   --cb-orb-1: transparent;
@@ -80,10 +82,13 @@
 :root[data-updown='swap'] {
   --cb-positive: #f04452;
   --cb-negative: #3b82f6;
+  /* 상승=빨강 → 워드마크 'Up' 도 빨강 */
+  --cb-wordmark-up: #f04452;
 }
 :root[data-theme='light'][data-updown='swap'] {
   --cb-positive: #d93025;
   --cb-negative: #2563eb;
+  --cb-wordmark-up: #d93025;
 }
 
 @theme {
@@ -100,7 +105,10 @@
   --color-cb-point: var(--cb-point);
   --color-cb-point-hover: var(--cb-point-hover);
   --color-cb-on-point: var(--cb-on-point);
+  --color-cb-wordmark-up: var(--cb-wordmark-up);
 
+  /* AntsUp 로고 워드마크 폰트 — Bricolage Grotesque 800 */
+  --font-wordmark: 'Bricolage Grotesque', 'Space Grotesk', 'Pretendard Variable', sans-serif;
   /* 브랜드 워드마크 전용 폰트 — Media Sans(Production Type 유료) 대체 그로테스크체 */
   --font-brand: 'Space Grotesk', 'Pretendard Variable', Pretendard, sans-serif;
 }

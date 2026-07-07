@@ -43,6 +43,11 @@ dist-ssr/
 # TypeScript
 *.tsbuildinfo
 
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+
 # Debugging
 .node_repl_history
 

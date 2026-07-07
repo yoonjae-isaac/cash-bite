@@ -1,5 +1,9 @@
+'use client';
+
+import Link from 'next/link';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
-import { usePageStore } from '../../store/usePageStore';
+import { PATH_OF } from '../../application/routing/pages';
+import Wordmark from './Wordmark';
 import type { PageId } from '../../domain/i18n/types';
 
 const MENU: PageId[] = ['news', 'gurus', 'stock', 'macro'];
@@ -7,12 +11,6 @@ const MENU: PageId[] = ['news', 'gurus', 'stock', 'macro'];
 const Footer = () => {
   const t = useLanguageStore((s) => s.t);
   const language = useLanguageStore((s) => s.language);
-  const navigate = usePageStore((s) => s.navigate);
-
-  const handleNav = (id: PageId) => {
-    navigate(id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const menuLabel: Record<string, string> = {
     news: t.nav.news,
@@ -27,18 +25,8 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* 브랜드 + 태그라인 + 버전·언어 */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-end gap-1.5">
-              <img
-                src="/logo.png"
-                width={32}
-                height={32}
-                alt="AntsUp"
-                className="w-8 h-8 rounded-md object-cover"
-                decoding="async"
-              />
-              <span className="text-xl font-brand font-bold tracking-tight text-cb-foreground">
-                AntsUp
-              </span>
+            <div className="flex items-end">
+              <Wordmark className="text-xl" />
             </div>
             <p className="mt-3 text-sm text-cb-muted leading-relaxed">{t.footer.tagline}</p>
             <span className="mt-3 inline-block text-[11px] font-semibold text-cb-muted/70 tracking-wide">
@@ -54,12 +42,12 @@ const Footer = () => {
             <ul className="space-y-2">
               {MENU.map((id) => (
                 <li key={id}>
-                  <button
-                    onClick={() => handleNav(id)}
+                  <Link
+                    href={PATH_OF[id]}
                     className="text-sm text-cb-muted hover:text-cb-accent transition-colors"
                   >
                     {menuLabel[id]}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -83,9 +71,16 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-cb-border text-xs text-cb-muted">
-          &copy; {new Date().getFullYear()} {t.common.title}.
-          <span className="ml-1">{t.common.footerInfo}</span>
+        <div className="mt-8 pt-6 border-t border-cb-border flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs text-cb-muted">
+          <div>
+            &copy; {new Date().getFullYear()} {t.common.title}.
+            <span className="ml-1">{t.common.footerInfo}</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/about" className="hover:text-cb-accent transition-colors">소개</Link>
+            <Link href="/privacy" className="hover:text-cb-accent transition-colors">개인정보처리방침</Link>
+            <Link href="/terms" className="hover:text-cb-accent transition-colors">이용약관</Link>
+          </div>
         </div>
       </div>
     </footer>

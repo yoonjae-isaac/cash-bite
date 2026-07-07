@@ -16,6 +16,8 @@ export const useCurrencyStore = create<CurrencyState>()(
     {
       name: 'cashbite-currency',
       storage: createJSONStorage(() => localStorage),
+      // SSR: 마운트 후 ClientInit 에서 rehydrate (서버 렌더 크래시·하이드레이션 미스매치 방지).
+      skipHydration: true,
     }
   )
 );

@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LineChart as LineChartIcon } from 'lucide-react';
 import { useMacroStore, type MacroRange } from '../application/macro/useMacroStore';
