@@ -5,6 +5,7 @@ import ThemeToggle from '../../presentation/components/theme/ThemeToggle';
 import UpDownToggle from '../../presentation/components/updown/UpDownToggle';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { usePageStore } from '../../store/usePageStore';
+import { FEATURES } from '../../config/features';
 import type { PageId } from '../../domain/i18n/types';
 
 const Header = () => {
@@ -13,7 +14,10 @@ const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // 데스크톱 탭: 콘텐츠 페이지만 (텍스트 전용). 홈은 로고 클릭으로 이동.
-  const navItems: PageId[] = ['news', 'gurus', 'persona', 'stock', 'macro', 'calendar'];
+  // persona 는 임시 미노출(FEATURES.persona) — 플래그 true 로 즉시 복구.
+  const navItems: PageId[] = (
+    ['news', 'gurus', 'persona', 'stock', 'macro', 'calendar'] as PageId[]
+  ).filter((id) => id !== 'persona' || FEATURES.persona);
 
   // 모바일 드로워 = 데스크톱 탭
   const mobileItems: PageId[] = navItems;

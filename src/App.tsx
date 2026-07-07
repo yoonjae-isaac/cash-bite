@@ -7,6 +7,7 @@ import Reveal from './components/ui/Reveal';
 import { usePortfolioStore } from './store/usePortfolioStore';
 import { useThemeStore } from './application/theme/useThemeStore';
 import { usePageStore } from './store/usePageStore';
+import { FEATURES } from './config/features';
 import ExchangeRateBar from './presentation/components/exchange/ExchangeRateBar';
 import { trackPageView } from './infrastructure/analytics/ga';
 
@@ -66,7 +67,7 @@ function App() {
               {page === 'gurus' && <GuruPage />}
               {page === 'macro' && <MacroPage />}
               {page === 'stock' && <StockPage />}
-              {page === 'persona' && <PersonaPage />}
+              {page === 'persona' && FEATURES.persona && <PersonaPage />}
               {page === 'calendar' && <CalendarPage />}
             </Suspense>
           </Reveal>

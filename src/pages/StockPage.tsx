@@ -6,6 +6,7 @@ import TickerAutocomplete from '../components/stock/TickerAutocomplete';
 import PriceMaChart from '../components/stock/PriceMaChart';
 import TechnicalSignals from '../components/stock/TechnicalSignals';
 import AiAnalysisPanel, { AiLoading } from '../components/stock/AiAnalysisPanel';
+import { FEATURES } from '../config/features';
 import type {
   Financials,
   StatementPeriod,
@@ -582,37 +583,39 @@ const StockPage = () => {
             </div>
           )}
 
-          {/* AI 종합 분석 — 버튼 + 인라인 확장 카드 (기술 + 펀더멘탈) */}
-          <div>
-            <button
-              type="button"
-              onClick={toggleAi}
-              aria-expanded={aiOpen}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cb-accent text-cb-on-accent font-bold text-sm hover:bg-cb-accent-hover transition-colors"
-            >
-              <Sparkles className="w-4 h-4" />
-              {t.stock.ai.button}
-              <ChevronDown
-                className={`w-4 h-4 transition-transform ${aiOpen ? 'rotate-180' : ''}`}
-              />
-            </button>
+          {/* AI 종합 분석 — 버튼 + 인라인 확장 카드 (기술 + 펀더멘탈). 임시 미노출(FEATURES.stockAi). */}
+          {FEATURES.stockAi && (
+            <div>
+              <button
+                type="button"
+                onClick={toggleAi}
+                aria-expanded={aiOpen}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cb-accent text-cb-on-accent font-bold text-sm hover:bg-cb-accent-hover transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                {t.stock.ai.button}
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${aiOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
 
-            {aiOpen && (
-              <div className="mt-3 glass-panel rounded-xl p-5">
-                <h3 className="flex items-center gap-2 text-[15px] font-bold text-cb-foreground mb-4">
-                  <Sparkles className="w-4 h-4 text-cb-point" />
-                  {t.stock.ai.title}
-                </h3>
-                {aiError ? (
-                  <ErrorRetry message={t.stock.ai.error} retryLabel={t.stock.retry} onRetry={retryAi} />
-                ) : !ai ? (
-                  <AiLoading />
-                ) : (
-                  <AiAnalysisPanel data={ai} />
-                )}
-              </div>
-            )}
-          </div>
+              {aiOpen && (
+                <div className="mt-3 glass-panel rounded-xl p-5">
+                  <h3 className="flex items-center gap-2 text-[15px] font-bold text-cb-foreground mb-4">
+                    <Sparkles className="w-4 h-4 text-cb-point" />
+                    {t.stock.ai.title}
+                  </h3>
+                  {aiError ? (
+                    <ErrorRetry message={t.stock.ai.error} retryLabel={t.stock.retry} onRetry={retryAi} />
+                  ) : !ai ? (
+                    <AiLoading />
+                  ) : (
+                    <AiAnalysisPanel data={ai} />
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 탭 */}
           <div className="flex gap-6 border-b border-cb-border" role="tablist" aria-label={t.stock.title}>
