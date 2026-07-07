@@ -481,6 +481,22 @@ export interface TranslationSchema {
     factorMarketSub: string;
     factorCurve: string;
     factorCurveSub: string;
+    assetTitle: string;
+    assetToggle: string;
+    assetFavored: string;
+    assetPressured: string;
+    assetHoldNote: string;
+    assetCaveat: string;
+    assetGrowth: string;
+    assetBanks: string;
+    assetDollar: string;
+    assetGold: string;
+    assetBonds: string;
+    assetReits: string;
+    assetEm: string;
+    assetSmall: string;
+    assetCrypto: string;
+    assetDividend: string;
   };
   persona: {
     title: string;
