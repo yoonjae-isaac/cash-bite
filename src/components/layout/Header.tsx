@@ -12,6 +12,7 @@ import { FEATURES } from '../../config/features';
 import { PATH_OF } from '../../application/routing/pages';
 import Wordmark from './Wordmark';
 import { TOOLS_UI, pick } from '../../domain/tools/catalog';
+import { LEARN_NAV } from '../../domain/learn/articles';
 import type { PageId } from '../../domain/i18n/types';
 
 const Header = () => {
@@ -44,6 +45,7 @@ const Header = () => {
 
   // 투자 도구는 PageId 체계 밖(별도 계산기 섹션) — 전용 링크로 취급.
   const toolsActive = pathname.startsWith('/tools');
+  const learnActive = pathname.startsWith('/learn');
 
   // 링크 클릭 시 모바일 드로워 닫기 + 상단으로 (기존 handleNav 동작 유지). 이동 자체는 <Link> 가 처리.
   const closeMobile = () => {
@@ -107,6 +109,20 @@ const Header = () => {
           >
             {pick(TOOLS_UI.navLabel, lang)}
           </Link>
+          <Link
+            href="/learn"
+            onClick={closeMobile}
+            aria-current={learnActive ? 'page' : undefined}
+            className={[
+              'px-3.5 py-1.5 rounded-lg text-sm whitespace-nowrap',
+              'transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]',
+              learnActive
+                ? 'bg-cb-accent text-cb-on-accent font-semibold hover:bg-cb-accent-hover'
+                : 'font-normal text-cb-muted hover:text-cb-foreground hover:bg-[var(--cb-hover)]',
+            ].join(' ')}
+          >
+            {pick(LEARN_NAV, lang)}
+          </Link>
         </nav>
         </div>
 
@@ -166,6 +182,20 @@ const Header = () => {
               ].join(' ')}
             >
               {pick(TOOLS_UI.navLabel, lang)}
+            </Link>
+            <Link
+              href="/learn"
+              onClick={closeMobile}
+              aria-current={learnActive ? 'page' : undefined}
+              className={[
+                'px-4 py-3 rounded-lg text-sm text-left',
+                'transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]',
+                learnActive
+                  ? 'bg-cb-accent/12 text-cb-accent font-semibold'
+                  : 'font-normal text-cb-foreground hover:bg-[var(--cb-hover)]',
+              ].join(' ')}
+            >
+              {pick(LEARN_NAV, lang)}
             </Link>
           </div>
         </nav>

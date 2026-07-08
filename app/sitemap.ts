@@ -1,11 +1,13 @@
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '../src/config/site';
 import { TOOLS } from '../src/domain/tools/catalog';
+import { ARTICLES } from '../src/domain/learn/articles';
 
 // /sitemap.xml — 네이티브 생성. 공개 route 목록 (persona 제외).
 export default function sitemap(): MetadataRoute.Sitemap {
   const content = ['', '/news', '/gurus', '/stock', '/macro', '/calendar'];
   const toolRoutes = ['/tools', ...TOOLS.map((t) => `/tools/${t.slug}`)];
+  const learnRoutes = ['/learn', ...ARTICLES.map((a) => `/learn/${a.slug}`)];
   const staticPages = ['/about', '/privacy', '/terms'];
   return [
     ...content.map((path) => ({
@@ -17,6 +19,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${SITE_URL}${path}`,
       changeFrequency: 'monthly' as const,
       priority: path === '/tools' ? 0.7 : 0.6,
+    })),
+    ...learnRoutes.map((path) => ({
+      url: `${SITE_URL}${path}`,
+      changeFrequency: 'weekly' as const,
+      priority: path === '/learn' ? 0.7 : 0.6,
     })),
     ...staticPages.map((path) => ({
       url: `${SITE_URL}${path}`,
