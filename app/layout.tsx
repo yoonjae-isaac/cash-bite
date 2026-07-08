@@ -31,13 +31,11 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     url: '/',
     locale: 'ko_KR',
-    images: ['/logo.png'],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: `${SITE_NAME} — 주린이를 위한 주식 정보`,
     description: SITE_DESCRIPTION,
-    images: ['/logo.png'],
   },
   robots: { index: true, follow: true },
   // Search Console 소유확인 — env 설정 시에만 메타 태그 삽입.

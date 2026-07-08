@@ -42,9 +42,20 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     inLanguage: 'ko',
   };
 
+  const breadcrumb = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '홈', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: '투자 도구', item: `${SITE_URL}/tools` },
+      { '@type': 'ListItem', position: 3, name: tool.title.ko, item: `${SITE_URL}/tools/${slug}` },
+    ],
+  };
+
   return (
     <>
       <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumb} />
       <ToolDetail slug={slug} />
     </>
   );

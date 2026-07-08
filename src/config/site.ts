@@ -24,7 +24,6 @@ export function pageMetadata(opts: {
       siteName: SITE_NAME,
       type: 'website',
       locale: 'ko_KR',
-      images: ['/logo.png'],
     },
   };
 }
