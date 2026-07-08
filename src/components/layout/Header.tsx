@@ -11,10 +11,12 @@ import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { FEATURES } from '../../config/features';
 import { PATH_OF } from '../../application/routing/pages';
 import Wordmark from './Wordmark';
+import { TOOLS_UI, pick } from '../../domain/tools/catalog';
 import type { PageId } from '../../domain/i18n/types';
 
 const Header = () => {
   const t = useLanguageStore((state) => state.t);
+  const lang = useLanguageStore((state) => state.language);
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -103,7 +105,7 @@ const Header = () => {
                 : 'font-normal text-cb-muted hover:text-cb-foreground hover:bg-[var(--cb-hover)]',
             ].join(' ')}
           >
-            투자 도구
+            {pick(TOOLS_UI.navLabel, lang)}
           </Link>
         </nav>
         </div>
@@ -163,7 +165,7 @@ const Header = () => {
                   : 'font-normal text-cb-foreground hover:bg-[var(--cb-hover)]',
               ].join(' ')}
             >
-              투자 도구
+              {pick(TOOLS_UI.navLabel, lang)}
             </Link>
           </div>
         </nav>
