@@ -102,9 +102,9 @@ const HomePage = () => {
             <Sparkles className="w-3.5 h-3.5" />
             {t.home.heroEyebrow}
           </span>
-          <h2 className="mt-5 text-3xl md:text-5xl font-brand font-extrabold tracking-tight text-cb-foreground leading-snug whitespace-pre-line">
+          <h1 className="mt-5 text-3xl md:text-5xl font-brand font-extrabold tracking-tight text-cb-foreground leading-snug whitespace-pre-line">
             {t.home.heroTitle}
-          </h2>
+          </h1>
           <p className="mt-4 max-w-2xl mx-auto text-cb-muted text-base md:text-lg leading-relaxed">
             {t.home.heroSubtitle}
           </p>

@@ -64,7 +64,7 @@ const Header = () => {
           onClick={closeMobile}
           className="flex items-center pr-4 shrink-0 group"
         >
-          <Wordmark as="h1" className="text-xl" />
+          <Wordmark as="span" className="text-xl" />
         </Link>
 
         {/* Desktop nav — 텍스트 전용 필드 탭 (선택 시 채움) */}

@@ -309,7 +309,7 @@ const NewsPage = () => {
           <div className="p-2 rounded-xl bg-sky-400/15 text-sky-400">
             <Newspaper className="w-5 h-5" />
           </div>
-          <h2 className="text-2xl font-bold text-cb-foreground">{t.news.title}</h2>
+          <h1 className="text-2xl font-bold text-cb-foreground">{t.news.title}</h1>
         </div>
         <p className="text-cb-muted ml-11">{t.news.subtitle}</p>
       </div>

@@ -535,10 +535,10 @@ const StockPage = () => {
   return (
     <div className="space-y-6">
       <header>
-        <h2 className="flex items-center gap-2 text-2xl md:text-3xl font-bold text-cb-foreground">
+        <h1 className="flex items-center gap-2 text-2xl md:text-3xl font-bold text-cb-foreground">
           <BarChart3 className="w-7 h-7 text-cb-accent" />
           {t.stock.title}
-        </h2>
+        </h1>
         <p className="mt-1.5 text-cb-muted">{t.stock.subtitle}</p>
         <p className="mt-1 text-xs text-cb-muted">{t.stock.examples}</p>
       </header>

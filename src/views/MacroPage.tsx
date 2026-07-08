@@ -89,10 +89,10 @@ const MacroPage = () => {
   return (
     <div className="space-y-6">
       <header>
-        <h2 className="flex items-center gap-2 text-2xl md:text-3xl font-bold text-cb-foreground">
+        <h1 className="flex items-center gap-2 text-2xl md:text-3xl font-bold text-cb-foreground">
           <LineChartIcon className="w-7 h-7 text-cb-accent" />
           {t.macro.title}
-        </h2>
+        </h1>
         <p className="mt-1.5 text-cb-muted">{t.macro.subtitle}</p>
       </header>
 
