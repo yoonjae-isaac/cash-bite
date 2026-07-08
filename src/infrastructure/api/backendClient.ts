@@ -29,12 +29,15 @@ function getBackendBaseUrl(): string {
   return (fromEnv || DEFAULT_BASE_URL).replace(/\/$/, '');
 }
 
-export async function backendGet<T>(path: string): Promise<T> {
+// revalidate(초): 서버 컴포넌트에서 ISR 캐시로 호출할 때 지정. 미지정(클라 호출)은 기본 동작.
+export async function backendGet<T>(path: string, revalidate?: number): Promise<T> {
   let res: Response;
+  const init: RequestInit = { headers: { Accept: 'application/json' } };
+  if (revalidate != null) {
+    (init as RequestInit & { next?: { revalidate: number } }).next = { revalidate };
+  }
   try {
-    res = await fetch(`${getBackendBaseUrl()}${path}`, {
-      headers: { Accept: 'application/json' },
-    });
+    res = await fetch(`${getBackendBaseUrl()}${path}`, init);
   } catch {
     throw new BackendApiError(0, 'NETWORK_ERROR', 'Backend unreachable');
   }

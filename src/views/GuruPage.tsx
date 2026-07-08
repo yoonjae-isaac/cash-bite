@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { Crown, ExternalLink, User, BarChart3 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useGuruStore } from '../application/guru/useGuruStore';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import type { GuruPortfolio } from '../domain/guru/types';
 import InvestorPicker from '../components/guru/InvestorPicker';
 import GuruSummary from '../components/guru/GuruSummary';
-import AllocationDonut from '../components/guru/AllocationDonut';
+// 도넛 차트(recharts)는 클라 전용 — SSR 스킵(보유 테이블은 서버 렌더 유지).
+const AllocationDonut = dynamic(() => import('../components/guru/AllocationDonut'), { ssr: false });
 import PortfolioChanges from '../components/guru/PortfolioChanges';
 import HoldingsTable from '../components/guru/HoldingsTable';
 import GuruExits from '../components/guru/GuruExits';
@@ -39,12 +41,21 @@ const LoadingSkeleton = () => (
   </div>
 );
 
-const PortfolioView = () => {
+const PortfolioView = ({
+  initialPortfolio,
+  initialKey,
+}: {
+  initialPortfolio?: GuruPortfolio;
+  initialKey?: string;
+}) => {
   const t = useLanguageStore((s) => s.t);
   const { selectedKey, portfolios, isLoadingInvestors, isLoadingPortfolio, error, init } =
     useGuruStore();
 
-  const portfolio = portfolios[selectedKey];
+  // 서버 초기 포트폴리오(기본 거장)로 폴백 → SSR/첫 렌더에서 보유 종목 표시.
+  const portfolio =
+    portfolios[selectedKey] ??
+    (initialKey && selectedKey === initialKey ? initialPortfolio : undefined);
   const isLoading = isLoadingInvestors || isLoadingPortfolio;
 
   return (
@@ -92,7 +103,13 @@ const PortfolioView = () => {
   );
 };
 
-const GuruPage = () => {
+const GuruPage = ({
+  initialPortfolio,
+  initialKey,
+}: {
+  initialPortfolio?: GuruPortfolio;
+  initialKey?: string;
+}) => {
   const t = useLanguageStore((s) => s.t);
   const init = useGuruStore((s) => s.init);
   const [tab, setTab] = useState<Tab>('portfolio');
@@ -139,7 +156,11 @@ const GuruPage = () => {
         })}
       </div>
 
-      {tab === 'portfolio' ? <PortfolioView /> : <GuruStats />}
+      {tab === 'portfolio' ? (
+        <PortfolioView initialPortfolio={initialPortfolio} initialKey={initialKey} />
+      ) : (
+        <GuruStats />
+      )}
     </div>
   );
 };

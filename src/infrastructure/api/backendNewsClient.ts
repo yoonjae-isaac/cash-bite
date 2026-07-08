@@ -35,14 +35,22 @@ function normalize(it: BackendNewsItem, index: number): NewsItem {
  * 시장별 최신 뉴스 — 백엔드 DB 피드 (크론이 5분마다 적재). KR=Naver 키워드, US=Finnhub 일반.
  * 프론트는 외부 API 를 직접 호출하지 않고 백엔드 DB 값을 받는다.
  */
-export async function fetchMarketNews(market: 'KR' | 'US', limit = 30): Promise<NewsItem[]> {
-  const data = await backendGet<BackendNewsItem[]>(`/news?market=${market}&limit=${limit}`);
+export async function fetchMarketNews(
+  market: 'KR' | 'US',
+  limit = 30,
+  revalidate?: number,
+): Promise<NewsItem[]> {
+  const data = await backendGet<BackendNewsItem[]>(`/news?market=${market}&limit=${limit}`, revalidate);
   return data.map(normalize);
 }
 
 /** 시장별 AI 다이제스트 리스트 (생성시각 최신순, 매시 누적). 없으면 빈 배열. */
-export function fetchNewsDigests(market: 'KR' | 'US', limit = 24): Promise<NewsDigest[]> {
-  return backendGet<NewsDigest[]>(`/news/digest?market=${market}&limit=${limit}`);
+export function fetchNewsDigests(
+  market: 'KR' | 'US',
+  limit = 24,
+  revalidate?: number,
+): Promise<NewsDigest[]> {
+  return backendGet<NewsDigest[]>(`/news/digest?market=${market}&limit=${limit}`, revalidate);
 }
 
 /** 시장별 최신 다이제스트 1건 (홈 프리뷰용). 없으면 null. */

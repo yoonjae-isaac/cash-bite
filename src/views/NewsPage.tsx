@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Newspaper, RefreshCcw, ExternalLink, Globe, Loader2, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { useNewsStore } from '../application/news/useNewsStore';
@@ -172,7 +172,13 @@ const AnalysisPanel = ({ market, digests, loading, error, onRetry, locale }: Ana
   );
 };
 
-const NewsPage = () => {
+const NewsPage = ({
+  initialNews,
+  initialDigests,
+}: {
+  initialNews?: NewsItem[];
+  initialDigests?: NewsDigest[];
+}) => {
   const t = useLanguageStore((s) => s.t);
   const language = useLanguageStore((s) => s.language);
 
@@ -193,9 +199,12 @@ const NewsPage = () => {
     translateAll,
   } = useNewsStore();
 
+  // 서버 초기 데이터가 있으면 store 가 채워지기 전에도 SSR/첫 렌더에서 뉴스 리스트 표시(폴백).
+  const displayNews = news.length > 0 ? news : (initialNews ?? []);
+
   // 우측 분석 패널 — 선택 시장의 AI 다이제스트 리스트(매시 누적).
-  const [digests, setDigests] = useState<NewsDigest[]>([]);
-  const [digestLoading, setDigestLoading] = useState(true);
+  const [digests, setDigests] = useState<NewsDigest[]>(initialDigests ?? []);
+  const [digestLoading, setDigestLoading] = useState(!initialDigests);
   const [digestError, setDigestError] = useState(false);
 
   // 비동기 경로에서만 setState (effect 내 동기 setState 회피) — 로딩 토글은 이벤트 핸들러에서.
@@ -214,10 +223,15 @@ const NewsPage = () => {
     fetchNews();
   }, [fetchNews]);
 
-  // 시장 변경/마운트 시 분석 다이제스트 로드
+  // 시장 변경/마운트 시 분석 다이제스트 로드. 서버가 KR 다이제스트를 줬으면 마운트 재요청 생략.
+  const didInitialDigest = useRef(false);
   useEffect(() => {
+    if (!didInitialDigest.current) {
+      didInitialDigest.current = true;
+      if (initialDigests && market === 'KR') return;
+    }
     loadDigest(market);
-  }, [market, loadDigest]);
+  }, [market, loadDigest, initialDigests]);
 
   // When news loads or language changes, (re-)init translation
   useEffect(() => {
@@ -363,12 +377,11 @@ const NewsPage = () => {
             </div>
           )}
 
-          {isLoading &&
+          {isLoading && displayNews.length === 0 &&
             Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
 
-          {!isLoading &&
-            news.length > 0 &&
-            news.map((item) => (
+          {displayNews.length > 0 &&
+            displayNews.map((item) => (
               <NewsCard
                 key={item.id}
                 item={item}
@@ -377,7 +390,7 @@ const NewsPage = () => {
               />
             ))}
 
-          {!isLoading && !error && news.length === 0 && (
+          {!isLoading && !error && displayNews.length === 0 && (
             <div className="glass-panel p-12 flex flex-col items-center gap-3 text-center">
               <Newspaper className="w-10 h-10 text-cb-muted/30" />
               <p className="text-sm text-cb-muted">{t.news.noNews}</p>

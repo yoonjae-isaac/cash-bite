@@ -56,12 +56,19 @@ const companyName = (symbol: string, lang: string): string | null => {
   return name || null;
 };
 
-const CalendarPage = () => {
+const CalendarPage = ({
+  initialData = null,
+  initialFrom,
+}: {
+  initialData?: UsCalendarWeek | null;
+  initialFrom?: string;
+}) => {
   const t = useLanguageStore((s) => s.t);
   const lang = useLanguageStore((s) => s.language);
 
-  const [anchor, setAnchor] = useState<Date>(() => new Date());
-  const [data, setData] = useState<UsCalendarWeek | null>(null);
+  // 서버가 내려준 주(initialFrom)로 초기화 → 서버·첫 클라 렌더 일치(하이드레이션 미스매치 방지).
+  const [anchor, setAnchor] = useState<Date>(() => (initialFrom ? parseYMD(initialFrom) : new Date()));
+  const [data, setData] = useState<UsCalendarWeek | null>(initialData);
   const [error, setError] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const latestReq = useRef('');
@@ -85,9 +92,15 @@ const CalendarPage = () => {
       });
   }, []);
 
+  const didInitial = useRef(false);
   useEffect(() => {
+    if (!didInitial.current) {
+      didInitial.current = true;
+      // 서버 초기 데이터가 현재 주를 커버하면 마운트 재요청 생략. 주 이동 시엔 항상 로드.
+      if (initialData && initialData.from === from && initialData.to === to) return;
+    }
     load(from, to);
-  }, [from, to, load]);
+  }, [from, to, load, initialData]);
 
   // 요청한 주와 로드된 주가 다르면 로딩 중. 오래된 주의 카운트/목록이 섞이지 않도록 현재 주만 사용.
   const currentData = data?.from === from && data.to === to ? data : null;

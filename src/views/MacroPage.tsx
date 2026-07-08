@@ -50,16 +50,23 @@ const SummaryCards = ({ data }: { data: MacroSeriesData }) => {
   );
 };
 
-const MacroPage = () => {
+const MacroPage = ({
+  initialOverview,
+  initialOutlook,
+}: {
+  initialOverview?: MacroOverviewRow[];
+  initialOutlook?: RateOutlook | null;
+}) => {
   const t = useLanguageStore((s) => s.t);
   const lang = useLanguageStore((s) => s.language);
   const { selectedId, range, seriesCache, isLoadingSeries, error, init, selectSeries, setRange } =
     useMacroStore();
 
-  const [overview, setOverview] = useState<MacroOverviewRow[]>([]);
+  // 서버가 내려준 overview·outlook 으로 초기화 → SSR 콘텐츠(첫 렌더부터 표시).
+  const [overview, setOverview] = useState<MacroOverviewRow[]>(initialOverview ?? []);
   const [overviewError, setOverviewError] = useState(false);
-  const [outlook, setOutlook] = useState<RateOutlook | null>(null);
-  const [outlookLoading, setOutlookLoading] = useState(true);
+  const [outlook, setOutlook] = useState<RateOutlook | null>(initialOutlook ?? null);
+  const [outlookLoading, setOutlookLoading] = useState(!initialOutlook);
   const detailRef = useRef<HTMLDivElement>(null);
 
   const loadOverview = useCallback(() => {
@@ -69,14 +76,24 @@ const MacroPage = () => {
       .catch(() => setOverviewError(true));
   }, []);
 
+  // 시리즈 상세(차트)는 항상 클라 스토어에서 로드.
   useEffect(() => {
     init();
+  }, [init]);
+
+  // overview·outlook 은 서버가 값을 줬으면 재요청 생략, 없으면(로컬·장애) 클라 폴백 fetch.
+  useEffect(() => {
+    if (initialOverview && initialOverview.length > 0) return;
     loadOverview();
+  }, [initialOverview, loadOverview]);
+
+  useEffect(() => {
+    if (initialOutlook) return;
     fetchRateOutlook()
       .then(setOutlook)
       .catch(() => setOutlook(null))
       .finally(() => setOutlookLoading(false));
-  }, [init, loadOverview]);
+  }, [initialOutlook]);
 
   const onSelect = (id: string) => {
     void selectSeries(id);
