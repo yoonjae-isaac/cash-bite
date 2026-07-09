@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import Script from 'next/script';
+import { Space_Grotesk, Bricolage_Grotesque } from 'next/font/google';
 import '../globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -15,6 +16,10 @@ import { LanguageProvider } from '@/application/i18n/useLanguageStore';
 import { SITE_URL, SITE_NAME, SITE_TAGLINE_LOC, SITE_DESCRIPTION_LOC, localePath, LOCALES, type Locale } from '@/config/site';
 import { routing } from '@/i18n/routing';
 import type { Language } from '@/domain/i18n/types';
+
+// 브랜드/워드마크 폰트 — next/font 로 셀프호스팅(빌드 시 번들, zero-CLS). Pretendard(한글)만 CDN 유지.
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk', display: 'swap' });
+const bricolage = Bricolage_Grotesque({ subsets: ['latin'], variable: '--font-bricolage', display: 'swap' });
 
 const GTM_ID = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_KEY;
 const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
@@ -91,23 +96,14 @@ export default async function LocaleLayout({
   setRequestLocale(locale); // 정적 렌더 활성화(플러그인 request 설정과 연동)
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} className={`${spaceGrotesk.variable} ${bricolage.variable}`} suppressHydrationWarning>
       <head>
+        {/* Pretendard(한글)만 CDN dynamic-subset 유지. Space Grotesk·Bricolage 는 next/font 셀프호스팅. */}
         <link
           rel="stylesheet"
           as="style"
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-        />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap"
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@800&display=swap"
         />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <script dangerouslySetInnerHTML={{ __html: consentInitScript }} />

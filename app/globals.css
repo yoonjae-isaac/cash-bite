@@ -107,10 +107,10 @@
   --color-cb-on-point: var(--cb-on-point);
   --color-cb-wordmark-up: var(--cb-wordmark-up);
 
-  /* AntsUp 로고 워드마크 폰트 — Bricolage Grotesque 800 */
-  --font-wordmark: 'Bricolage Grotesque', 'Space Grotesk', 'Pretendard Variable', sans-serif;
-  /* 브랜드 워드마크 전용 폰트 — Media Sans(Production Type 유료) 대체 그로테스크체 */
-  --font-brand: 'Space Grotesk', 'Pretendard Variable', Pretendard, sans-serif;
+  /* AntsUp 로고 워드마크 폰트 — Bricolage Grotesque(next/font 셀프호스팅) */
+  --font-wordmark: var(--font-bricolage), var(--font-space-grotesk), 'Pretendard Variable', sans-serif;
+  /* 브랜드 워드마크 전용 폰트 — Space Grotesk(next/font 셀프호스팅) */
+  --font-brand: var(--font-space-grotesk), 'Pretendard Variable', Pretendard, sans-serif;
 }
 
 @layer base {
