@@ -1,6 +1,7 @@
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './src/i18n/routing';
 
+// Next 16 proxy 규칙(구 middleware). next-intl 로케일 라우팅.
 export default createMiddleware(routing);
 
 export const config = {
