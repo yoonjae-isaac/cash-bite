@@ -1,7 +1,7 @@
 'use client';
 
 import { Newspaper, Crown, LineChart, BarChart3, CalendarDays, ArrowRight, Lock, Zap, CreditCard, Smartphone, Lightbulb, Sparkles } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { PATH_OF } from '../application/routing/pages';
 import type { PageId } from '../domain/i18n/types';
@@ -17,8 +17,14 @@ type Tool = {
   bg: string;
 };
 
+const CARD_CTA = {
+  goto: { ko: '바로가기', en: 'Open', ja: '開く' },
+  start: { ko: '시작하기', en: 'Start', ja: '始める' },
+} as const;
+
 const HomePage = () => {
   const t = useLanguageStore((s) => s.t);
+  const lang = useLanguageStore((s) => s.language);
 
   // 노출 도구 — news·gurus·stock·macro·calendar
   const tools: Tool[] = [
@@ -183,7 +189,7 @@ const HomePage = () => {
                 <h4 className="font-bold text-cb-foreground">{step.title}</h4>
                 <p className="text-sm text-cb-muted leading-relaxed">{step.desc}</p>
                 <div className="mt-auto flex items-center gap-1 text-xs font-semibold text-cb-accent opacity-0 group-hover:opacity-100 transition-opacity">
-                  바로가기 <ArrowRight className="w-3.5 h-3.5" />
+                  {CARD_CTA.goto[lang]} <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
             ))}
@@ -215,7 +221,7 @@ const HomePage = () => {
                   <p className="text-sm text-cb-muted leading-relaxed">{toolLabels[i].desc}</p>
                 </div>
                 <div className={`mt-auto flex items-center gap-1 text-xs font-semibold ${tool.color} opacity-0 group-hover:opacity-100 transition-opacity`}>
-                  시작하기 <ArrowRight className="w-3.5 h-3.5" />
+                  {CARD_CTA.start[lang]} <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </Link>
             ))}

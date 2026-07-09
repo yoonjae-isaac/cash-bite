@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useThemeStore } from '../../application/theme/useThemeStore';
 import { useUpDownStore } from '../../application/preferences/useUpDownStore';
 import { useCurrencyStore } from '../../application/currency/useCurrencyStore';
-import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { usePortfolioStore } from '../../store/usePortfolioStore';
 import { usePortfolioEvalStore } from '../../store/usePortfolioEvalStore';
 
@@ -18,7 +17,7 @@ export default function ClientInit() {
     useThemeStore.persist.rehydrate();
     useUpDownStore.persist.rehydrate();
     useCurrencyStore.persist.rehydrate();
-    useLanguageStore.persist.rehydrate();
+    // 언어는 LocaleProvider 가 URL 로케일로 설정(스토어 rehydrate 제외 — URL 이 권위).
     usePortfolioStore.persist.rehydrate();
     usePortfolioEvalStore.persist.rehydrate();
     // 환율 초기 로드 (portfolio rehydrate 후 → 캐시된 ratesLastFetched 를 인식해 중복 요청 회피)

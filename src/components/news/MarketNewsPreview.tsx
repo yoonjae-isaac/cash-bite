@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { PATH_OF } from '../../application/routing/pages';

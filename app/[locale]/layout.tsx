@@ -1,0 +1,161 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { hasLocale, NextIntlClientProvider } from 'next-intl';
+import { setRequestLocale } from 'next-intl/server';
+import Script from 'next/script';
+import '../globals.css';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import ExchangeRateBar from '@/presentation/components/exchange/ExchangeRateBar';
+import ClientInit from '@/components/app/ClientInit';
+import GaRouteTracker from '@/components/app/GaRouteTracker';
+import AppToaster from '@/components/app/AppToaster';
+import ConsentBanner from '@/components/app/ConsentBanner';
+import { LanguageProvider } from '@/application/i18n/useLanguageStore';
+import { SITE_URL, SITE_NAME, SITE_TAGLINE_LOC, SITE_DESCRIPTION_LOC, localePath, LOCALES, type Locale } from '@/config/site';
+import { routing } from '@/i18n/routing';
+import type { Language } from '@/domain/i18n/types';
+
+const GTM_ID = process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER_KEY;
+const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
+const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+const OG_LOCALE: Record<Locale, string> = { ko: 'ko_KR', en: 'en_US', ja: 'ja_JP' };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: raw } = await params;
+  const locale = (hasLocale(routing.locales, raw) ? raw : 'ko') as Locale;
+  const tagline = SITE_TAGLINE_LOC[locale];
+  const description = SITE_DESCRIPTION_LOC[locale];
+  const homeTitle = `${SITE_NAME} — ${tagline}`;
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: homeTitle,
+      template: `%s · ${SITE_NAME}`,
+    },
+    description,
+    applicationName: SITE_NAME,
+    icons: { icon: '/logo.png' },
+    alternates: {
+      canonical: localePath(locale, '/'),
+      languages: {
+        ko: localePath('ko', '/'),
+        en: localePath('en', '/'),
+        ja: localePath('ja', '/'),
+        'x-default': localePath('ko', '/'),
+      },
+    },
+    openGraph: {
+      type: 'website',
+      siteName: SITE_NAME,
+      title: homeTitle,
+      description,
+      url: localePath(locale, '/'),
+      locale: OG_LOCALE[locale],
+      alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: homeTitle,
+      description,
+    },
+    robots: { index: true, follow: true },
+    ...(GOOGLE_SITE_VERIFICATION ? { verification: { google: GOOGLE_SITE_VERIFICATION } } : {}),
+  };
+}
+
+const themeInitScript = `(function(){try{var t=localStorage.getItem('theme-storage');var m='dark';if(t){var p=JSON.parse(t);if(p&&p.state&&p.state.theme==='light')m='light';}document.documentElement.dataset.theme=m;}catch(e){document.documentElement.dataset.theme='dark';}try{var u=localStorage.getItem('updown-storage');var n='default';if(u){var q=JSON.parse(u);if(q&&q.state&&q.state.mode==='swap')n='swap';}document.documentElement.dataset.updown=n;}catch(e){document.documentElement.dataset.updown='default';}})();`;
+
+const consentInitScript = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});`;
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+  setRequestLocale(locale); // 정적 렌더 활성화(플러그인 request 설정과 연동)
+
+  return (
+    <html lang={locale} suppressHydrationWarning>
+      <head>
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin="anonymous"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@800&display=swap"
+        />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: consentInitScript }} />
+      </head>
+      <body>
+        <NextIntlClientProvider locale={locale}>
+        {GTM_ID && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+        )}
+        {GTM_ID && (
+          <Script id="gtm-init" strategy="afterInteractive">
+            {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');`}
+          </Script>
+        )}
+        {ADSENSE_CLIENT && (
+          <Script
+            id="adsbygoogle-init"
+            async
+            strategy="afterInteractive"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+          />
+        )}
+
+        <ClientInit />
+        <GaRouteTracker />
+        <AppToaster />
+        <ConsentBanner />
+
+        <LanguageProvider language={locale as Language}>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <ExchangeRateBar />
+            <main className="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-6 py-8 md:py-10">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </LanguageProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  );
+}

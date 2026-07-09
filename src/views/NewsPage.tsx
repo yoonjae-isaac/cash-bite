@@ -51,6 +51,10 @@ interface NewsCardProps {
   locale: string;
 }
 
+// 카드 CTA / 갱신 라벨(다국어). locale 은 언어 코드(ko/en/ja)로 전달됨.
+const READ_ORIGINAL: Record<string, string> = { ko: '원문 보기', en: 'View original', ja: '原文を見る' };
+const UPDATED_SUFFIX: Record<string, string> = { ko: '갱신', en: 'updated', ja: '更新' };
+
 const NewsCard = ({ item, translation, locale }: NewsCardProps) => (
   <a
     href={item.url}
@@ -87,7 +91,7 @@ const NewsCard = ({ item, translation, locale }: NewsCardProps) => (
       {/* Read more */}
       <span className="flex items-center gap-1 text-[10px] text-cb-muted/50 group-hover:text-cb-accent transition-colors mt-auto">
         <ExternalLink className="w-2.5 h-2.5" />
-        원문 보기
+        {READ_ORIGINAL[locale] ?? READ_ORIGINAL.ko}
       </span>
     </div>
   </a>
@@ -350,7 +354,7 @@ const NewsPage = ({
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           {lastUpdatedText && (
-            <span className="text-xs text-cb-muted/60">{lastUpdatedText} 갱신</span>
+            <span className="text-xs text-cb-muted/60">{lastUpdatedText} {UPDATED_SUFFIX[language] ?? UPDATED_SUFFIX.ko}</span>
           )}
           <button
             onClick={handleRefresh}

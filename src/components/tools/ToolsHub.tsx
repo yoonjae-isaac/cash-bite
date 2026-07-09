@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { TOOLS, CATEGORY_ORDER, CATEGORY_LABEL, TOOLS_UI, pick } from '../../domain/tools/catalog';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 

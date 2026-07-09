@@ -4,7 +4,10 @@ import { useEffect } from 'react';
 import { RefreshCcw, Clock } from 'lucide-react';
 import { usePortfolioStore } from '../../../store/usePortfolioStore';
 import { useIndicesStore } from '../../../application/market/useIndicesStore';
+import { useLanguageStore } from '../../../application/i18n/useLanguageStore';
 import { trackEvent } from '../../../infrastructure/analytics/ga';
+
+const REFRESH_LABEL: Record<string, string> = { ko: '새로고침', en: 'Refresh', ja: '更新' };
 
 /** 지수 행에 노출할 항목 — 코드(하드코딩, FX 아이템과 동일 컨벤션). */
 const INDEX_META: { symbol: string; code: string }[] = [
@@ -15,11 +18,22 @@ const INDEX_META: { symbol: string; code: string }[] = [
   { symbol: '^N225', code: 'NIKKEI' },
 ];
 
-function relativeTime(ts: number): string {
+function relativeTime(ts: number, lang: string): string {
   const diffMin = Math.floor((Date.now() - ts) / 60_000);
+  const h = Math.floor(diffMin / 60);
+  if (lang === 'en') {
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    return `${h}h ago`;
+  }
+  if (lang === 'ja') {
+    if (diffMin < 1) return 'たった今';
+    if (diffMin < 60) return `${diffMin}分前`;
+    return `${h}時間前`;
+  }
   if (diffMin < 1) return '방금';
   if (diffMin < 60) return `${diffMin}분 전`;
-  return `${Math.floor(diffMin / 60)}시간 전`;
+  return `${h}시간 전`;
 }
 
 const formatPrice = (n: number): string =>
@@ -54,6 +68,7 @@ const Chip = ({ tone, children }: { tone: Tone; children: React.ReactNode }) => 
 const ExchangeRateBar = () => {
   const { rates, fetchExchangeRate, isLoading, ratesLastFetched } = usePortfolioStore();
   const { indices, fetchIndices, isLoading: indicesLoading } = useIndicesStore();
+  const lang = useLanguageStore((s) => s.language);
 
   const krwRate = rates?.KRW ?? 0;
   const jpyRate = rates?.JPY ?? 0;
@@ -141,14 +156,14 @@ const ExchangeRateBar = () => {
           {ratesLastFetched && (
             <span className="hidden sm:flex items-center gap-1 text-[10px] text-cb-muted/50">
               <Clock className="w-2.5 h-2.5" />
-              {relativeTime(ratesLastFetched)}
+              {relativeTime(ratesLastFetched, lang)}
             </span>
           )}
           <button
             onClick={refresh}
             disabled={busy}
             className="p-1 rounded text-cb-muted hover:text-cb-accent hover:bg-[var(--cb-hover)] transition-colors disabled:opacity-40"
-            title="새로고침"
+            title={REFRESH_LABEL[lang] ?? REFRESH_LABEL.ko}
           >
             <RefreshCcw className={`w-3 h-3 ${busy ? 'animate-spin' : ''}`} />
           </button>

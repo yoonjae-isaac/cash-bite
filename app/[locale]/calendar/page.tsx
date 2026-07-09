@@ -1,15 +1,19 @@
 import type { Metadata } from 'next';
-import Reveal from '../../src/components/ui/Reveal';
-import CalendarPage from '../../src/views/CalendarPage';
-import { pageMetadata } from '../../src/config/site';
-import { fetchUsCalendar } from '../../src/infrastructure/api/calendarClient';
-import type { UsCalendarWeek } from '../../src/domain/calendar/types';
+import Reveal from '@/components/ui/Reveal';
+import CalendarPage from '@/views/CalendarPage';
+import { setRequestLocale } from 'next-intl/server';
+import { staticPageMetadata, type Locale } from '@/config/site';
+import { fetchUsCalendar } from '@/infrastructure/api/calendarClient';
+import type { UsCalendarWeek } from '@/domain/calendar/types';
 
-export const metadata: Metadata = pageMetadata({
-  title: '경제 캘린더',
-  description: '미국 실적 발표·경제지표·IPO 일정을 주간 캘린더로 확인하세요.',
-  path: '/calendar',
-});
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return staticPageMetadata('/calendar', locale as Locale);
+}
 
 // ISR — 1시간마다 재생성. 서버에서 이번 주 일정을 렌더해 SSR 콘텐츠 확보(색인·AdSense).
 export const revalidate = 3600;
@@ -26,7 +30,9 @@ function thisWeekMonFri(): { from: string; to: string } {
   return { from: ymd(mon), to: ymd(fri) };
 }
 
-export default async function Page() {
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   const { from, to } = thisWeekMonFri();
   let initialData: UsCalendarWeek | null = null;
   try {

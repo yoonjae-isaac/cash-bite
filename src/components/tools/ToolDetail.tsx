@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ChevronLeft } from 'lucide-react';
 import { getTool, pick, TOOLS_UI } from '../../domain/tools/catalog';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';

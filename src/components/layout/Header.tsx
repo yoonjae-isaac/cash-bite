@@ -2,8 +2,8 @@
 
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link } from '@/i18n/navigation';
+import { usePathname } from '@/i18n/navigation';
 import LanguageSwitcher from '../../presentation/components/i18n/LanguageSwitcher';
 import ThemeToggle from '../../presentation/components/theme/ThemeToggle';
 import UpDownToggle from '../../presentation/components/updown/UpDownToggle';

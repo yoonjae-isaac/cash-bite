@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useMemo, useState } from 'react';
+import { Link } from '@/i18n/navigation';
 import {
-  ARTICLES,
+  getArticles,
   LEARN_CATEGORIES,
   LEARN_CATEGORY_LABEL,
+  LEARN_UI,
+  pickL,
+  readMinLabel,
+  type Lang,
   type LearnCategory,
 } from '../../domain/learn/articles';
+import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import CategoryPill from './CategoryPill';
 
 const Dot = () => <span className="w-[3px] h-[3px] rounded-full bg-current opacity-60" />;
@@ -40,28 +45,30 @@ function Chip({
 
 /** 학습 게시판 목록 — 카테고리 필터 + featured + 카드 그리드. 표시 전용(카드 클릭 → 상세 route). */
 export default function LearnBoard() {
+  const lang = useLanguageStore((s) => s.language) as Lang;
   const [filter, setFilter] = useState<'all' | LearnCategory>('all');
-  const featured = ARTICLES.find((a) => a.featured);
-  const rest = ARTICLES.filter((a) => a !== featured);
+  const articles = useMemo(() => getArticles(lang), [lang]);
+  const featured = articles.find((a) => a.featured);
+  const rest = articles.filter((a) => a !== featured);
   const show = (cat: LearnCategory) => filter === 'all' || cat === filter;
 
   return (
     <div className="max-w-[1040px] mx-auto">
-      <div className="text-xs font-extrabold tracking-[0.12em] uppercase text-cb-point">Learn</div>
+      <div className="text-xs font-extrabold tracking-[0.12em] uppercase text-cb-point">{pickL(LEARN_UI.eyebrow, lang)}</div>
       <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2.5 mb-2 text-cb-foreground">
-        투자, 하나씩 배우기
+        {pickL(LEARN_UI.boardTitle, lang)}
       </h1>
       <p className="text-cb-muted text-base max-w-[56ch] leading-relaxed">
-        주식이 처음이라도 괜찮아요. 개념 하나, 원칙 하나씩 짧고 쉽게. 읽고 나면 바로 계산기로 연습해 보세요.
+        {pickL(LEARN_UI.boardSubtitle, lang)}
       </p>
 
       <div className="flex flex-wrap gap-2 my-6">
         <Chip active={filter === 'all'} onClick={() => setFilter('all')}>
-          전체
+          {pickL(LEARN_UI.filterAll, lang)}
         </Chip>
         {LEARN_CATEGORIES.map((c) => (
           <Chip key={c} active={filter === c} onClick={() => setFilter(c)}>
-            {LEARN_CATEGORY_LABEL[c]}
+            {pickL(LEARN_CATEGORY_LABEL[c], lang)}
           </Chip>
         ))}
       </div>
@@ -73,16 +80,16 @@ export default function LearnBoard() {
         >
           <div className="p-7 flex flex-col gap-3.5 order-2 md:order-1">
             <div>
-              <CategoryPill category={featured.category} />
+              <CategoryPill category={featured.category} lang={lang} />
             </div>
             <h2 className="text-2xl font-extrabold tracking-tight leading-snug text-cb-foreground group-hover:text-cb-accent transition-colors">
               {featured.title}
             </h2>
             <p className="text-cb-muted text-[15px] leading-relaxed">{featured.excerpt}</p>
             <div className="mt-auto flex items-center gap-2.5 text-xs text-cb-muted">
-              <span className="font-bold text-cb-foreground/80">AntsUp 에디터</span>
+              <span className="font-bold text-cb-foreground/80">{pickL(LEARN_UI.editor, lang)}</span>
               <Dot />
-              {featured.readMin}분
+              {readMinLabel(featured.readMin, lang)}
               <Dot />
               {featured.date}
             </div>
@@ -103,7 +110,7 @@ export default function LearnBoard() {
       )}
 
       <div className="flex items-center gap-2.5 mt-10 mb-3.5">
-        <span className="text-[13px] font-extrabold tracking-[0.06em] uppercase text-cb-muted/70">최신 글</span>
+        <span className="text-[13px] font-extrabold tracking-[0.06em] uppercase text-cb-muted/70">{pickL(LEARN_UI.latest, lang)}</span>
         <span className="flex-1 border-t border-cb-border" />
       </div>
 
@@ -115,14 +122,14 @@ export default function LearnBoard() {
             className="group glass-panel p-5 flex flex-col gap-2.5 min-h-[172px] hover:-translate-y-0.5 hover:border-cb-accent/35 transition-all duration-300"
           >
             <div>
-              <CategoryPill category={a.category} />
+              <CategoryPill category={a.category} lang={lang} />
             </div>
             <h3 className="text-[17px] font-bold leading-snug text-cb-foreground group-hover:text-cb-accent transition-colors">
               {a.title}
             </h3>
             <p className="text-cb-muted text-[13.5px] leading-relaxed line-clamp-2">{a.excerpt}</p>
             <div className="mt-auto flex items-center gap-2.5 text-xs text-cb-muted">
-              <span>{a.readMin}분</span>
+              <span>{readMinLabel(a.readMin, lang)}</span>
               <Dot />
               <span>{a.date}</span>
             </div>

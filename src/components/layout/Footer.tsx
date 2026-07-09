@@ -1,12 +1,19 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { PATH_OF } from '../../application/routing/pages';
 import Wordmark from './Wordmark';
 import type { PageId } from '../../domain/i18n/types';
 
 const MENU: PageId[] = ['news', 'gurus', 'stock', 'macro'];
+
+// 하단 법적 링크 라벨(다국어) — t 스키마 밖 항목이라 별도 맵.
+const LEGAL_LABELS = {
+  about: { ko: '소개', en: 'About', ja: '概要' },
+  privacy: { ko: '개인정보처리방침', en: 'Privacy Policy', ja: 'プライバシーポリシー' },
+  terms: { ko: '이용약관', en: 'Terms of Service', ja: '利用規約' },
+} as const;
 
 const Footer = () => {
   const t = useLanguageStore((s) => s.t);
@@ -77,9 +84,9 @@ const Footer = () => {
             <span className="ml-1">{t.common.footerInfo}</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/about" className="hover:text-cb-accent transition-colors">소개</Link>
-            <Link href="/privacy" className="hover:text-cb-accent transition-colors">개인정보처리방침</Link>
-            <Link href="/terms" className="hover:text-cb-accent transition-colors">이용약관</Link>
+            <Link href="/about" className="hover:text-cb-accent transition-colors">{LEGAL_LABELS.about[language]}</Link>
+            <Link href="/privacy" className="hover:text-cb-accent transition-colors">{LEGAL_LABELS.privacy[language]}</Link>
+            <Link href="/terms" className="hover:text-cb-accent transition-colors">{LEGAL_LABELS.terms[language]}</Link>
           </div>
         </div>
       </div>
