@@ -128,9 +128,7 @@ const ARTICLES_SRC: ArticleL[] = [
     date: '2026.07.08',
     featured: true,
     relatedTools: [
-      { slug: 'averaging', label: { ko: '물타기·불타기 평단 계산기', en: 'Average-cost calculator', ja: '平均取得単価 計算ツール' } },
-      { slug: 'position-size', label: { ko: '포지션 사이징 계산기', en: 'Position-sizing calculator', ja: 'ポジションサイジング 計算ツール' } },
-    ],
+      { slug: 'averaging', label: { ko: '물타기·불타기 평단 계산기', en: 'Average-cost calculator', ja: '平均取得単価 計算ツール' } },    ],
     body: [
       {
         type: 'lead',
@@ -370,9 +368,7 @@ const ARTICLES_SRC: ArticleL[] = [
     readMin: 6,
     date: '2026.07.05',
     relatedTools: [
-      { slug: 'stop-target', label: { ko: '손절·익절 계산기', en: 'Stop-loss / take-profit calculator', ja: '損切り・利確 計算ツール' } },
-      { slug: 'position-size', label: { ko: '포지션 사이징 계산기', en: 'Position-sizing calculator', ja: 'ポジションサイジング 計算ツール' } },
-    ],
+      { slug: 'stop-target', label: { ko: '손절·익절 계산기', en: 'Stop-loss / take-profit calculator', ja: '損切り・利確 計算ツール' } },    ],
     body: [
       {
         type: 'lead',

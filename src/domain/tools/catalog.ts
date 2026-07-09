@@ -4,7 +4,6 @@ import {
   dividend,
   fmtNumber,
   overseasTax,
-  positionSize,
   recoveryPct,
   rule72,
   sipMonthly,
@@ -252,41 +251,6 @@ export const TOOLS: ToolCalc[] = [
             { label: L('1차', '1st', '1回目'), amount: v.p1 * v.q1, tone: 'base' },
             { label: L('2차', '2nd', '2回目'), amount: v.p2 * v.q2, tone: 'point' },
             { label: L('3차', '3rd', '3回目'), amount: v.p3 * v.q3, tone: 'positive' },
-          ],
-        },
-      };
-    },
-  },
-  {
-    slug: 'position-size',
-    category: 'trade',
-    title: L('포지션 사이징 계산기', 'Position Sizing Calculator', 'ポジションサイズ計算機'),
-    tagline: L('감수 리스크에 맞는 매수 금액을 계산합니다.', 'Buy amount that fits your risk budget.', '許容リスクに合った買付金額を計算。'),
-    description: L(
-      '한 번의 매매에서 계좌의 몇 %까지 잃을지(감수 리스크)와 손절 폭을 정하면, 그 리스크에 맞는 적정 매수 금액을 계산합니다. 계좌를 지키는 리스크 관리의 기본입니다.',
-      'Set how much of your account you are willing to lose per trade (risk) and your stop width to get the right position size. A cornerstone of protecting your account.',
-      '1回の売買で口座の何%まで失うか（許容リスク）と損切り幅を決めると、適切な買付金額を計算します。口座を守るリスク管理の基本です。',
-    ),
-    formula: L('매수금액 = (계좌 × 리스크%) ÷ 손절폭%', 'Position = (account × risk%) ÷ stop%', '買付金額 = (口座 × リスク%) ÷ 損切り幅%'),
-    inputs: [
-      { key: 'account', label: L('계좌 자금', 'Account size', '口座資金'), unit: 'currency', defaultValue: 10000000 },
-      { key: 'riskPct', label: L('감수 리스크', 'Risk per trade', '許容リスク'), unit: U.pct, defaultValue: 2, step: 0.1, slider: { min: 0.5, max: 10 } },
-      { key: 'stopPct', label: L('손절 폭', 'Stop-loss', '損切り幅'), unit: U.pct, defaultValue: 8, step: 0.1, slider: { min: 1, max: 30 } },
-    ],
-    compute: (v) => {
-      const r = positionSize(v.account, v.riskPct, v.stopPct);
-      const pos = Math.min(r.positionAmount, v.account);
-      return {
-        results: [
-          { label: L('적정 매수 금액', 'Position size', '適正買付金額'), value: fmtNumber(r.positionAmount, 0), unit: 'currency', emphasize: true },
-          { label: L('최대 손실액', 'Max loss', '最大損失額'), value: fmtNumber(r.maxLoss, 0), unit: 'currency' },
-        ],
-        viz: {
-          type: 'stack',
-          caption: L('계좌 대비 비중', 'Share of account', '口座に対する割合'),
-          segments: [
-            { label: L('이 매매 투입', 'This trade', 'この売買'), amount: pos, tone: 'point' },
-            { label: L('잔여', 'Remaining', '残り'), amount: Math.max(0, v.account - pos), tone: 'base' },
           ],
         },
       };

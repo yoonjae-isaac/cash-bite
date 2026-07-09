@@ -10,7 +10,9 @@ interface CurrencyState {
 export const useCurrencyStore = create<CurrencyState>()(
   persist(
     (set) => ({
-      currency: 'USD',
+      // 기본 KRW — 계산기 기본 입력값이 원화 스케일이라 첫 화면이 자연스럽고, 국내 주린이 주 타깃.
+      // 달러는 토글 한 번(+ 실시간 원화 환산 노출)으로 전환.
+      currency: 'KRW',
       setCurrency: (currency) => set({ currency }),
     }),
     {

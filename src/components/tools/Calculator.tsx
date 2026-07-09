@@ -4,11 +4,7 @@ import { useState } from 'react';
 import { getTool, pick, L, type Loc, type Viz } from '../../domain/tools/catalog';
 import { fmtNumber } from '../../domain/tools/calc';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
-import { useCurrencyStore } from '../../application/currency/useCurrencyStore';
-import type { SupportedCurrency } from '../../domain/exchange/types';
-
-const CURRENCY_SYMBOL: Record<SupportedCurrency, string> = { KRW: '₩', USD: '$', JPY: '¥' };
-const CURRENCIES: SupportedCurrency[] = ['KRW', 'USD', 'JPY'];
+import { useCalcCurrency, CurrencyToggle } from './CurrencyControls';
 
 function toneColor(tone: string): string {
   switch (tone) {
@@ -23,16 +19,18 @@ function toneColor(tone: string): string {
   }
 }
 
+// 포맷된 금액 문자열 → 숫자(원화 환산용). 통화 결과는 fmtNumber 산출이라 콤마·기호만 제거.
+const parseNum = (s: string): number => Number(String(s).replace(/[^0-9.-]/g, ''));
+
 /**
  * 제네릭 계산기 — slug 로 catalog(inputs + compute)를 조회해 렌더.
- * 입력 ↔ 결과 패널 분리 + 히어로 결과 + 미니 시각화(stack/ladder) + 보조 타일.
- * 금액 단위('currency')는 useCurrencyStore(₩/$/¥) 로 표시(값 환산 없음, 라벨만). 텍스트는 useLanguageStore 언어.
+ * 금액 단위('currency')는 ₩/$ 로 표시. USD 선택 시 실시간 환율로 원화 환산을 함께 노출.
+ * 텍스트는 useLanguageStore 언어. (물타기/불타기는 전용 AveragingCalculator 사용)
  */
 export default function Calculator({ slug }: { slug: string }) {
   const tool = getTool(slug);
   const lang = useLanguageStore((s) => s.language);
-  const currency = useCurrencyStore((s) => s.currency);
-  const setCurrency = useCurrencyStore((s) => s.setCurrency);
+  const { symbol, krwOf } = useCalcCurrency();
 
   const [values, setValues] = useState<Record<string, string>>(() => {
     const init: Record<string, string> = {};
@@ -50,7 +48,7 @@ export default function Calculator({ slug }: { slug: string }) {
     if (!u) {
       return '';
     }
-    return u === 'currency' ? CURRENCY_SYMBOL[currency] : pick(u, lang);
+    return u === 'currency' ? symbol : pick(u, lang);
   };
 
   const numeric: Record<string, number> = {};
@@ -64,36 +62,13 @@ export default function Calculator({ slug }: { slug: string }) {
   const usesCurrency =
     tool.inputs.some((i) => i.unit === 'currency') || results.some((r) => r.unit === 'currency');
 
+  const heroKrw = hero && hero.unit === 'currency' ? krwOf(parseNum(hero.value)) : null;
+
   const setVal = (key: string, val: string) => setValues((s) => ({ ...s, [key]: val }));
 
   return (
     <div className="glass-panel p-5 md:p-6">
-      {usesCurrency && (
-        <div className="flex items-center justify-end gap-2 mb-4">
-          <span className="text-xs text-cb-muted">{pick(L('통화', 'Currency', '通貨'), lang)}</span>
-          <div className="inline-flex rounded-lg border border-cb-border overflow-hidden">
-            {CURRENCIES.map((c) => {
-              const active = c === currency;
-              return (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setCurrency(c)}
-                  aria-pressed={active}
-                  className={[
-                    'px-2.5 py-1 text-xs font-bold transition-colors',
-                    active
-                      ? 'bg-cb-accent text-cb-on-accent'
-                      : 'text-cb-muted hover:text-cb-foreground hover:bg-[var(--cb-hover)]',
-                  ].join(' ')}
-                >
-                  {CURRENCY_SYMBOL[c]}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {usesCurrency && <CurrencyToggle />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* 입력 */}
@@ -147,6 +122,9 @@ export default function Calculator({ slug }: { slug: string }) {
                   <span className="text-base font-bold text-cb-muted">{unitText(hero.unit)}</span>
                 )}
               </div>
+              {heroKrw && (
+                <div className="mt-1 text-xs font-semibold text-cb-muted tabular-nums">{heroKrw}</div>
+              )}
             </div>
           )}
 
@@ -159,19 +137,25 @@ export default function Calculator({ slug }: { slug: string }) {
 
           {tiles.length > 0 && (
             <div className="grid grid-cols-2 gap-2">
-              {tiles.map((r, i) => (
-                <div key={i} className="rounded-xl border border-cb-border bg-cb-surface p-2.5">
-                  <div className="text-[11px] text-cb-muted">{pick(r.label, lang)}</div>
-                  <div className="font-mono tabular-nums text-[15px] font-bold text-cb-foreground mt-0.5">
-                    {r.value}
-                    {r.unit && (
-                      <span className="text-[11px] font-normal text-cb-muted ml-1">
-                        {unitText(r.unit)}
-                      </span>
+              {tiles.map((r, i) => {
+                const tileKrw = r.unit === 'currency' ? krwOf(parseNum(r.value)) : null;
+                return (
+                  <div key={i} className="rounded-xl border border-cb-border bg-cb-surface p-2.5">
+                    <div className="text-[11px] text-cb-muted">{pick(r.label, lang)}</div>
+                    <div className="font-mono tabular-nums text-[15px] font-bold text-cb-foreground mt-0.5">
+                      {r.value}
+                      {r.unit && (
+                        <span className="text-[11px] font-normal text-cb-muted ml-1">
+                          {unitText(r.unit)}
+                        </span>
+                      )}
+                    </div>
+                    {tileKrw && (
+                      <div className="text-[10px] text-cb-muted mt-0.5 tabular-nums">{tileKrw}</div>
                     )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
