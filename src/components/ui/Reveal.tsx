@@ -38,6 +38,13 @@ const Reveal = ({ children, className = '', delay = 0 }: RevealProps) => {
     }
     const el = ref.current;
     if (!el) return;
+    // 이미 뷰포트 안이면 즉시 노출 — 탭(클라이언트) 네비게이션으로 진입 시 IO 초기 콜백이
+    // 누락/지연되어 스크롤 전까지 안 보이는 문제 방지. 아래-접힘 요소만 IO 로 스크롤 노출.
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setVisible(true);
+      return;
+    }
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
