@@ -25,7 +25,7 @@
     "macro": "Macro",
     "stock": "Stock Analysis",
     "persona": "Rate My Holdings",
-    "calendar": "US Market Calendar"
+    "calendar": "Market Calendar"
   },
   "sidebar": {
     "myInvestTitle": "My Investments",
@@ -548,11 +548,12 @@
     "chipDisparity": "Disparity"
   },
   "calendar": {
-    "title": "US Market Calendar",
+    "title": "Market Calendar",
     "subtitle": "This week's earnings and economic releases at a glance",
     "prevWeek": "Prev week",
     "nextWeek": "Next week",
     "thisWeek": "This week",
+    "today": "Today",
     "filterAll": "All",
     "filterEarnings": "Earnings",
     "filterIpo": "IPO",
@@ -577,6 +578,10 @@
     "impactMed": "Medium",
     "impactLow": "Low",
     "source": "Source: Finnhub, FRED",
+    "sourceKr": "Source: KIS, DART, Bank of Korea",
+    "marketUs": "US",
+    "marketKr": "KR",
+    "indRate": "BOK Rate Decision",
     "indEmployment": "Employment Situation",
     "indCpi": "CPI (Consumer Prices)",
     "indPce": "Personal Income & Outlays (PCE)",

@@ -3,8 +3,8 @@ import Reveal from '@/components/ui/Reveal';
 import CalendarPage from '@/views/CalendarPage';
 import { setRequestLocale } from 'next-intl/server';
 import { staticPageMetadata, type Locale } from '@/config/site';
-import { fetchUsCalendar } from '@/infrastructure/api/calendarClient';
-import type { UsCalendarWeek } from '@/domain/calendar/types';
+import { fetchCalendar } from '@/infrastructure/api/calendarClient';
+import type { CalendarWeek } from '@/domain/calendar/types';
 
 export async function generateMetadata({
   params,
@@ -34,9 +34,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const { locale } = await params;
   setRequestLocale(locale);
   const { from, to } = thisWeekMonFri();
-  let initialData: UsCalendarWeek | null = null;
+  // SSR canonical 은 US (색인·AdSense). KR 은 클라 토글 시 fetch.
+  let initialData: CalendarWeek | null = null;
   try {
-    initialData = await fetchUsCalendar(from, to, 3600);
+    initialData = await fetchCalendar('US', from, to, 3600);
   } catch {
     initialData = null; // 백엔드 일시 장애 시 클라가 폴백 fetch
   }

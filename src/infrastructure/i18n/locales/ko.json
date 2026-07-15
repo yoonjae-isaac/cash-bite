@@ -25,7 +25,7 @@
     "macro": "거시지표",
     "stock": "종목 분석",
     "persona": "내 종목 평가",
-    "calendar": "미국 증시 일정"
+    "calendar": "증시 일정"
   },
   "sidebar": {
     "myInvestTitle": "내 투자",
@@ -548,11 +548,12 @@
     "chipDisparity": "이격도"
   },
   "calendar": {
-    "title": "미국 증시 일정",
+    "title": "증시 일정",
     "subtitle": "이번 주 실적 발표, 경제지표를 한눈에",
     "prevWeek": "이전 주",
     "nextWeek": "다음 주",
     "thisWeek": "이번 주",
+    "today": "오늘",
     "filterAll": "전체",
     "filterEarnings": "실적",
     "filterIpo": "IPO",
@@ -577,6 +578,10 @@
     "impactMed": "보통",
     "impactLow": "낮음",
     "source": "출처: Finnhub, FRED",
+    "sourceKr": "출처: KIS, DART, 한국은행",
+    "marketUs": "미국",
+    "marketKr": "국내",
+    "indRate": "기준금리 결정(금통위)",
     "indEmployment": "고용보고서",
     "indCpi": "소비자물가 CPI",
     "indPce": "개인소득, 지출(PCE)",

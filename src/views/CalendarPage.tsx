@@ -1,19 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Landmark, Rocket, TrendingUp } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CalendarDays, Landmark, Rocket, TrendingUp } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
-import { fetchUsCalendar } from '../infrastructure/api/calendarClient';
-import type { CalEarning, CalEconomic, CalIpo, UsCalendarWeek } from '../domain/calendar/types';
+import { fetchCalendar } from '../infrastructure/api/calendarClient';
+import type { CalEarning, CalEconomic, CalIpo, CalendarMarket, CalendarWeek } from '../domain/calendar/types';
 import type { TranslationSchema } from '../domain/i18n/types';
-import type { StockSymbol } from '../domain/market/types';
-import nasdaqData from '../data/stockSymbols.nasdaq.json';
+import { SYMBOL_BY_CODE } from '../data/tradeableSymbols';
 import Skeleton from '../components/ui/Skeleton';
 import ErrorRetry from '../components/ui/ErrorRetry';
 
 type T = TranslationSchema;
-type EventFilter = 'earnings' | 'ipos' | 'economic';
-type Filter = 'all' | EventFilter;
 
 // ── 날짜 유틸 (로컬 타임존, YYYY-MM-DD) ──
 const toYMD = (d: Date): string =>
@@ -26,272 +23,49 @@ const addDays = (d: Date, n: number): Date => {
 /** 그 주의 월요일. */
 const startOfWeek = (d: Date): Date => {
   const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const dow = (x.getDay() + 6) % 7; // 월=0
-  x.setDate(x.getDate() - dow);
+  x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); // 월=0
   return x;
 };
 const parseYMD = (ymd: string): Date => {
   const [y, m, d] = ymd.split('-').map(Number);
   return new Date(y, m - 1, d);
 };
+/** 이번 주 월~금 (initialFrom 우선, 없으면 오늘 기준). */
+function weekRange(initialFrom?: string): { from: string; to: string } {
+  const mon = startOfWeek(initialFrom ? parseYMD(initialFrom) : new Date());
+  return { from: toYMD(mon), to: toYMD(addDays(mon, 4)) };
+}
 
-// 값이 있을 때만 호출 — 없는 값은 렌더 자체를 생략(플레이스홀더 '—' 미사용).
+// ── 포맷 (값 있을 때만 렌더) ──
 const fmtUsd = (n: number): string => {
   const a = Math.abs(n);
   if (a >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
   if (a >= 1e6) return `$${(n / 1e6).toFixed(0)}M`;
   return `$${n.toLocaleString()}`;
 };
-const fmtRev = fmtUsd;
 const fmtEps = (n: number): string => n.toFixed(2);
+// KR 공모가 등 원화 문자열 — 천단위 구분 + '원'. 파싱 실패 시 원문 그대로.
+const fmtKrw = (v: string): string => {
+  const n = Number(v.replace(/[^\d.-]/g, ''));
+  return v.trim() !== '' && Number.isFinite(n) ? `${n.toLocaleString()}원` : v;
+};
 
-// 실적 티커 → 기업명 (NASDAQ 심볼 목록 기반). 매칭 없으면 null → 티커 그대로 노출.
-const SYMBOL_MAP = new Map<string, StockSymbol>(
-  (nasdaqData as StockSymbol[]).map((s) => [s.code, s]),
-);
+// 실적 티커 → 현지어 종목명 (KR·US 통합 카탈로그). 매칭 없으면 null → 코드만 노출.
 const companyName = (symbol: string, lang: string): string | null => {
-  const s = SYMBOL_MAP.get(symbol);
+  const s = SYMBOL_BY_CODE.get(symbol.toUpperCase());
   if (!s) return null;
-  const name = lang === 'ko' ? s.nameKo : s.nameEn || s.nameKo;
-  return name || null;
+  return (lang === 'ko' ? s.nameKo : s.nameEn || s.nameKo) || null;
 };
 
-const CalendarPage = ({
-  initialData = null,
-  initialFrom,
-}: {
-  initialData?: UsCalendarWeek | null;
-  initialFrom?: string;
-}) => {
-  const t = useLanguageStore((s) => s.t);
-  const lang = useLanguageStore((s) => s.language);
-
-  // 서버가 내려준 주(initialFrom)로 초기화 → 서버·첫 클라 렌더 일치(하이드레이션 미스매치 방지).
-  const [anchor, setAnchor] = useState<Date>(() => (initialFrom ? parseYMD(initialFrom) : new Date()));
-  const [data, setData] = useState<UsCalendarWeek | null>(initialData);
-  const [error, setError] = useState(false);
-  const [filter, setFilter] = useState<Filter>('all');
-  const latestReq = useRef('');
-
-  const weekStart = startOfWeek(anchor);
-  const weekEnd = addDays(weekStart, 4); // 월~금 (주말 제외)
-  const from = toYMD(weekStart);
-  const to = toYMD(weekEnd);
-
-  const load = useCallback((f: string, t2: string) => {
-    const reqKey = `${f}:${t2}`;
-    latestReq.current = reqKey;
-    fetchUsCalendar(f, t2)
-      .then((res) => {
-        if (latestReq.current !== reqKey) return; // 오래된 주 응답 무시(주간 연타 race 방지)
-        setData(res);
-        setError(false);
-      })
-      .catch(() => {
-        if (latestReq.current === reqKey) setError(true);
-      });
-  }, []);
-
-  const didInitial = useRef(false);
-  useEffect(() => {
-    if (!didInitial.current) {
-      didInitial.current = true;
-      // 서버 초기 데이터가 현재 주를 커버하면 마운트 재요청 생략. 주 이동 시엔 항상 로드.
-      if (initialData && initialData.from === from && initialData.to === to) return;
-    }
-    load(from, to);
-  }, [from, to, load, initialData]);
-
-  // 요청한 주와 로드된 주가 다르면 로딩 중. 오래된 주의 카운트/목록이 섞이지 않도록 현재 주만 사용.
-  const currentData = data?.from === from && data.to === to ? data : null;
-  const loading = !error && !currentData;
-
-  const todayYMD = toYMD(new Date());
-  const days = Array.from({ length: 5 }, (_, i) => toYMD(addDays(weekStart, i)));
-
-  const counts = {
-    earnings: currentData?.earnings?.length ?? 0,
-    ipos: currentData?.ipos?.length ?? 0,
-    economic: currentData?.economic?.length ?? 0,
-  };
-  const totalCount = counts.earnings + counts.ipos + counts.economic;
-  // 필터가 반영된 노출 개수 — 카테고리 0건일 때 빈 안내를 제대로 띄우기 위함.
-  const visibleCount = filter === 'all' ? totalCount : counts[filter];
-
-  const rangeLabel = `${weekStart.getMonth() + 1}/${weekStart.getDate()} ~ ${weekEnd.getMonth() + 1}/${weekEnd.getDate()}`;
-
-  const chips: { id: Filter; label: string; n?: number }[] = [
-    { id: 'all', label: t.calendar.filterAll, n: totalCount },
-    { id: 'earnings', label: t.calendar.filterEarnings, n: counts.earnings },
-    { id: 'ipos', label: t.calendar.filterIpo, n: counts.ipos },
-    { id: 'economic', label: t.calendar.filterEconomic, n: counts.economic },
-  ];
-
-  return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="flex items-center gap-2 text-2xl md:text-3xl font-bold text-cb-foreground">
-          <CalendarDays className="w-7 h-7 text-cb-accent" />
-          {t.calendar.title}
-        </h1>
-        <p className="mt-1.5 text-cb-muted">{t.calendar.subtitle}</p>
-      </header>
-
-      {/* 주간 네비게이터 */}
-      <div className="flex items-center justify-between gap-2">
-        <button
-          onClick={() => setAnchor(addDays(weekStart, -7))}
-          aria-label={t.calendar.prevWeek}
-          className="p-2 rounded-lg border border-cb-border text-cb-muted hover:text-cb-accent hover:border-cb-accent/40 transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-bold text-cb-foreground tabular-nums">{rangeLabel}</span>
-          <button
-            onClick={() => setAnchor(new Date())}
-            className="text-xs font-semibold text-cb-accent hover:underline"
-          >
-            {t.calendar.thisWeek}
-          </button>
-        </div>
-        <button
-          onClick={() => setAnchor(addDays(weekStart, 7))}
-          aria-label={t.calendar.nextWeek}
-          className="p-2 rounded-lg border border-cb-border text-cb-muted hover:text-cb-accent hover:border-cb-accent/40 transition-colors"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* 카테고리 필터 */}
-      <div className="flex flex-wrap gap-1.5">
-        {chips.map((c) => {
-          const active = filter === c.id;
-          return (
-            <button
-              key={c.id}
-              onClick={() => setFilter(c.id)}
-              className={[
-                'px-3 py-1 rounded-full text-sm font-medium transition-colors',
-                active
-                  ? 'bg-cb-accent text-cb-on-accent'
-                  : 'border border-cb-border text-cb-muted hover:text-cb-foreground hover:border-cb-accent/40',
-              ].join(' ')}
-            >
-              {c.label}
-              {typeof c.n === 'number' && <span className="ml-1 tabular-nums opacity-70">{c.n}</span>}
-            </button>
-          );
-        })}
-      </div>
-
-      {error ? (
-        <ErrorRetry
-          message={t.calendar.error}
-          retryLabel={t.calendar.retry}
-          onRetry={() => {
-            setError(false);
-            load(from, to);
-          }}
-        />
-      ) : loading ? (
-        <div className="space-y-3">
-          {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-xl" />
-          ))}
-        </div>
-      ) : visibleCount === 0 ? (
-        <p className="glass-panel rounded-xl p-6 text-center text-sm text-cb-muted">
-          {filter === 'all' ? t.calendar.empty : t.calendar.filteredEmpty}
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {days.map((ymd) => {
-            const dayEarnings =
-              filter === 'all' || filter === 'earnings'
-                ? (currentData?.earnings?.filter((e) => e.date === ymd) ?? [])
-                : [];
-            const dayIpos =
-              filter === 'all' || filter === 'ipos'
-                ? (currentData?.ipos?.filter((e) => e.date === ymd) ?? [])
-                : [];
-            const dayEcon =
-              filter === 'all' || filter === 'economic'
-                ? (currentData?.economic?.filter((e) => e.date === ymd) ?? [])
-                : [];
-            const empty = dayEarnings.length + dayIpos.length + dayEcon.length === 0;
-            const d = parseYMD(ymd);
-            const isToday = ymd === todayYMD;
-            return (
-              <section
-                key={ymd}
-                aria-current={isToday ? 'date' : undefined}
-                aria-label={d.toLocaleDateString(lang, {
-                  weekday: 'long',
-                  month: 'numeric',
-                  day: 'numeric',
-                })}
-                className={[
-                  'glass-panel rounded-xl p-4',
-                  isToday ? 'shadow-[0_0_0_1px_var(--cb-accent)]' : '',
-                ].join(' ')}
-              >
-                <div className="flex items-baseline gap-2 mb-2.5">
-                  <span
-                    className={[
-                      'text-sm font-bold',
-                      isToday ? 'text-cb-accent' : 'text-cb-foreground',
-                    ].join(' ')}
-                  >
-                    {d.toLocaleDateString(lang, { weekday: 'short' })}
-                  </span>
-                  <span className="text-xs text-cb-muted tabular-nums">
-                    {d.getMonth() + 1}/{d.getDate()}
-                  </span>
-                </div>
-
-                {empty ? (
-                  <p className="text-xs text-cb-muted/60">{t.calendar.noEvents}</p>
-                ) : (
-                  <div className="space-y-4">
-                    {dayEarningsBlock(dayEarnings, t, lang)}
-                    {dayIpoBlock(dayIpos, t)}
-                    {dayEconomic(dayEcon, t)}
-                  </div>
-                )}
-              </section>
-            );
-          })}
-        </div>
-      )}
-
-      <p className="text-xs text-cb-muted/70 px-1">{t.calendar.source}</p>
-    </div>
-  );
-};
-
-// ── 카테고리 블록 ──
-
-const CatLabel = ({ icon, label, color }: { icon: React.ReactNode; label: string; color: string }) => (
-  <p className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide mb-1.5 ${color}`}>
-    {icon}
-    {label}
-  </p>
-);
-
-const HOUR_KEY: Record<string, keyof T['calendar']> = {
-  bmo: 'hourBmo',
-  amc: 'hourAmc',
-  dmh: 'hourDmh',
-};
+const HOUR_KEY: Record<string, keyof T['calendar']> = { bmo: 'hourBmo', amc: 'hourAmc', dmh: 'hourDmh' };
 const IMPACT_KEY: Record<string, keyof T['calendar']> = {
   high: 'impactHigh',
   medium: 'impactMed',
   low: 'impactLow',
 };
-// 백엔드 경제지표 key → i18n 지표명(현지어). 미매핑 시 영문 event 폴백.
+// 백엔드 경제지표 key → i18n 지표명(현지어). 미매핑 시 원문 event 폴백.
 const IND_KEY: Record<string, keyof T['calendar']> = {
+  rate: 'indRate', // KR 한은 금통위
   employment: 'indEmployment',
   cpi: 'indCpi',
   pce: 'indPce',
@@ -304,125 +78,442 @@ const IND_KEY: Record<string, keyof T['calendar']> = {
   indprod: 'indIndprod',
 };
 
-/** 라벨+값 한 쌍 — 값 있을 때만 렌더('—' 미사용). */
-const Metric = ({ label, value }: { label: string; value: string }) => (
-  <span className="text-cb-muted">
-    {label} <b className="text-cb-foreground font-semibold">{value}</b>
-  </span>
+const CalendarPage = ({
+  initialData = null,
+  initialFrom,
+}: {
+  initialData?: CalendarWeek | null;
+  initialFrom?: string;
+}) => {
+  const t = useLanguageStore((s) => s.t);
+  const lang = useLanguageStore((s) => s.language);
+  // 주 이동 없음 — 이번 주(월~금) 고정. 서버가 준 initialFrom 으로 서버·클라 렌더 일치.
+  const { from, to } = useMemo(() => weekRange(initialFrom), [initialFrom]);
+
+  const [us, setUs] = useState<CalendarWeek | null>(initialData);
+  const [kr, setKr] = useState<CalendarWeek | null>(null);
+  const [usError, setUsError] = useState(false);
+  const [krError, setKrError] = useState(false);
+  // 모바일 전용 시장 선택 (데스크톱 md+ 는 2단 동시 노출이라 무시됨).
+  const [mobileMarket, setMobileMarket] = useState<CalendarMarket>('KR');
+  // 국가별 '오늘'(브라우저 타임존 기준) YYYY-MM-DD. 하이드레이션 불일치 방지 위해 마운트 후 계산.
+  const [today, setToday] = useState<Record<CalendarMarket, string> | null>(null);
+
+  const loadUs = useCallback(() => {
+    setUsError(false);
+    fetchCalendar('US', from, to)
+      .then(setUs)
+      .catch(() => setUsError(true));
+  }, [from, to]);
+  const loadKr = useCallback(() => {
+    setKrError(false);
+    fetchCalendar('KR', from, to)
+      .then(setKr)
+      .catch(() => setKrError(true));
+  }, [from, to]);
+
+  const didMount = useRef(false);
+  useEffect(() => {
+    if (didMount.current) return;
+    didMount.current = true;
+    if (!initialData) loadUs(); // 서버 초기 데이터(US)가 있으면 재요청 생략
+    loadKr(); // KR 은 항상 클라에서 로드
+  }, [initialData, loadUs, loadKr]);
+
+  useEffect(() => {
+    // 미국(ET)·한국(KST)의 '오늘'을 브라우저 Intl 로 계산 (DST 자동 반영). en-CA = YYYY-MM-DD.
+    const inTz = (tz: string) =>
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: tz,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(new Date());
+    setToday({ US: inTz('America/New_York'), KR: inTz('Asia/Seoul') });
+  }, []);
+
+  const ws = parseYMD(from);
+  const we = parseYMD(to);
+  const rangeLabel = `${ws.getMonth() + 1}/${ws.getDate()} – ${we.getMonth() + 1}/${we.getDate()}`;
+
+  return (
+    <div className="mx-auto max-w-5xl space-y-5">
+      <header>
+        <h1 className="flex flex-wrap items-center gap-x-2 text-2xl md:text-3xl font-bold text-cb-foreground">
+          <CalendarDays className="w-7 h-7 text-cb-accent" />
+          {t.calendar.title}
+          <span className="text-sm font-semibold text-cb-muted tabular-nums">{rangeLabel}</span>
+        </h1>
+        <p className="mt-1.5 text-cb-muted">{t.calendar.subtitle}</p>
+      </header>
+
+      {/* 모바일 전용 시장 토글 (데스크톱 md+ 는 2단 동시 노출) */}
+      <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--cb-input-bg)] w-fit md:hidden">
+        {(['US', 'KR'] as const).map((m) => (
+          <button
+            key={m}
+            onClick={() => setMobileMarket(m)}
+            className={[
+              'px-4 py-1.5 rounded-md text-sm font-semibold transition-colors',
+              mobileMarket === m
+                ? 'bg-cb-accent text-cb-on-accent'
+                : 'text-cb-muted hover:text-cb-foreground',
+            ].join(' ')}
+          >
+            {m === 'US' ? t.calendar.marketUs : t.calendar.marketKr}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+        <div className={`${mobileMarket === 'US' ? '' : 'hidden'} md:block`}>
+          <MarketColumn
+            label={t.calendar.marketUs}
+            market="US"
+            data={us}
+            loading={!us && !usError}
+            error={usError}
+            onRetry={loadUs}
+            today={today?.US ?? null}
+            t={t}
+            lang={lang}
+          />
+        </div>
+        <div className={`${mobileMarket === 'KR' ? '' : 'hidden'} md:block`}>
+          <MarketColumn
+            label={t.calendar.marketKr}
+            market="KR"
+            data={kr}
+            loading={!kr && !krError}
+            error={krError}
+            onRetry={loadKr}
+            today={today?.KR ?? null}
+            t={t}
+            lang={lang}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── 시장 컬럼 (미국 / 국내) ──
+const MarketColumn = ({
+  label,
+  market,
+  data,
+  loading,
+  error,
+  onRetry,
+  today,
+  t,
+  lang,
+}: {
+  label: string;
+  market: CalendarMarket;
+  data: CalendarWeek | null;
+  loading: boolean;
+  error: boolean;
+  onRetry: () => void;
+  today: string | null;
+  t: T;
+  lang: string;
+}) => {
+  const earnings = data?.earnings ?? [];
+  const ipos = data?.ipos ?? [];
+  const economic = data?.economic ?? [];
+  const total = earnings.length + ipos.length + economic.length;
+
+  return (
+    <section className="glass-panel rounded-xl p-4 space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="flex items-baseline gap-2 min-w-0 text-sm font-bold text-cb-foreground">
+          <span className="shrink-0">{label}</span>
+          {today && (
+            <span className="truncate text-[11px] font-semibold text-cb-accent tabular-nums">
+              {weekdayLabel(today, lang)} {t.calendar.today}
+            </span>
+          )}
+        </h2>
+        {!loading && !error && (
+          <span className="shrink-0 text-[11px] font-semibold text-cb-muted tabular-nums">
+            {total}
+          </span>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="space-y-2">
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="h-10 w-full rounded-lg" />
+          ))}
+        </div>
+      ) : error ? (
+        <ErrorRetry message={t.calendar.error} retryLabel={t.calendar.retry} onRetry={onRetry} />
+      ) : total === 0 ? (
+        <p className="py-6 text-center text-sm text-cb-muted">{t.calendar.empty}</p>
+      ) : (
+        <div className="space-y-4">
+          <EarningsGroup list={earnings} t={t} lang={lang} today={today} />
+          <IpoGroup list={ipos} t={t} lang={lang} market={market} today={today} />
+          <EconGroup list={economic} t={t} lang={lang} today={today} />
+        </div>
+      )}
+
+      <p className="pt-1 text-[11px] text-cb-muted/60">
+        {market === 'KR' ? t.calendar.sourceKr : t.calendar.source}
+      </p>
+    </section>
+  );
+};
+
+// ── 공통 조각 ──
+const CatLabel = ({
+  icon,
+  label,
+  color,
+  n,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  color: string;
+  n: number;
+}) => (
+  <p className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide mb-1.5 ${color}`}>
+    {icon}
+    {label}
+    <span className="text-cb-muted/70 tabular-nums">{n}</span>
+  </p>
 );
 
-const dayEarningsBlock = (list: CalEarning[], t: T, lang: string) =>
+/** 'YYYY-MM-DD' → 현지어 요일 + M/D (예: '화 7/14'). */
+const weekdayLabel = (ymd: string, lang: string): string => {
+  const d = parseYMD(ymd);
+  return `${d.toLocaleDateString(lang, { weekday: 'short' })} ${d.getMonth() + 1}/${d.getDate()}`;
+};
+
+/** 날짜 오름차순 정렬 후 같은 날짜끼리 묶기. */
+function groupByDate<X extends { date: string }>(list: X[]): { date: string; items: X[] }[] {
+  const groups: { date: string; items: X[] }[] = [];
+  for (const it of [...list].sort((a, b) => a.date.localeCompare(b.date))) {
+    const last = groups[groups.length - 1];
+    if (last && last.date === it.date) last.items.push(it);
+    else groups.push({ date: it.date, items: [it] });
+  }
+  return groups;
+}
+
+/** 카테고리 목록을 날짜 그룹(헤더 1개 + 하위 항목들)으로 렌더. 날짜는 그룹당 1회만 노출. */
+function DateGrouped<X extends { date: string }>({
+  list,
+  lang,
+  today,
+  keyOf,
+  renderItem,
+}: {
+  list: X[];
+  lang: string;
+  today: string | null;
+  keyOf: (x: X, i: number) => string;
+  renderItem: (x: X) => React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border border-cb-border overflow-hidden">
+      {groupByDate(list).map((g, gi) => (
+        <div key={g.date} className={gi > 0 ? 'border-t border-cb-border' : ''}>
+          <div
+            className={[
+              'px-2.5 py-1 text-[11px] font-bold tabular-nums',
+              g.date === today
+                ? 'bg-cb-accent/15 text-cb-accent'
+                : 'bg-[var(--cb-input-bg)] text-cb-muted',
+            ].join(' ')}
+          >
+            {weekdayLabel(g.date, lang)}
+          </div>
+          <ul className="divide-y divide-cb-border/40">
+            {g.items.map((it, i) => (
+              <li
+                key={keyOf(it, i)}
+                className="flex flex-wrap items-center gap-x-2 gap-y-0.5 px-2.5 py-1.5"
+              >
+                {renderItem(it)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const EarningsGroup = ({
+  list,
+  t,
+  lang,
+  today,
+}: {
+  list: CalEarning[];
+  t: T;
+  lang: string;
+  today: string | null;
+}) =>
   list.length === 0 ? null : (
     <div>
       <CatLabel
         icon={<TrendingUp className="w-3.5 h-3.5" />}
         label={t.calendar.catEarnings}
         color="text-cb-accent"
+        n={list.length}
       />
-      <div className="rounded-lg border border-cb-border divide-y divide-cb-border/50">
-        {list.map((e, i) => {
+      <DateGrouped
+        list={list}
+        lang={lang}
+        today={today}
+        keyOf={(e, i) => `${e.symbol}-${i}`}
+        renderItem={(e) => {
+          const name = e.name ?? companyName(e.symbol, lang);
           const hourLabel = e.hour && HOUR_KEY[e.hour] ? t.calendar[HOUR_KEY[e.hour]] : '';
-          const name = companyName(e.symbol, lang);
+          // 표기: 티커코드(한국어이름) — 매칭 없으면 코드만.
+          const nameEl = (
+            <span className="truncate">
+              <b className="font-semibold text-cb-foreground tabular-nums">{e.symbol}</b>
+              {name && <span className="text-cb-muted">({name})</span>}
+            </span>
+          );
           return (
-            <div
-              key={`${e.symbol}-${i}`}
-              className="flex flex-col gap-1 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <span className="flex items-center gap-1.5 min-w-0">
-                <span className="min-w-0">
-                  {name ? (
-                    <>
-                      <span className="block truncate text-sm font-bold text-cb-foreground">
-                        {name}
-                      </span>
-                      <span className="block text-[10px] font-semibold text-cb-muted tabular-nums">
-                        {e.symbol}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="block text-sm font-bold text-cb-foreground">{e.symbol}</span>
+            <>
+              <span className="flex-1 min-w-0 text-sm">
+                {e.url ? (
+                  <a
+                    href={e.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-cb-accent transition-colors"
+                  >
+                    {nameEl}
+                  </a>
+                ) : (
+                  nameEl
+                )}
+              </span>
+              {hourLabel && (
+                <span className="shrink-0 text-[10px] font-semibold text-cb-muted bg-[var(--cb-input-bg)] px-1.5 py-0.5 rounded">
+                  {hourLabel}
+                </span>
+              )}
+              {(e.epsEstimate != null || e.revenueEstimate != null) && (
+                <span className="flex items-center gap-2 shrink-0 text-xs tabular-nums text-cb-muted">
+                  {e.epsEstimate != null && (
+                    <span>
+                      EPS <b className="text-cb-foreground">{fmtEps(e.epsEstimate)}</b>
+                    </span>
+                  )}
+                  {e.revenueEstimate != null && (
+                    <b className="text-cb-foreground">{fmtUsd(e.revenueEstimate)}</b>
                   )}
                 </span>
-                {hourLabel && (
-                  <span className="shrink-0 text-[10px] font-semibold text-cb-muted bg-[var(--cb-input-bg)] px-1.5 py-0.5 rounded">
-                    {hourLabel}
-                  </span>
-                )}
-              </span>
-              <span className="flex items-center gap-3 text-xs tabular-nums">
-                {e.epsEstimate != null && <Metric label={t.calendar.epsEst} value={fmtEps(e.epsEstimate)} />}
-                {e.revenueEstimate != null && (
-                  <Metric label={t.calendar.revEst} value={fmtRev(e.revenueEstimate)} />
-                )}
-              </span>
-            </div>
+              )}
+            </>
           );
-        })}
-      </div>
+        }}
+      />
     </div>
   );
 
-const dayIpoBlock = (list: CalIpo[], t: T) =>
+const IpoGroup = ({
+  list,
+  t,
+  lang,
+  market,
+  today,
+}: {
+  list: CalIpo[];
+  t: T;
+  lang: string;
+  market: CalendarMarket;
+  today: string | null;
+}) =>
   list.length === 0 ? null : (
     <div>
       <CatLabel
         icon={<Rocket className="w-3.5 h-3.5" />}
         label={t.calendar.catIpo}
         color="text-indigo-400"
+        n={list.length}
       />
-      <div className="rounded-lg border border-cb-border divide-y divide-cb-border/50">
-        {list.map((e, i) => (
-          <div
-            key={`${e.symbol || e.name}-${i}`}
-            className="flex flex-col gap-1 px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-bold text-cb-foreground">{e.name}</span>
+      <DateGrouped
+        list={list}
+        lang={lang}
+        today={today}
+        keyOf={(e, i) => `${e.symbol || e.name}-${i}`}
+        renderItem={(e) => (
+          <>
+            <span className="flex-1 min-w-0 truncate text-sm">
+              <b className="font-semibold text-cb-foreground">{e.name}</b>
               {(e.symbol || e.exchange) && (
-                <span className="block text-[10px] font-semibold text-cb-muted">
+                <span className="ml-1 text-[10px] text-cb-muted">
                   {[e.symbol, e.exchange].filter(Boolean).join(', ')}
                 </span>
               )}
             </span>
-            <span className="flex flex-wrap items-center gap-3 text-xs tabular-nums sm:justify-end">
-              {e.price && <Metric label={t.calendar.ipoPrice} value={e.price} />}
-              {e.totalSharesValue != null && (
-                <Metric label={t.calendar.ipoValue} value={fmtUsd(e.totalSharesValue)} />
-              )}
-            </span>
-          </div>
-        ))}
-      </div>
+            {e.price && (
+              <span className="shrink-0 text-xs font-semibold text-cb-foreground tabular-nums">
+                {market === 'KR' ? fmtKrw(e.price) : e.price}
+              </span>
+            )}
+            {e.totalSharesValue != null && (
+              <span className="shrink-0 text-xs text-cb-muted tabular-nums">
+                {fmtUsd(e.totalSharesValue)}
+              </span>
+            )}
+          </>
+        )}
+      />
     </div>
   );
 
-const dayEconomic = (list: CalEconomic[], t: T) =>
+const EconGroup = ({
+  list,
+  t,
+  lang,
+  today,
+}: {
+  list: CalEconomic[];
+  t: T;
+  lang: string;
+  today: string | null;
+}) =>
   list.length === 0 ? null : (
     <div>
       <CatLabel
         icon={<Landmark className="w-3.5 h-3.5" />}
         label={t.calendar.catEconomic}
         color="text-amber-500"
+        n={list.length}
       />
-      <div className="rounded-lg border border-cb-border divide-y divide-cb-border/50">
-        {list.map((e, i) => {
+      <DateGrouped
+        list={list}
+        lang={lang}
+        today={today}
+        keyOf={(e, i) => `${e.key}-${i}`}
+        renderItem={(e) => {
           const name = IND_KEY[e.key] ? t.calendar[IND_KEY[e.key]] : e.event;
           const impactLabel = e.impact && IMPACT_KEY[e.impact] ? t.calendar[IMPACT_KEY[e.impact]] : '';
           return (
-            <div
-              key={`${e.key}-${i}`}
-              className="flex items-center justify-between gap-2 px-3 py-2"
-            >
-              <span className="text-sm font-semibold text-cb-foreground truncate">{name}</span>
+            <>
+              <span className="flex-1 min-w-0 truncate text-sm font-medium text-cb-foreground">
+                {name}
+              </span>
               {impactLabel && (
-                <span className="text-[10px] font-semibold text-amber-500 bg-amber-500/12 px-1.5 py-0.5 rounded shrink-0">
+                <span className="shrink-0 text-[10px] font-semibold text-amber-500 bg-amber-500/12 px-1.5 py-0.5 rounded">
                   {impactLabel}
                 </span>
               )}
-            </div>
+            </>
           );
-        })}
-      </div>
+        }}
+      />
     </div>
   );
 

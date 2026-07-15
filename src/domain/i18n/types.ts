@@ -568,6 +568,7 @@ export interface TranslationSchema {
     prevWeek: string;
     nextWeek: string;
     thisWeek: string;
+    today: string;
     filterAll: string;
     filterEarnings: string;
     filterIpo: string;
@@ -592,6 +593,10 @@ export interface TranslationSchema {
     impactMed: string;
     impactLow: string;
     source: string;
+    sourceKr: string;
+    marketUs: string;
+    marketKr: string;
+    indRate: string;
     indEmployment: string;
     indCpi: string;
     indPce: string;

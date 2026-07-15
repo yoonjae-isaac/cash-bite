@@ -8,10 +8,8 @@ import { fetchPersonas, evaluatePortfolio } from '../infrastructure/api/personaC
 import { fetchFinancials, fetchFx } from '../infrastructure/api/marketClient';
 import type { EvalHolding, EvalPosition, PersonaSummary } from '../domain/persona/types';
 import { computeBalance } from '../domain/persona/balance';
-import type { StockSymbol } from '../domain/market/types';
 import type { TranslationSchema } from '../domain/i18n/types';
-import kospiData from '../data/stockSymbols.kospi.json';
-import nasdaqData from '../data/stockSymbols.nasdaq.json';
+import { TRADEABLE_SYMBOLS } from '../data/tradeableSymbols';
 import TickerAutocomplete from '../components/stock/TickerAutocomplete';
 import PortfolioSummaryPanel from '../components/persona/PortfolioSummaryPanel';
 import StockReviewCard from '../components/persona/StockReviewCard';
@@ -20,8 +18,7 @@ import ErrorRetry from '../components/ui/ErrorRetry';
 
 type T = TranslationSchema;
 
-const SYMBOLS = [...kospiData, ...nasdaqData] as StockSymbol[];
-const NAME_BY_CODE = new Map(SYMBOLS.map((s) => [s.code.toUpperCase(), s.nameKo]));
+const NAME_BY_CODE = new Map(TRADEABLE_SYMBOLS.map((s) => [s.code.toUpperCase(), s.nameKo]));
 
 const fmtNum = (n: number): string => n.toLocaleString('en-US', { maximumFractionDigits: 2 });
 const fmtPct = (n: number): string => `${n >= 0 ? '+' : ''}${n.toFixed(1)}%`;

@@ -1,10 +1,9 @@
 import { useMemo, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
 import type { StockSymbol } from '../../domain/market/types';
-import kospiData from '../../data/stockSymbols.kospi.json';
-import nasdaqData from '../../data/stockSymbols.nasdaq.json';
+import { TRADEABLE_SYMBOLS } from '../../data/tradeableSymbols';
 
-const SYMBOLS = [...kospiData, ...nasdaqData] as StockSymbol[];
+const SYMBOLS = TRADEABLE_SYMBOLS;
 const MAX_SUGGESTIONS = 8;
 
 /** 입력어 → 코드/한글명/영문명 매칭(정확>코드prefix>이름prefix>코드포함>이름포함). */

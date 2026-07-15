@@ -25,7 +25,7 @@
     "macro": "マクロ指標",
     "stock": "銘柄分析",
     "persona": "私の銘柄評価",
-    "calendar": "米国市場カレンダー"
+    "calendar": "市場カレンダー"
   },
   "sidebar": {
     "myInvestTitle": "私の投資",
@@ -548,11 +548,12 @@
     "chipDisparity": "乖離度"
   },
   "calendar": {
-    "title": "米国市場カレンダー",
+    "title": "市場カレンダー",
     "subtitle": "今週の決算・経済指標を一目で",
     "prevWeek": "前の週",
     "nextWeek": "次の週",
     "thisWeek": "今週",
+    "today": "今日",
     "filterAll": "すべて",
     "filterEarnings": "決算",
     "filterIpo": "IPO",
@@ -577,6 +578,10 @@
     "impactMed": "中",
     "impactLow": "低",
     "source": "出典: Finnhub, FRED",
+    "sourceKr": "出典: KIS, DART, 韓国銀行",
+    "marketUs": "米国",
+    "marketKr": "韓国",
+    "indRate": "韓国銀行 政策金利決定",
     "indEmployment": "雇用統計",
     "indCpi": "消費者物価 CPI",
     "indPce": "個人所得・支出(PCE)",
