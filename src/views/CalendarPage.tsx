@@ -11,6 +11,7 @@ import Skeleton from '../components/ui/Skeleton';
 import ErrorRetry from '../components/ui/ErrorRetry';
 
 type T = TranslationSchema;
+type CalendarCategory = 'all' | 'earnings' | 'ipos' | 'economic';
 
 // ── 날짜 유틸 (로컬 타임존, YYYY-MM-DD) ──
 const toYMD = (d: Date): string =>
@@ -98,6 +99,8 @@ const CalendarPage = ({
   const [mobileMarket, setMobileMarket] = useState<CalendarMarket>('KR');
   // 국가별 '오늘'(브라우저 타임존 기준) YYYY-MM-DD. 하이드레이션 불일치 방지 위해 마운트 후 계산.
   const [today, setToday] = useState<Record<CalendarMarket, string> | null>(null);
+  // 카테고리 내부 탭 — 실적/IPO/경제 따로 보기 (양쪽 시장 동시 필터).
+  const [category, setCategory] = useState<CalendarCategory>('all');
 
   const loadUs = useCallback(() => {
     setUsError(false);
@@ -136,6 +139,19 @@ const CalendarPage = ({
   const we = parseYMD(to);
   const rangeLabel = `${ws.getMonth() + 1}/${ws.getDate()} – ${we.getMonth() + 1}/${we.getDate()}`;
 
+  // 탭 카운트 = 미국+국내 합계.
+  const catTotals = {
+    earnings: (us?.earnings.length ?? 0) + (kr?.earnings.length ?? 0),
+    ipos: (us?.ipos.length ?? 0) + (kr?.ipos.length ?? 0),
+    economic: (us?.economic.length ?? 0) + (kr?.economic.length ?? 0),
+  };
+  const tabs: { id: CalendarCategory; label: string; n: number }[] = [
+    { id: 'all', label: t.calendar.filterAll, n: catTotals.earnings + catTotals.ipos + catTotals.economic },
+    { id: 'earnings', label: t.calendar.filterEarnings, n: catTotals.earnings },
+    { id: 'ipos', label: t.calendar.filterIpo, n: catTotals.ipos },
+    { id: 'economic', label: t.calendar.filterEconomic, n: catTotals.economic },
+  ];
+
   return (
     <div className="mx-auto max-w-5xl space-y-5">
       <header>
@@ -146,6 +162,25 @@ const CalendarPage = ({
         </h1>
         <p className="mt-1.5 text-cb-muted">{t.calendar.subtitle}</p>
       </header>
+
+      {/* 카테고리 내부 탭 (전체 / 실적 / IPO / 경제) — 양쪽 시장 동시 필터 */}
+      <div className="flex flex-wrap gap-1.5">
+        {tabs.map((c) => (
+          <button
+            key={c.id}
+            onClick={() => setCategory(c.id)}
+            className={[
+              'rounded-full px-3 py-1 text-sm font-medium transition-colors',
+              category === c.id
+                ? 'bg-cb-accent text-cb-on-accent'
+                : 'border border-cb-border text-cb-muted hover:border-cb-accent/40 hover:text-cb-foreground',
+            ].join(' ')}
+          >
+            {c.label}
+            <span className="ml-1 tabular-nums opacity-70">{c.n}</span>
+          </button>
+        ))}
+      </div>
 
       {/* 모바일 전용 시장 토글 (데스크톱 md+ 는 2단 동시 노출) */}
       <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--cb-input-bg)] w-fit md:hidden">
@@ -175,6 +210,7 @@ const CalendarPage = ({
             error={usError}
             onRetry={loadUs}
             today={today?.US ?? null}
+            category={category}
             t={t}
             lang={lang}
           />
@@ -188,6 +224,7 @@ const CalendarPage = ({
             error={krError}
             onRetry={loadKr}
             today={today?.KR ?? null}
+            category={category}
             t={t}
             lang={lang}
           />
@@ -206,6 +243,7 @@ const MarketColumn = ({
   error,
   onRetry,
   today,
+  category,
   t,
   lang,
 }: {
@@ -216,13 +254,18 @@ const MarketColumn = ({
   error: boolean;
   onRetry: () => void;
   today: string | null;
+  category: CalendarCategory;
   t: T;
   lang: string;
 }) => {
   const earnings = data?.earnings ?? [];
   const ipos = data?.ipos ?? [];
   const economic = data?.economic ?? [];
-  const total = earnings.length + ipos.length + economic.length;
+  const showEarn = category === 'all' || category === 'earnings';
+  const showIpo = category === 'all' || category === 'ipos';
+  const showEcon = category === 'all' || category === 'economic';
+  const visibleCount =
+    (showEarn ? earnings.length : 0) + (showIpo ? ipos.length : 0) + (showEcon ? economic.length : 0);
 
   return (
     <section className="glass-panel rounded-xl p-4 space-y-4">
@@ -237,7 +280,7 @@ const MarketColumn = ({
         </h2>
         {!loading && !error && (
           <span className="shrink-0 text-[11px] font-semibold text-cb-muted tabular-nums">
-            {total}
+            {visibleCount}
           </span>
         )}
       </div>
@@ -250,13 +293,15 @@ const MarketColumn = ({
         </div>
       ) : error ? (
         <ErrorRetry message={t.calendar.error} retryLabel={t.calendar.retry} onRetry={onRetry} />
-      ) : total === 0 ? (
-        <p className="py-6 text-center text-sm text-cb-muted">{t.calendar.empty}</p>
+      ) : visibleCount === 0 ? (
+        <p className="py-6 text-center text-sm text-cb-muted">
+          {category === 'all' ? t.calendar.empty : t.calendar.filteredEmpty}
+        </p>
       ) : (
         <div className="space-y-4">
-          <EarningsGroup list={earnings} t={t} lang={lang} today={today} />
-          <IpoGroup list={ipos} t={t} lang={lang} market={market} today={today} />
-          <EconGroup list={economic} t={t} lang={lang} today={today} />
+          {showEarn && <EarningsGroup list={earnings} t={t} lang={lang} today={today} />}
+          {showIpo && <IpoGroup list={ipos} t={t} lang={lang} market={market} today={today} />}
+          {showEcon && <EconGroup list={economic} t={t} lang={lang} today={today} />}
         </div>
       )}
 
@@ -319,30 +364,42 @@ function DateGrouped<X extends { date: string }>({
 }) {
   return (
     <div className="rounded-lg border border-cb-border overflow-hidden">
-      {groupByDate(list).map((g, gi) => (
-        <div key={g.date} className={gi > 0 ? 'border-t border-cb-border' : ''}>
+      {groupByDate(list).map((g, gi) => {
+        // 과거=흐릿(disable), 오늘=테두리 강조, 이후=현행. today 미확정(SSR) 시 강조 없음.
+        const isPast = today != null && g.date < today;
+        const isToday = today != null && g.date === today;
+        return (
           <div
+            key={g.date}
             className={[
-              'px-2.5 py-1 text-[11px] font-bold tabular-nums',
-              g.date === today
-                ? 'bg-cb-accent/15 text-cb-accent'
-                : 'bg-[var(--cb-input-bg)] text-cb-muted',
+              gi > 0 ? 'border-t border-cb-border' : '',
+              isPast ? 'opacity-45' : '',
+              isToday ? 'ring-2 ring-inset ring-cb-accent' : '',
             ].join(' ')}
           >
-            {weekdayLabel(g.date, lang)}
+            <div
+              className={[
+                'px-2.5 py-1 text-[11px] font-bold tabular-nums',
+                isToday
+                  ? 'bg-cb-accent/15 text-cb-accent'
+                  : 'bg-[var(--cb-input-bg)] text-cb-muted',
+              ].join(' ')}
+            >
+              {weekdayLabel(g.date, lang)}
+            </div>
+            <ul className="divide-y divide-cb-border/40">
+              {g.items.map((it, i) => (
+                <li
+                  key={keyOf(it, i)}
+                  className="flex flex-wrap items-center gap-x-2 gap-y-0.5 px-2.5 py-1.5"
+                >
+                  {renderItem(it)}
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="divide-y divide-cb-border/40">
-            {g.items.map((it, i) => (
-              <li
-                key={keyOf(it, i)}
-                className="flex flex-wrap items-center gap-x-2 gap-y-0.5 px-2.5 py-1.5"
-              >
-                {renderItem(it)}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
