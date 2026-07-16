@@ -180,6 +180,9 @@ export interface TranslationSchema {
     error: string;
     retry: string;
     empty: string;
+    newsButton: string;
+    newsTitle: string;
+    newsEmpty: string;
     annual: string;
     quarterly: string;
     valuationTitle: string;

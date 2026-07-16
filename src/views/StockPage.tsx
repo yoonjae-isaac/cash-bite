@@ -1,9 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Sparkles, ChevronDown } from 'lucide-react';
+import { Sparkles, ChevronDown, Newspaper } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { fetchFinancials, fetchTechnical, fetchStockAnalysis } from '../infrastructure/api/marketClient';
+import { fetchTickerNews } from '../infrastructure/api/backendNewsClient';
+import { SYMBOL_BY_CODE } from '../data/tradeableSymbols';
+import type { NewsItem } from '../domain/news/types';
 import TickerAutocomplete from '../components/stock/TickerAutocomplete';
 import PriceMaChart from '../components/stock/PriceMaChart';
 import TechnicalSignals from '../components/stock/TechnicalSignals';
@@ -31,6 +34,31 @@ import InfoHint from '../components/ui/InfoHint';
 type Tab = 'technical' | 'fundamental';
 const PERIODS: StatementPeriod[] = ['annual', 'quarterly'];
 const RANGES: TechRange[] = ['3M', '6M', '1Y'];
+
+/**
+ * 검색된 티커 → 관련 뉴스 조회 대상. 시장(국내/해외)을 카탈로그로 판별.
+ * KR 은 네이버 검색이 회사명에서 잘 잡히므로 nameKo, US 는 Finnhub 티커 심볼(코드) 사용.
+ * 카탈로그 미스 시 6자리 숫자면 KR 코드로 간주.
+ */
+function resolveNewsTarget(ticker: string): { market: 'KR' | 'US'; query: string } {
+  const info = SYMBOL_BY_CODE.get(ticker.toUpperCase());
+  if (info) {
+    const isKr = info.market === 'KOSPI' || info.market === 'KOSDAQ';
+    return { market: isKr ? 'KR' : 'US', query: isKr ? info.nameKo : info.code };
+  }
+  return { market: /^\d{6}$/.test(ticker.trim()) ? 'KR' : 'US', query: ticker.trim() };
+}
+
+/** unix(초) → 'MM.DD HH:MM' (브라우저 로캘). 0=미상이면 빈 문자열. */
+const fmtNewsTime = (unix: number, locale: string): string =>
+  unix > 0
+    ? new Date(unix * 1000).toLocaleString(locale, {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '';
 
 // ── 공용 세그먼트 컨트롤 ──
 const Seg = <T extends string>({
@@ -390,6 +418,12 @@ const StockPage = () => {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(false);
 
+  // 관련 뉴스 — 버튼 클릭 시 온디맨드 (KR=네이버, US=Finnhub, 최신 10)
+  const [newsOpen, setNewsOpen] = useState(false);
+  const [news, setNews] = useState<NewsItem[] | null>(null);
+  const [newsLoading, setNewsLoading] = useState(false);
+  const [newsError, setNewsError] = useState(false);
+
   // 비동기 경로에서만 setState — 로딩=true 는 이벤트 핸들러에서.
   const loadTech = useCallback((q: string, r: TechRange) => {
     fetchTechnical(q, r)
@@ -399,6 +433,17 @@ const StockPage = () => {
       })
       .catch(() => setTechError(true))
       .finally(() => setTechLoading(false));
+  }, []);
+
+  const loadNews = useCallback((ticker: string) => {
+    const { market, query } = resolveNewsTarget(ticker);
+    fetchTickerNews(market, query)
+      .then((list) => {
+        setNews(list);
+        setNewsError(false);
+      })
+      .catch(() => setNewsError(true))
+      .finally(() => setNewsLoading(false));
   }, []);
 
   const loadFin = useCallback((q: string, p: StatementPeriod) => {
@@ -436,11 +481,15 @@ const StockPage = () => {
     setFinLoading(true);
     setTechError(false);
     setFinError(false);
-    // 새 종목 검색 시 이전 AI 분석 초기화 (닫고 비움)
+    // 새 종목 검색 시 이전 AI 분석·뉴스 초기화 (닫고 비움)
     setAiOpen(false);
     setAi(null);
     setAiError(false);
     setAiLoading(false);
+    setNewsOpen(false);
+    setNews(null);
+    setNewsError(false);
+    setNewsLoading(false);
     if (q === query) {
       loadTech(q, range);
       loadFin(q, period);
@@ -465,6 +514,24 @@ const StockPage = () => {
     setAiError(false);
     setAiLoading(true);
     loadAi(query, lang);
+  };
+
+  const toggleNews = () => {
+    if (newsOpen) {
+      setNewsOpen(false);
+      return;
+    }
+    setNewsOpen(true);
+    if (!news && !newsLoading) {
+      setNewsLoading(true);
+      setNewsError(false);
+      loadNews(query);
+    }
+  };
+  const retryNews = () => {
+    setNewsError(false);
+    setNewsLoading(true);
+    loadNews(query);
   };
 
   const changeRange = (r: TechRange) => {
@@ -617,6 +684,66 @@ const StockPage = () => {
               )}
             </div>
           )}
+
+          {/* 관련 뉴스 — 온디맨드 (KR=네이버, US=Finnhub, 최신 10) */}
+          <div>
+            <button
+              type="button"
+              onClick={toggleNews}
+              aria-expanded={newsOpen}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-cb-border font-bold text-sm text-cb-foreground hover:border-cb-accent/40 transition-colors"
+            >
+              <Newspaper className="w-4 h-4 text-cb-accent" />
+              {t.stock.newsButton}
+              <ChevronDown className={`w-4 h-4 transition-transform ${newsOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {newsOpen && (
+              <div className="mt-3 glass-panel rounded-xl p-5">
+                <h3 className="flex items-center gap-2 text-[15px] font-bold text-cb-foreground mb-4">
+                  <Newspaper className="w-4 h-4 text-cb-accent" />
+                  {t.stock.newsTitle}
+                </h3>
+                {newsError ? (
+                  <ErrorRetry message={t.stock.error} retryLabel={t.stock.retry} onRetry={retryNews} />
+                ) : !news ? (
+                  <div className="space-y-3">
+                    {[0, 1, 2, 3].map((i) => (
+                      <Skeleton key={i} className="h-10 w-full rounded-lg" />
+                    ))}
+                  </div>
+                ) : news.length === 0 ? (
+                  <p className="text-sm text-cb-muted py-2">{t.stock.newsEmpty}</p>
+                ) : (
+                  <ul className="flex flex-col divide-y divide-cb-border/50">
+                    {news.map((n) => (
+                      <li key={n.id}>
+                        <a
+                          href={n.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex flex-col gap-1 py-3 first:pt-0 last:pb-0"
+                        >
+                          <span className="text-sm font-semibold text-cb-foreground leading-snug line-clamp-2 group-hover:text-cb-accent transition-colors">
+                            {n.headline}
+                          </span>
+                          <span className="flex items-center gap-2 text-[11px] text-cb-muted tabular-nums">
+                            <span className="truncate">{n.source}</span>
+                            {n.datetime > 0 && (
+                              <>
+                                <span>·</span>
+                                <span className="shrink-0">{fmtNewsTime(n.datetime, lang)}</span>
+                              </>
+                            )}
+                          </span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* 탭 */}
           <div className="flex gap-6 border-b border-cb-border" role="tablist" aria-label={t.stock.title}>

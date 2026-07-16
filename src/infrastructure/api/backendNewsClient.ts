@@ -44,6 +44,16 @@ export async function fetchMarketNews(
   return data.map(normalize);
 }
 
+/**
+ * 종목 관련 뉴스 (온디맨드, 최신 10). market=KR→Naver 검색어(회사명), US→Finnhub 티커 심볼.
+ * 백엔드가 외부 API 를 대신 호출하고 짧게 캐시한다(DB 미적재).
+ */
+export async function fetchTickerNews(market: 'KR' | 'US', query: string): Promise<NewsItem[]> {
+  const qs = new URLSearchParams({ market, query });
+  const data = await backendGet<BackendNewsItem[]>(`/news/ticker?${qs.toString()}`);
+  return data.map(normalize);
+}
+
 /** 시장별 AI 다이제스트 리스트 (생성시각 최신순, 매시 누적). 없으면 빈 배열. */
 export function fetchNewsDigests(
   market: 'KR' | 'US',
