@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Crown, ExternalLink, User, BarChart3 } from 'lucide-react';
+import { ExternalLink, User, BarChart3 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useGuruStore } from '../application/guru/useGuruStore';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
@@ -127,7 +127,6 @@ const GuruPage = ({
     <div className="space-y-6">
       <header>
         <h1 className="flex items-center gap-2 text-2xl md:text-3xl font-bold text-cb-foreground">
-          <Crown className="w-7 h-7 text-cb-accent" />
           {t.gurus.title}
         </h1>
         <p className="mt-1.5 text-cb-muted">{t.gurus.subtitle}</p>

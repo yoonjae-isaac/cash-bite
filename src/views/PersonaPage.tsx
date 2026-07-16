@@ -649,7 +649,6 @@ const NumField = ({
 const PageHeader = ({ t }: { t: T }) => (
   <header>
     <h1 className="flex items-center gap-2 text-2xl md:text-3xl font-bold text-cb-foreground">
-      <ClipboardCheck className="w-7 h-7 text-cb-accent" />
       {t.persona.title}
     </h1>
     <p className="mt-1.5 text-cb-muted">{t.persona.subtitle}</p>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { BarChart3, Sparkles, ChevronDown } from 'lucide-react';
+import { Sparkles, ChevronDown } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { fetchFinancials, fetchTechnical, fetchStockAnalysis } from '../infrastructure/api/marketClient';
 import TickerAutocomplete from '../components/stock/TickerAutocomplete';
@@ -536,7 +536,6 @@ const StockPage = () => {
     <div className="space-y-6">
       <header>
         <h1 className="flex items-center gap-2 text-2xl md:text-3xl font-bold text-cb-foreground">
-          <BarChart3 className="w-7 h-7 text-cb-accent" />
           {t.stock.title}
         </h1>
         <p className="mt-1.5 text-cb-muted">{t.stock.subtitle}</p>

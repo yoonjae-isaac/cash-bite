@@ -206,6 +206,9 @@ const NewsPage = ({
   // 서버 초기 데이터가 있으면 store 가 채워지기 전에도 SSR/첫 렌더에서 뉴스 리스트 표시(폴백).
   const displayNews = news.length > 0 ? news : (initialNews ?? []);
 
+  // 모바일 전용 뷰 전환(목록/요약) — 데스크톱(lg+)은 2단으로 동시 노출이라 무시.
+  const [mobileView, setMobileView] = useState<'list' | 'summary'>('list');
+
   // 우측 분석 패널 — 선택 시장의 AI 다이제스트 리스트(매시 누적).
   const [digests, setDigests] = useState<NewsDigest[]>(initialDigests ?? []);
   const [digestLoading, setDigestLoading] = useState(!initialDigests);
@@ -322,32 +325,46 @@ const NewsPage = ({
   return (
     <div className="flex flex-col gap-6">
       {/* Page header */}
-      <div>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 rounded-xl bg-sky-400/15 text-sky-400">
-            <Newspaper className="w-5 h-5" />
-          </div>
-          <h1 className="text-2xl font-bold text-cb-foreground">{t.news.title}</h1>
-        </div>
-        <p className="text-cb-muted ml-11">{t.news.subtitle}</p>
-      </div>
+      <header>
+        <h1 className="text-2xl md:text-3xl font-bold text-cb-foreground">{t.news.title}</h1>
+        <p className="mt-1.5 text-cb-muted">{t.news.subtitle}</p>
+      </header>
 
-      {/* Market 토글 (국내 네이버 / 해외 Finnhub) */}
-      <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--cb-input-bg)] w-fit">
-        {(['KR', 'US'] as const).map((m) => (
-          <button
-            key={m}
-            onClick={() => handleMarket(m)}
-            className={[
-              'px-4 py-1.5 rounded-md text-sm font-semibold transition-colors',
-              market === m
-                ? 'bg-cb-accent text-cb-on-accent'
-                : 'text-cb-muted hover:text-cb-foreground',
-            ].join(' ')}
-          >
-            {m === 'KR' ? t.news.marketKr : t.news.marketUs}
-          </button>
-        ))}
+      {/* 토글: 시장(국내/해외) + 모바일 전용 목록/요약 전환 */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--cb-input-bg)] w-fit">
+          {(['KR', 'US'] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => handleMarket(m)}
+              className={[
+                'px-4 py-1.5 rounded-md text-sm font-semibold transition-colors',
+                market === m
+                  ? 'bg-cb-accent text-cb-on-accent'
+                  : 'text-cb-muted hover:text-cb-foreground',
+              ].join(' ')}
+            >
+              {m === 'KR' ? t.news.marketKr : t.news.marketUs}
+            </button>
+          ))}
+        </div>
+        {/* 모바일에서만 노출 — 데스크톱은 목록·요약을 2단으로 함께 보여줌 */}
+        <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--cb-input-bg)] w-fit lg:hidden">
+          {(['list', 'summary'] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setMobileView(v)}
+              className={[
+                'px-4 py-1.5 rounded-md text-sm font-semibold transition-colors',
+                mobileView === v
+                  ? 'bg-cb-accent text-cb-on-accent'
+                  : 'text-cb-muted hover:text-cb-foreground',
+              ].join(' ')}
+            >
+              {v === 'list' ? t.news.viewList : t.news.viewSummary}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Toolbar */}
@@ -370,10 +387,10 @@ const NewsPage = ({
         {renderTranslationBadge()}
       </div>
 
-      {/* 본문: 좌(뉴스 리스트) · 우(AI 분석) 2단 */}
+      {/* 본문: 좌(뉴스 리스트) · 우(AI 분석) 2단. 모바일은 목록/요약 중 택1 노출. */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {/* Left: 뉴스 리스트 */}
-        <div className="flex flex-col gap-3">
+        <div className={`flex-col gap-3 lg:flex ${mobileView === 'list' ? 'flex' : 'hidden'}`}>
           {error && !isLoading && (
             <div className="flex items-center gap-3 p-4 rounded-lg border border-cb-negative/25 bg-cb-negative/8 text-cb-negative text-sm">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -402,15 +419,17 @@ const NewsPage = ({
           )}
         </div>
 
-        {/* Right: AI 뉴스 분석 (sticky) */}
-        <AnalysisPanel
-          market={market}
-          digests={digests}
-          loading={digestLoading}
-          error={digestError}
-          onRetry={retryDigest}
-          locale={language}
-        />
+        {/* Right: AI 뉴스 분석 (sticky). 모바일은 '요약' 선택 시에만 노출. */}
+        <div className={`lg:block ${mobileView === 'summary' ? 'block' : 'hidden'}`}>
+          <AnalysisPanel
+            market={market}
+            digests={digests}
+            loading={digestLoading}
+            error={digestError}
+            onRetry={retryDigest}
+            locale={language}
+          />
+        </div>
       </div>
     </div>
   );

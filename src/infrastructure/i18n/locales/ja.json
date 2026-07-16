@@ -361,7 +361,9 @@
     "marketKr": "韓国",
     "marketUs": "海外",
     "analysisTitle": "AIニュース分析",
-    "analysisEmpty": "本日の分析はまだ生成されていません。"
+    "analysisEmpty": "本日の分析はまだ生成されていません。",
+    "viewList": "一覧",
+    "viewSummary": "要約"
   },
   "gurus": {
     "title": "投資の巨匠ポートフォリオ",

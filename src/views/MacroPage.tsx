@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { LineChart as LineChartIcon } from 'lucide-react';
 import { useMacroStore, type MacroRange } from '../application/macro/useMacroStore';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import type { MacroOverviewRow, MacroSeriesData, RateOutlook } from '../domain/macro/types';
@@ -107,7 +106,6 @@ const MacroPage = ({
     <div className="space-y-6">
       <header>
         <h1 className="flex items-center gap-2 text-2xl md:text-3xl font-bold text-cb-foreground">
-          <LineChartIcon className="w-7 h-7 text-cb-accent" />
           {t.macro.title}
         </h1>
         <p className="mt-1.5 text-cb-muted">{t.macro.subtitle}</p>

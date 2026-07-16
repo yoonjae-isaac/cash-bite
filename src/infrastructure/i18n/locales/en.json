@@ -361,7 +361,9 @@
     "marketKr": "Korea",
     "marketUs": "Global",
     "analysisTitle": "AI News Analysis",
-    "analysisEmpty": "Today's analysis hasn't been generated yet."
+    "analysisEmpty": "Today's analysis hasn't been generated yet.",
+    "viewList": "List",
+    "viewSummary": "Summary"
   },
   "gurus": {
     "title": "Guru Portfolios",

@@ -100,6 +100,19 @@ const StatRankCard = ({ title, desc, icon, accent, stocks, metric, unit }: Props
     setTip({ stock, rect: el.getBoundingClientRect() });
   const close = () => setTip(null);
 
+  // 말풍선이 열린 동안 스크롤/리사이즈되면 앵커와 어긋나므로 닫는다(모바일 페이지 스크롤 포함).
+  // capture=true 로 중첩 스크롤 컨테이너도 감지.
+  useEffect(() => {
+    if (!tip) return;
+    const dismiss = () => setTip(null);
+    window.addEventListener('scroll', dismiss, true);
+    window.addEventListener('resize', dismiss);
+    return () => {
+      window.removeEventListener('scroll', dismiss, true);
+      window.removeEventListener('resize', dismiss);
+    };
+  }, [tip]);
+
   const badgeFor = (change: GuruStatHolder['change']): { label: string; cls: string } | null => {
     switch (change) {
       case 'new':

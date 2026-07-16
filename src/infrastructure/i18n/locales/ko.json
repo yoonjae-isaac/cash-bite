@@ -361,7 +361,9 @@
     "marketKr": "국내",
     "marketUs": "해외",
     "analysisTitle": "AI 뉴스 분석",
-    "analysisEmpty": "아직 오늘의 분석이 생성되지 않았어요."
+    "analysisEmpty": "아직 오늘의 분석이 생성되지 않았어요.",
+    "viewList": "목록",
+    "viewSummary": "요약"
   },
   "gurus": {
     "title": "투자 대가의 포트폴리오",

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CalendarDays, Landmark, Rocket, TrendingUp } from 'lucide-react';
+import { Landmark, Rocket, TrendingUp } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { fetchCalendar } from '../infrastructure/api/calendarClient';
 import type { CalEarning, CalEconomic, CalIpo, CalendarMarket, CalendarWeek } from '../domain/calendar/types';
@@ -153,10 +153,9 @@ const CalendarPage = ({
   ];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-5">
+    <div className="space-y-5">
       <header>
         <h1 className="flex flex-wrap items-center gap-x-2 text-2xl md:text-3xl font-bold text-cb-foreground">
-          <CalendarDays className="w-7 h-7 text-cb-accent" />
           {t.calendar.title}
           <span className="text-sm font-semibold text-cb-muted tabular-nums">{rangeLabel}</span>
         </h1>
@@ -431,11 +430,19 @@ const EarningsGroup = ({
         renderItem={(e) => {
           const name = e.name ?? companyName(e.symbol, lang);
           const hourLabel = e.hour && HOUR_KEY[e.hour] ? t.calendar[HOUR_KEY[e.hour]] : '';
-          // 표기: 티커코드(한국어이름) — 매칭 없으면 코드만.
+          // 표기: 데스크톱은 티커코드(한국어이름) 인라인, 모바일은 코드 아래 작은 이름(겹침 방지).
           const nameEl = (
-            <span className="truncate">
-              <b className="font-semibold text-cb-foreground tabular-nums">{e.symbol}</b>
-              {name && <span className="text-cb-muted">({name})</span>}
+            <span className="flex min-w-0 flex-col sm:flex-row sm:items-baseline sm:gap-1">
+              <b className="font-semibold text-cb-foreground tabular-nums leading-tight">
+                {e.symbol}
+              </b>
+              {name && (
+                <span className="truncate text-[11px] leading-tight text-cb-muted sm:text-sm sm:leading-normal">
+                  <span className="hidden sm:inline">(</span>
+                  {name}
+                  <span className="hidden sm:inline">)</span>
+                </span>
+              )}
             </span>
           );
           return (

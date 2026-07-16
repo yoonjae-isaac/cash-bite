@@ -377,6 +377,8 @@ export interface TranslationSchema {
     marketUs: string;
     analysisTitle: string;
     analysisEmpty: string;
+    viewList: string;
+    viewSummary: string;
   };
   gurus: {
     title: string;

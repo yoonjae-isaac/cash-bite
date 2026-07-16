@@ -45,7 +45,8 @@ const MacroOverviewGrid = ({
           </div>
           {group.map(({ entry, latest }) => {
             const label = lang === 'ko' ? entry.label : (entry.labelEn ?? entry.label);
-            const change = latest.yoyChange != null ? latest.yoyChange : latest.momChange;
+            // '한눈에' 는 전기(직전 관측)대비만 노출 — 차트·상세는 전년대비 유지.
+            const change = latest.momChange;
             const active = entry.id === selectedId;
             return (
               <button
