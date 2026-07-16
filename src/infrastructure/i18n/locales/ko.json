@@ -415,7 +415,12 @@
     "mostSoldDesc": "직전 분기 대비 축소, 전량매도한 거장이 많은 종목",
     "holdersUnit": "명 보유",
     "buyersUnit": "명 매수",
-    "sellersUnit": "명 매도"
+    "sellersUnit": "명 매도",
+    "tipHolders": "보유 거장",
+    "tipBuyers": "매수 거장",
+    "tipSellers": "매도 거장",
+    "tipWeight": "거장별 비중",
+    "tipEmpty": "집계 갱신 중"
   },
   "macro": {
     "title": "거시경제 지표",

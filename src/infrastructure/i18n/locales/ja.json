@@ -415,7 +415,12 @@
     "mostSoldDesc": "前四半期比で縮小・全売却した巨匠が多い銘柄",
     "holdersUnit": "名保有",
     "buyersUnit": "名買い",
-    "sellersUnit": "名売り"
+    "sellersUnit": "名売り",
+    "tipHolders": "保有する大家",
+    "tipBuyers": "買った大家",
+    "tipSellers": "売った大家",
+    "tipWeight": "大家別の構成比",
+    "tipEmpty": "集計を更新中"
   },
   "macro": {
     "title": "マクロ経済指標",

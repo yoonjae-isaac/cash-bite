@@ -431,6 +431,11 @@ export interface TranslationSchema {
     holdersUnit: string;
     buyersUnit: string;
     sellersUnit: string;
+    tipHolders: string;
+    tipBuyers: string;
+    tipSellers: string;
+    tipWeight: string;
+    tipEmpty: string;
   };
   macro: {
     title: string;

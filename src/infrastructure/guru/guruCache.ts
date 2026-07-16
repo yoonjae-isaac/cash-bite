@@ -3,7 +3,7 @@
 
 import type { GuruInvestor, GuruPortfolio, GuruStats } from '../../domain/guru/types';
 
-const CACHE_VERSION = 3; // 응답 스키마/목록 변경 시 올려서 구버전 캐시 무효화 (v3: 투자자 리스트 Tier 1 19명으로 한정)
+const CACHE_VERSION = 4; // 응답 스키마/목록 변경 시 올려서 구버전 캐시 무효화 (v4: stats 에 거장 상세 holders 추가)
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 
 const INVESTORS_KEY = 'cashbite-guru-investors';

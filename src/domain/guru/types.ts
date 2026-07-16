@@ -52,6 +52,13 @@ export interface GuruPortfolio {
   exits?: GuruExit[]; // 전량 매도 종목 (prevValue 내림차순)
 }
 
+/** 종목별 거장 상세 — 통계 말풍선용 (이름·보유액·변화) */
+export interface GuruStatHolder {
+  name: string; // 거장 인물명
+  value: number; // 이 종목 보유 신고 가치 (USD); 전량매도(exit)는 0
+  change: GuruChangeType | 'exit'; // 이번 분기 변화 유형
+}
+
 /** 크로스 투자자 집계 — 한 종목에 대한 거장 전체 통계 */
 export interface GuruStatStock {
   cusip: string;
@@ -61,7 +68,7 @@ export interface GuruStatStock {
   totalValue: number; // 합산 신고 가치 (USD)
   buyerCount: number; // 이번 분기 신규/확대 거장 수
   sellerCount: number; // 이번 분기 축소/매도 거장 수
-  topHolders: string[]; // 보유 거장명 (최대 8)
+  holders?: GuruStatHolder[]; // 보유·매수·매도 거장 상세 (value 내림차순, exit 포함). 구 캐시 호환 위해 옵셔널
 }
 
 export interface GuruStats {

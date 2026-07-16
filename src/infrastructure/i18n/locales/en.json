@@ -415,7 +415,12 @@
     "mostSoldDesc": "Trimmed or exited by the most gurus vs last quarter",
     "holdersUnit": "holders",
     "buyersUnit": "buyers",
-    "sellersUnit": "sellers"
+    "sellersUnit": "sellers",
+    "tipHolders": "Holders",
+    "tipBuyers": "Buyers",
+    "tipSellers": "Sellers",
+    "tipWeight": "Weight by guru",
+    "tipEmpty": "Updating…"
   },
   "macro": {
     "title": "Macro Indicators",
