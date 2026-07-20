@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Landmark, Rocket, TrendingUp } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { fetchCalendar } from '../infrastructure/api/calendarClient';
@@ -14,28 +14,11 @@ type T = TranslationSchema;
 type CalendarCategory = 'all' | 'earnings' | 'ipos' | 'economic';
 
 // ── 날짜 유틸 (로컬 타임존, YYYY-MM-DD) ──
-const toYMD = (d: Date): string =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const addDays = (d: Date, n: number): Date => {
-  const x = new Date(d);
-  x.setDate(x.getDate() + n);
-  return x;
-};
-/** 그 주의 월요일. */
-const startOfWeek = (d: Date): Date => {
-  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); // 월=0
-  return x;
-};
+// 주간 범위(월~금)는 백엔드가 산출 — 프론트는 응답 from/to 만 사용(타임존/롤오버 단일 기준).
 const parseYMD = (ymd: string): Date => {
   const [y, m, d] = ymd.split('-').map(Number);
   return new Date(y, m - 1, d);
 };
-/** 이번 주 월~금 (initialFrom 우선, 없으면 오늘 기준). */
-function weekRange(initialFrom?: string): { from: string; to: string } {
-  const mon = startOfWeek(initialFrom ? parseYMD(initialFrom) : new Date());
-  return { from: toYMD(mon), to: toYMD(addDays(mon, 4)) };
-}
 
 // ── 포맷 (값 있을 때만 렌더) ──
 const fmtUsd = (n: number): string => {
@@ -81,15 +64,11 @@ const IND_KEY: Record<string, keyof T['calendar']> = {
 
 const CalendarPage = ({
   initialData = null,
-  initialFrom,
 }: {
   initialData?: CalendarWeek | null;
-  initialFrom?: string;
 }) => {
   const t = useLanguageStore((s) => s.t);
   const lang = useLanguageStore((s) => s.language);
-  // 주 이동 없음 — 이번 주(월~금) 고정. 서버가 준 initialFrom 으로 서버·클라 렌더 일치.
-  const { from, to } = useMemo(() => weekRange(initialFrom), [initialFrom]);
 
   const [us, setUs] = useState<CalendarWeek | null>(initialData);
   const [kr, setKr] = useState<CalendarWeek | null>(null);
@@ -102,18 +81,19 @@ const CalendarPage = ({
   // 카테고리 내부 탭 — 실적/IPO/경제 따로 보기 (양쪽 시장 동시 필터).
   const [category, setCategory] = useState<CalendarCategory>('all');
 
+  // 주간 범위는 백엔드가 산출(현재 영업주, KST) — 응답 from/to 를 그대로 사용. US·KR 동일 주간.
   const loadUs = useCallback(() => {
     setUsError(false);
-    fetchCalendar('US', from, to)
+    fetchCalendar('US')
       .then(setUs)
       .catch(() => setUsError(true));
-  }, [from, to]);
+  }, []);
   const loadKr = useCallback(() => {
     setKrError(false);
-    fetchCalendar('KR', from, to)
+    fetchCalendar('KR')
       .then(setKr)
       .catch(() => setKrError(true));
-  }, [from, to]);
+  }, []);
 
   const didMount = useRef(false);
   useEffect(() => {
@@ -135,9 +115,11 @@ const CalendarPage = ({
     setToday({ US: inTz('America/New_York'), KR: inTz('Asia/Seoul') });
   }, []);
 
-  const ws = parseYMD(from);
-  const we = parseYMD(to);
-  const rangeLabel = `${ws.getMonth() + 1}/${ws.getDate()} – ${we.getMonth() + 1}/${we.getDate()}`;
+  // 라벨용 주간 범위 — 로드된 응답(US 우선, 없으면 KR/초기데이터)의 from/to.
+  const range = us ?? kr ?? initialData;
+  const rangeLabel = range
+    ? `${parseYMD(range.from).getMonth() + 1}/${parseYMD(range.from).getDate()} – ${parseYMD(range.to).getMonth() + 1}/${parseYMD(range.to).getDate()}`
+    : '';
 
   // 탭 카운트 = 미국+국내 합계.
   const catTotals = {

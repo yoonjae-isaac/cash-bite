@@ -15,35 +15,23 @@ export async function generateMetadata({
   return staticPageMetadata('/calendar', locale as Locale);
 }
 
-// ISR — 1시간마다 재생성. 서버에서 이번 주 일정을 렌더해 SSR 콘텐츠 확보(색인·AdSense).
-export const revalidate = 3600;
-
-/** 이번 주 월~금 (서버 생성 시점 기준, 로컬 YYYY-MM-DD). */
-function thisWeekMonFri(): { from: string; to: string } {
-  const now = new Date();
-  const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7));
-  const fri = new Date(mon);
-  fri.setDate(mon.getDate() + 4);
-  const ymd = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  return { from: ymd(mon), to: ymd(fri) };
-}
+// ISR — 30분마다 재생성. 주말→다음주 롤오버가 SSR 에 빠르게 반영되도록 짧게. 서버 렌더로 SSR 콘텐츠 확보(색인·AdSense).
+export const revalidate = 1800;
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const { from, to } = thisWeekMonFri();
+  // 주간 범위는 백엔드가 산출(현재 영업주, KST) — 프론트는 응답 from/to 를 그대로 사용.
   // SSR canonical 은 US (색인·AdSense). KR 은 클라 토글 시 fetch.
   let initialData: CalendarWeek | null = null;
   try {
-    initialData = await fetchCalendar('US', from, to, 3600);
+    initialData = await fetchCalendar('US', undefined, undefined, 1800);
   } catch {
     initialData = null; // 백엔드 일시 장애 시 클라가 폴백 fetch
   }
   return (
     <Reveal>
-      <CalendarPage initialData={initialData} initialFrom={from} />
+      <CalendarPage initialData={initialData} />
     </Reveal>
   );
 }
