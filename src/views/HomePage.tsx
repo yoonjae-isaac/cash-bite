@@ -158,6 +158,33 @@ const HomePage = () => {
         </section>
       </Reveal>
 
+      {/* ── 주린이 온보딩 진입 배너 (국내 전용 — ko 에서만) ──────── */}
+      {lang === 'ko' && (
+        <Reveal>
+          <Link
+            href="/onboarding"
+            className="group flex items-center gap-4 rounded-2xl border border-cb-point/30 bg-gradient-to-br from-cb-point/12 to-cb-accent/5 px-5 py-5 md:px-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-cb-point/50"
+          >
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-cb-point text-2xl text-cb-on-point">
+              💡
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="mb-0.5 text-xs font-bold text-cb-point">주식 처음이세요?</div>
+              <h3 className="text-lg md:text-xl font-extrabold tracking-tight text-cb-foreground">
+                주린이 온보딩 — 왜 투자하나부터 첫 매수까지
+              </h3>
+              <p className="mt-1 hidden text-sm text-cb-muted sm:block">
+                증권계좌·세금·ISA·용어까지 순서대로. 6단계면 혼자 시작할 수 있어요.
+              </p>
+            </div>
+            <span className="inline-flex shrink-0 items-center gap-1 text-sm font-bold text-cb-point">
+              <span className="hidden sm:inline">시작하기</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </Link>
+        </Reveal>
+      )}
+
       {/* ── Quote of the Day (뉴스보다 위) ───────────────────── */}
       <Reveal>
         <QuoteOfDay />

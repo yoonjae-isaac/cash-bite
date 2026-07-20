@@ -127,6 +127,14 @@ export const PAGE_SEO: Record<string, { title: Loc; description: Loc }> = {
       ja: '投資をやさしく学ぶ — ナンピン・複利・損切り・配当・巨匠の13Fを短く。読んだらすぐ計算ツールで練習。',
     },
   },
+  '/onboarding': {
+    title: { ko: '주린이 온보딩', en: 'Beginner Start', ja: '株の始め方' },
+    description: {
+      ko: '주식 완전 초보를 위한 실전 시작 가이드 — 왜 투자하나, 증권계좌·세금·ISA, 첫 매수까지 쉽게.',
+      en: 'A hands-on starter guide for complete beginners — why invest, brokerage accounts, taxes, ISA, and your first buy.',
+      ja: '株の完全初心者のための実践スタートガイド — なぜ投資するか、証券口座・税金・ISA、初めての買付まで。',
+    },
+  },
   '/about': {
     title: { ko: '소개', en: 'About', ja: '概要' },
     description: {

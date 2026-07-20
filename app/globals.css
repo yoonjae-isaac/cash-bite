@@ -41,6 +41,20 @@
   --cb-ma120: #b98bff;
 }
 
+/* 주린이 온보딩 — 투자 성향 트랙 액센트(trader=앰버 / value=블루). cb 토큰과 별개의 기능색. */
+:root {
+  --cb-trader: #e0912a;
+  --cb-trader-soft: rgba(224, 145, 42, 0.15);
+  --cb-value: #6f8cf0;
+  --cb-value-soft: rgba(111, 140, 240, 0.15);
+}
+:root[data-theme='light'] {
+  --cb-trader: #b5720f;
+  --cb-trader-soft: rgba(181, 114, 15, 0.1);
+  --cb-value: #3b5bd0;
+  --cb-value-soft: rgba(59, 91, 208, 0.1);
+}
+
 :root[data-theme='light'] {
   --cb-bg: #ffffff;
   --cb-surface: #ffffff;

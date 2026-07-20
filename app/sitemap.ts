@@ -25,6 +25,15 @@ function entry(
   };
 }
 
+// 국내 전용 페이지 — ko 단일 URL만(en/ja hreflang 없이). 주린이 온보딩이 여기 해당.
+function entryKoOnly(
+  path: string,
+  changeFrequency: 'daily' | 'weekly' | 'monthly',
+  priority: number,
+): MetadataRoute.Sitemap[number] {
+  return { url: `${SITE_URL}${localePath('ko', path)}`, changeFrequency, priority };
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const content = ['/', '/news', '/gurus', '/stock', '/macro', '/calendar'];
   const toolRoutes = ['/tools', ...TOOLS.map((t) => `/tools/${t.slug}`)];
@@ -32,6 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages = ['/about', '/privacy', '/terms'];
   return [
     ...content.map((path) => entry(path, 'daily', path === '/' ? 1 : 0.8)),
+    entryKoOnly('/onboarding', 'weekly', 0.8),
     ...toolRoutes.map((path) => entry(path, 'monthly', path === '/tools' ? 0.7 : 0.6)),
     ...learnRoutes.map((path) => entry(path, 'weekly', path === '/learn' ? 0.7 : 0.6)),
     ...staticPages.map((path) => entry(path, 'monthly', 0.3)),
