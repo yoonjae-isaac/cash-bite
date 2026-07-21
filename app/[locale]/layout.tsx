@@ -12,6 +12,7 @@ import ClientInit from '@/components/app/ClientInit';
 import GaRouteTracker from '@/components/app/GaRouteTracker';
 import AppToaster from '@/components/app/AppToaster';
 import ConsentBanner from '@/components/app/ConsentBanner';
+import MobileRefreshButton from '@/components/app/MobileRefreshButton';
 import { LanguageProvider } from '@/application/i18n/useLanguageStore';
 import { SITE_URL, SITE_NAME, SITE_TAGLINE_LOC, SITE_DESCRIPTION_LOC, localePath, LOCALES, type Locale } from '@/config/site';
 import { routing } from '@/i18n/routing';
@@ -149,6 +150,7 @@ export default async function LocaleLayout({
             </main>
             <Footer />
           </div>
+          <MobileRefreshButton />
         </LanguageProvider>
         </NextIntlClientProvider>
       </body>

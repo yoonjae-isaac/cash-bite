@@ -134,7 +134,7 @@ const Header = () => {
           {/* Mobile menu toggle */}
           <button
             onClick={() => setMobileOpen((o) => !o)}
-            className="md:hidden -mr-1 flex h-11 w-11 items-center justify-center rounded-lg border border-cb-border text-cb-muted hover:text-cb-accent hover:border-cb-accent/35 transition-colors"
+            className="md:hidden -mr-1 flex h-11 w-11 items-center justify-center rounded-lg text-cb-muted hover:text-cb-accent hover:bg-[var(--cb-hover)] transition-colors"
             aria-label="Toggle navigation"
             aria-expanded={mobileOpen}
           >
