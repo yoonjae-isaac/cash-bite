@@ -501,10 +501,62 @@ export default function OnboardingBoard() {
         </section>
       )}
 
-      {/* ---------------- STEP 4 / 6 포인트형 ---------------- */}
-      {(screen === 'buyWhat' || screen === 'afterBuy') &&
+      {/* ---------------- STEP 4 뭘 살까 (성향 · 개별주/ETF · 적립식) ---------------- */}
+      {screen === 'buyWhat' &&
         (() => {
-          const s = steps[screen];
+          const s = steps.buyWhat;
+          return (
+            <section>
+              <DetailHead kicker={stepKicker(s.step)} onBack={() => go('home')} />
+              <Title title={s.title} intro={s.intro} />
+
+              {s.approaches.map((a) => {
+                const active = a.key === 'active';
+                const borderL = active ? 'border-l-[var(--cb-trader)]' : 'border-l-[var(--cb-value)]';
+                const tagCls = active ? 'text-[var(--cb-trader)]' : 'text-[var(--cb-value)]';
+                const dotCls = active ? 'bg-[var(--cb-trader)]' : 'bg-[var(--cb-value)]';
+                return (
+                  <article key={a.key} className={`mb-3 ${CARD} border-l-4 ${borderL} p-4`}>
+                    <div className="flex flex-wrap items-baseline gap-x-2">
+                      <h3 className="text-[15px] font-extrabold text-cb-foreground">{a.label}</h3>
+                      <span className={`text-[11.5px] font-semibold ${tagCls}`}>{a.tagline}</span>
+                    </div>
+                    <p className="mt-1.5 text-[13.5px] leading-relaxed text-cb-muted">{a.body}</p>
+                    <ul className="mt-2.5 flex flex-col gap-2">
+                      {a.items.map((it, i) => (
+                        <li key={i} className="relative pl-4 text-[12.8px] leading-relaxed text-cb-foreground">
+                          <span className={`absolute left-0.5 top-[7px] h-1 w-1 rounded-full ${dotCls}`} />
+                          {it}
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                );
+              })}
+
+              <Subhead eyebrow="개별주 vs ETF" title="구체적으로 뭘 사나" />
+              {s.points.map((p) => (
+                <PointBlock key={p.title} title={p.title} body={p.body} />
+              ))}
+              {s.callout && <Callout>💡 {s.callout}</Callout>}
+
+              <Subhead eyebrow="어떻게 사나" title={s.autoInvest.heading} />
+              <p className="mb-3 text-[13.8px] leading-relaxed text-cb-muted">{s.autoInvest.body}</p>
+              <div className={`${CARD} border-l-4 border-l-cb-point p-4 text-[12.8px] leading-relaxed text-cb-muted`}>
+                <b className="text-cb-foreground">⏱️ 매수 주기</b> — {s.autoInvest.intervalNote}
+              </div>
+              <Callout tone="warn">⚠️ {s.autoInvest.caution}</Callout>
+
+              {s.crosslink && <CrossLink to={s.crosslink.to} label={s.crosslink.label} />}
+              <Cta id="buyWhat" done={!!done.buyWhat} onComplete={complete} label="이 단계 완료" />
+            </section>
+          );
+        })()}
+
+      {/* ---------------- STEP 6 사고 난 뒤 관리 (포인트형) ---------------- */}
+      {screen === 'afterBuy' &&
+        (() => {
+          const s = steps.afterBuy;
           return (
             <section>
               <DetailHead kicker={stepKicker(s.step)} onBack={() => go('home')} />

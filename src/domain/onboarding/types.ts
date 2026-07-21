@@ -204,7 +204,7 @@ export interface TermsStep {
 }
 
 /* ------------------------------------------------------------------ */
-/* step 4 — buyWhat / step 6 — afterBuy (title+body 포인트형)          */
+/* step 4 — buyWhat (성향 접근 + 개별주/ETF + 적립식)                  */
 /* ------------------------------------------------------------------ */
 
 export interface TitleBody {
@@ -212,9 +212,44 @@ export interface TitleBody {
   body: string;
 }
 
+/** 성향 트랙 — active(적극·공부) / passive(소극·ETF·자동투자). */
+export interface BuyApproach {
+  key: 'active' | 'passive';
+  label: string;
+  tagline: string;
+  body: string;
+  items: string[];
+}
+
+/** 적립식(정기 분할) 자동투자 설명. */
+export interface AutoInvest {
+  heading: string;
+  body: string;
+  /** 매수 주기(1일~한 달) 안내. */
+  intervalNote: string;
+  /** 과장 방지 — 수익 보장/손실 방지 아님이라는 정확한 뉘앙스. */
+  caution: string;
+}
+
+export interface BuyWhatStep {
+  id: 'buyWhat';
+  step: 4;
+  title: string;
+  intro: string;
+  approaches: BuyApproach[];
+  points: TitleBody[];
+  callout?: string;
+  autoInvest: AutoInvest;
+  crosslink?: CrossLink;
+}
+
+/* ------------------------------------------------------------------ */
+/* step 6 — afterBuy (title+body 포인트형)                            */
+/* ------------------------------------------------------------------ */
+
 export interface PointsStep {
-  id: 'buyWhat' | 'afterBuy';
-  step: 4 | 6;
+  id: 'afterBuy';
+  step: 6;
   title: string;
   intro: string;
   points: TitleBody[];
@@ -248,7 +283,7 @@ export interface OnboardingSteps {
   mindset: MindsetStep;
   account: AccountStep;
   terms: TermsStep;
-  buyWhat: PointsStep;
+  buyWhat: BuyWhatStep;
   checklist: ChecklistStep;
   afterBuy: PointsStep;
 }
