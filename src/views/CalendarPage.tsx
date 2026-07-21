@@ -76,7 +76,7 @@ const CalendarPage = ({
   const [krError, setKrError] = useState(false);
   // 모바일 전용 시장 선택 (데스크톱 md+ 는 2단 동시 노출이라 무시됨).
   const [mobileMarket, setMobileMarket] = useState<CalendarMarket>('KR');
-  // 국가별 '오늘'(브라우저 타임존 기준) YYYY-MM-DD. 하이드레이션 불일치 방지 위해 마운트 후 계산.
+  // '오늘'(KST 기준) YYYY-MM-DD. 하이드레이션 불일치 방지 위해 마운트 후 계산.
   const [today, setToday] = useState<Record<CalendarMarket, string> | null>(null);
   // 카테고리 내부 탭 — 실적/IPO/경제 따로 보기 (양쪽 시장 동시 필터).
   const [category, setCategory] = useState<CalendarCategory>('all');
@@ -104,15 +104,15 @@ const CalendarPage = ({
   }, [initialData, loadUs, loadKr]);
 
   useEffect(() => {
-    // 미국(ET)·한국(KST)의 '오늘'을 브라우저 Intl 로 계산 (DST 자동 반영). en-CA = YYYY-MM-DD.
-    const inTz = (tz: string) =>
-      new Intl.DateTimeFormat('en-CA', {
-        timeZone: tz,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      }).format(new Date());
-    setToday({ US: inTz('America/New_York'), KR: inTz('Asia/Seoul') });
+    // '오늘'은 KST(Asia/Seoul) 기준으로 통일 — 국내 사용자 기준 금일. Intl 로 명시 tz 계산이라
+    // 브라우저 타임존과 무관하고, 주간 범위(백엔드)도 KST 기준이라 US·KR 두 컬럼이 동일한 '오늘'로 정렬된다.
+    const kstToday = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date());
+    setToday({ US: kstToday, KR: kstToday });
   }, []);
 
   // 라벨용 주간 범위 — 로드된 응답(US 우선, 없으면 KR/초기데이터)의 from/to.
