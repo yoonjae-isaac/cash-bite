@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type PointerEvent } from 'react';
 import { RotateCcw } from 'lucide-react';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
+import InfoHint from '../ui/InfoHint';
 import { formatMoney } from '../../domain/market/format';
 import type { TechnicalResult } from '../../domain/market/types';
 
@@ -11,6 +12,11 @@ const M = { t: 14, r: 16, b: 24, l: 58 };
 const PW = VB_W - M.l - M.r;
 const PH = VB_H - M.t - M.b;
 const MIN_DRAG = 20; // 이 미만 드래그는 확대로 보지 않음 (viewBox 단위)
+// 서브차트(거래량·RSI) — 가격 차트와 X축 정렬 위해 같은 VB_W·좌우 마진 사용. 상단 라벨/하단 여백.
+const VOL_H = 110;
+const RSI_H = 120;
+const SUB_TOP = 16;
+const SUB_BOT = 8;
 
 type MaKey = 'ma5' | 'ma20' | 'ma60' | 'ma120';
 const MA_KEYS: { key: MaKey; w: number; color: string }[] = [
@@ -19,6 +25,10 @@ const MA_KEYS: { key: MaKey; w: number; color: string }[] = [
   { key: 'ma60', w: 60, color: 'var(--cb-ma60)' },
   { key: 'ma120', w: 120, color: 'var(--cb-ma120)' },
 ];
+
+type Mode = 'beginner' | 'advanced';
+// 초보 모드 = 핵심만(캔들 + 20일선). 나머지 이평선·RSI는 '자세히'에서.
+const BEGINNER_VIS: Record<MaKey, boolean> = { ma5: false, ma20: true, ma60: false, ma120: false };
 
 /** 축 눈금용 "보기 좋은" 간격 (1·2·5 × 10ⁿ). */
 const niceStep = (range: number, ticks: number): number => {
@@ -32,6 +42,7 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
   const t = useLanguageStore((s) => s.t);
   const svgRef = useRef<SVGSVGElement>(null);
   const [type, setType] = useState<'candle' | 'line'>('candle');
+  const [mode, setMode] = useState<Mode>('beginner');
   const [visible, setVisible] = useState<Record<MaKey, boolean>>({
     ma5: true,
     ma20: true,
@@ -41,6 +52,8 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
   const [hover, setHover] = useState<number | null>(null);
   const [zoom, setZoom] = useState<[number, number] | null>(null); // series 절대 인덱스
   const [drag, setDrag] = useState<{ startX: number; curX: number } | null>(null);
+  // 자세히 모드 오버레이 토글 — 볼린저 / 지지·저항 / 라운드넘버
+  const [overlay, setOverlay] = useState({ bb: false, sr: true, round: false });
 
   const { series, currency } = data;
   const total = series.length;
@@ -48,6 +61,22 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
   const to = zoom ? zoom[1] : total - 1;
   const view = useMemo(() => series.slice(from, to + 1), [series, from, to]);
   const n = view.length;
+
+  // 표시 이평선 — 초보 모드는 20일선만, 자세히 모드는 사용자 토글을 따름.
+  const effVisible = mode === 'beginner' ? BEGINNER_VIS : visible;
+
+  // 거래량 20일 이동평균 (series 전체 기준 → view 로 인덱싱).
+  const volMa = useMemo(() => {
+    const w = 20;
+    const out: (number | null)[] = new Array<number | null>(series.length).fill(null);
+    let sum = 0;
+    for (let i = 0; i < series.length; i++) {
+      sum += series[i].volume;
+      if (i >= w) sum -= series[i - w].volume;
+      if (i >= w - 1) out[i] = sum / w;
+    }
+    return out;
+  }, [series]);
 
   const geo = useMemo(() => {
     let min = Infinity;
@@ -59,7 +88,7 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
       if (hi > max) max = hi;
     }
     for (const m of MA_KEYS) {
-      if (!visible[m.key]) continue;
+      if (!effVisible[m.key]) continue;
       for (const p of view) {
         const v = p[m.key];
         if (v == null) continue;
@@ -77,7 +106,7 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
     const X = (i: number) => M.l + (n <= 1 ? PW / 2 : (i / (n - 1)) * PW);
     const Y = (v: number) => M.t + (1 - (v - min) / (max - min)) * PH;
     return { min, max, X, Y };
-  }, [view, type, visible, n]);
+  }, [view, type, effVisible, n]);
 
   const { min, max, X, Y } = geo;
 
@@ -106,6 +135,47 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
     const sym = currency === 'USD' ? '$' : currency === 'KRW' ? '₩' : currency === 'JPY' ? '¥' : '';
     return sym + Math.round(v).toLocaleString();
   };
+
+  // 서브차트 Y 스케일
+  const maxVol = useMemo(() => Math.max(1, ...view.map((p) => p.volume)), [view]);
+  const yVol = (v: number) => VOL_H - SUB_BOT - (v / maxVol) * (VOL_H - SUB_BOT - SUB_TOP);
+  const yRsi = (r: number) => SUB_TOP + (1 - r / 100) * (RSI_H - SUB_BOT - SUB_TOP);
+
+  // 자세히 마커 — 골든/데드 크로스(ma5×ma20) 위치 + 고점권 대량 윗꼬리 봉
+  const markers = useMemo(() => {
+    let cross: { i: number; kind: 'golden' | 'dead' } | null = null;
+    for (let i = 1; i < n; i++) {
+      const a0 = view[i - 1].ma5;
+      const b0 = view[i - 1].ma20;
+      const a1 = view[i].ma5;
+      const b1 = view[i].ma20;
+      if (a0 == null || b0 == null || a1 == null || b1 == null) continue;
+      const d0 = a0 - b0;
+      const d1 = a1 - b1;
+      if (d0 <= 0 && d1 > 0) cross = { i, kind: 'golden' };
+      else if (d0 >= 0 && d1 < 0) cross = { i, kind: 'dead' };
+    }
+    const avgVol = n ? view.reduce((s, p) => s + p.volume, 0) / n : 0;
+    const recentHigh = n ? Math.max(...view.map((p) => p.high)) : 0;
+    let wick: number | null = null;
+    for (let i = 0; i < n; i++) {
+      const p = view[i];
+      const range = p.high - p.low;
+      const upper = p.high - Math.max(p.open, p.close);
+      if (range > 0 && avgVol > 0 && p.volume > avgVol * 1.8 && upper > range * 0.6 && p.high >= recentHigh * 0.97) {
+        wick = i;
+      }
+    }
+    return { cross, wick };
+  }, [view, n]);
+
+  // 라운드넘버(심리적 가격대) — 도메인 내 딱 떨어지는 가격 몇 개
+  const roundLevels = useMemo(() => {
+    const unit = Math.max(1, Math.pow(10, Math.floor(Math.log10(Math.max(1, (max + min) / 2)))));
+    const out: number[] = [];
+    for (let v = Math.ceil(min / unit) * unit; v <= max; v += unit) out.push(v);
+    return out.slice(0, 4);
+  }, [min, max]);
 
   // 포인터 x → viewBox x (플롯 영역으로 clamp)
   const toVbX = (clientX: number): number => {
@@ -156,6 +226,7 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
   const hoverX = hover != null ? X(hover) : 0;
   const rawPct = (hoverX / VB_W) * 100;
   const tipTransform = rawPct < 18 ? 'translateX(0)' : rawPct > 82 ? 'translateX(-100%)' : 'translateX(-50%)';
+  const showCrosshair = hp != null && !drag;
 
   const seg = (active: boolean) =>
     [
@@ -165,20 +236,26 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
 
   return (
     <div>
-      {/* 상단 컨트롤: 확대 상태/힌트 · 캔들/라인 토글 */}
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="text-[11px] text-cb-muted min-w-0">
-          {zoom ? (
+      {/* 상단 컨트롤: 초보/자세히 · 확대 · 캔들/라인 */}
+      <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-0.5 p-0.5 rounded-lg bg-[var(--cb-input-bg)] shrink-0">
+            <button type="button" onClick={() => setMode('beginner')} className={seg(mode === 'beginner')}>
+              {t.stock.tech.modeBeginner}
+            </button>
+            <button type="button" onClick={() => setMode('advanced')} className={seg(mode === 'advanced')}>
+              {t.stock.tech.modeAdvanced}
+            </button>
+          </div>
+          {zoom && (
             <button
               type="button"
               onClick={() => setZoom(null)}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-cb-border text-cb-muted hover:text-cb-foreground hover:border-cb-accent/40 font-semibold transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-cb-border text-[11px] text-cb-muted hover:text-cb-foreground hover:border-cb-accent/40 font-semibold transition-colors"
             >
               <RotateCcw className="w-3 h-3" />
               {t.stock.tech.zoomReset}
             </button>
-          ) : (
-            <span className="hidden sm:inline">{t.stock.tech.zoomHint}</span>
           )}
         </div>
         <div className="flex gap-0.5 p-0.5 rounded-lg bg-[var(--cb-input-bg)] shrink-0">
@@ -242,6 +319,71 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
             </text>
           ))}
 
+          {/* 자세히 오버레이 (캔들 뒤) — 지지/저항 띠 · 라운드넘버 · 볼린저밴드 */}
+          {mode === 'advanced' &&
+            overlay.sr &&
+            (data.levels ?? [])
+              .filter((l) => l.price >= min && l.price <= max)
+              .slice(0, 4)
+              .map((l, idx) => {
+                const half = l.price * 0.008;
+                const col = l.kind === 'resistance' ? 'var(--cb-negative)' : 'var(--cb-positive)';
+                return (
+                  <g key={`sr${idx}`}>
+                    <rect
+                      x={M.l}
+                      y={Math.min(Y(l.price + half), Y(l.price - half))}
+                      width={PW}
+                      height={Math.abs(Y(l.price - half) - Y(l.price + half))}
+                      style={{ fill: col }}
+                      opacity={0.12}
+                    />
+                    <text x={M.l + 4} y={Y(l.price) - 2} style={{ fill: col, fontSize: 10, fontWeight: 700 }}>
+                      {l.kind === 'resistance' ? t.stock.tech.resistance : t.stock.tech.support}
+                    </text>
+                  </g>
+                );
+              })}
+          {mode === 'advanced' &&
+            overlay.round &&
+            roundLevels.map((v, idx) => (
+              <line
+                key={`rn${idx}`}
+                x1={M.l}
+                x2={M.l + PW}
+                y1={Y(v)}
+                y2={Y(v)}
+                style={{ stroke: 'var(--cb-border-strong)' }}
+                strokeWidth={1}
+                strokeDasharray="1 5"
+              />
+            ))}
+          {mode === 'advanced' &&
+            overlay.bb &&
+            (() => {
+              const up: string[] = [];
+              const lo: string[] = [];
+              const mid: string[] = [];
+              view.forEach((p, i) => {
+                if (p.bbUpper != null) up.push(`${X(i).toFixed(1)},${Y(p.bbUpper).toFixed(1)}`);
+                if (p.bbLower != null) lo.push(`${X(i).toFixed(1)},${Y(p.bbLower).toFixed(1)}`);
+                if (p.bbMid != null) mid.push(`${X(i).toFixed(1)},${Y(p.bbMid).toFixed(1)}`);
+              });
+              if (up.length < 2 || lo.length < 2) return null;
+              return (
+                <g>
+                  <path
+                    d={`M${up.join(' L')} L${[...lo].reverse().join(' L')} Z`}
+                    style={{ fill: 'var(--cb-point)' }}
+                    opacity={0.08}
+                  />
+                  <polyline points={up.join(' ')} fill="none" style={{ stroke: 'var(--cb-point)' }} strokeWidth={1} strokeDasharray="3 3" opacity={0.6} />
+                  <polyline points={lo.join(' ')} fill="none" style={{ stroke: 'var(--cb-point)' }} strokeWidth={1} strokeDasharray="3 3" opacity={0.6} />
+                  <polyline points={mid.join(' ')} fill="none" style={{ stroke: 'var(--cb-point)' }} strokeWidth={1} opacity={0.4} />
+                </g>
+              );
+            })()}
+
           {/* 캔들 or 라인 */}
           {type === 'candle'
             ? view.map((p, i) => {
@@ -276,7 +418,7 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
 
           {/* 이동평균선 */}
           {MA_KEYS.map((m) =>
-            visible[m.key] ? (
+            effVisible[m.key] ? (
               <polyline
                 key={m.key}
                 points={view
@@ -311,7 +453,7 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
           )}
 
           {/* 크로스헤어 + 호버 점 (드래그 중 아님) */}
-          {hp && !drag && (
+          {showCrosshair && (
             <>
               <line
                 x1={hoverX}
@@ -322,15 +464,44 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
                 strokeWidth={1}
                 strokeDasharray="3 3"
               />
-              {type === 'line' && (
+              {type === 'line' && hp && (
                 <circle cx={hoverX} cy={Y(hp.close)} r={3} style={{ fill: 'var(--cb-foreground)' }} />
               )}
-              {MA_KEYS.map((m) =>
-                visible[m.key] && hp[m.key] != null ? (
-                  <circle key={m.key} cx={hoverX} cy={Y(hp[m.key] as number)} r={3} style={{ fill: m.color }} />
-                ) : null,
-              )}
+              {hp &&
+                MA_KEYS.map((m) =>
+                  effVisible[m.key] && hp[m.key] != null ? (
+                    <circle key={m.key} cx={hoverX} cy={Y(hp[m.key] as number)} r={3} style={{ fill: m.color }} />
+                  ) : null,
+                )}
             </>
+          )}
+
+          {/* 자세히 마커 — 골든/데드 크로스 · 고점권 대량 윗꼬리 (최상단) */}
+          {mode === 'advanced' && markers.cross && (
+            <circle
+              cx={X(markers.cross.i)}
+              cy={
+                view[markers.cross.i].ma20 != null
+                  ? Y(view[markers.cross.i].ma20 as number)
+                  : Y(view[markers.cross.i].close)
+              }
+              r={4.5}
+              fill="none"
+              style={{ stroke: markers.cross.kind === 'golden' ? 'var(--cb-ma20)' : 'var(--cb-negative)' }}
+              strokeWidth={2}
+            >
+              <title>{markers.cross.kind === 'golden' ? t.stock.tech.crossGolden : t.stock.tech.crossDead}</title>
+            </circle>
+          )}
+          {mode === 'advanced' && markers.wick != null && (
+            <text
+              x={X(markers.wick)}
+              y={Y(view[markers.wick].high) - 6}
+              textAnchor="middle"
+              style={{ fill: 'var(--cb-ma60)', fontSize: 12 }}
+            >
+              ⚠<title>{t.stock.tech.volWick}</title>
+            </text>
           )}
         </svg>
 
@@ -361,7 +532,7 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
             </div>
             <div className="mt-1.5 pt-1.5 border-t border-cb-border space-y-0.5 tabular-nums">
               {MA_KEYS.map((m) =>
-                visible[m.key] && hp[m.key] != null ? (
+                effVisible[m.key] && hp[m.key] != null ? (
                   <div key={m.key} className="flex items-center justify-between gap-4">
                     <span className="flex items-center gap-1.5 text-cb-muted whitespace-nowrap">
                       <span className="w-2.5 h-[3px] rounded-sm" style={{ background: m.color }} />
@@ -393,37 +564,177 @@ const PriceMaChart = ({ data }: { data: TechnicalResult }) => {
         )}
       </div>
 
-      {/* 범례 (MA 표시 토글) */}
-      <div className="flex flex-wrap gap-2 mt-3.5">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold border border-cb-border text-cb-muted">
-          <span className="w-3.5 h-[3px] rounded-sm" style={{ background: 'var(--cb-foreground)' }} />
-          {t.stock.tech.closeLabel}
-        </span>
-        {MA_KEYS.map((m) => {
-          const on = visible[m.key];
-          const lastVal = view.length ? view[view.length - 1][m.key] : null;
+      {/* 거래량 서브차트 (상시) — 상승/하락 색 막대 + 20일 평균선 */}
+      <svg
+        viewBox={`0 0 ${VB_W} ${VOL_H}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="w-full h-auto block mt-1.5 select-none"
+        role="img"
+        aria-label={t.stock.tech.tVolume}
+      >
+        <text x={M.l} y={12} style={{ fill: 'var(--cb-muted)', fontSize: 11 }}>
+          {t.stock.tech.tVolume}
+        </text>
+        {view.map((p, i) => {
+          const up = p.close >= p.open;
+          const y = yVol(p.volume);
           return (
+            <rect
+              key={i}
+              x={X(i) - cw / 2}
+              y={y}
+              width={cw}
+              height={Math.max(0.5, VOL_H - SUB_BOT - y)}
+              style={{ fill: up ? 'var(--cb-positive)' : 'var(--cb-negative)' }}
+              opacity={0.5}
+            />
+          );
+        })}
+        <polyline
+          points={view
+            .map((_p, i) => {
+              const v = volMa[from + i];
+              return v == null ? '' : `${X(i).toFixed(1)},${yVol(v).toFixed(1)}`;
+            })
+            .filter(Boolean)
+            .join(' ')}
+          fill="none"
+          style={{ stroke: 'var(--cb-ma60)' }}
+          strokeWidth={1.2}
+          opacity={0.9}
+        />
+        {showCrosshair && (
+          <line
+            x1={hoverX}
+            x2={hoverX}
+            y1={0}
+            y2={VOL_H}
+            style={{ stroke: 'var(--cb-muted)' }}
+            strokeWidth={1}
+            strokeDasharray="3 3"
+          />
+        )}
+      </svg>
+
+      {/* RSI 서브차트 (자세히 모드) — 70/30 존 + 50 중심선 */}
+      {mode === 'advanced' && (
+        <svg
+          viewBox={`0 0 ${VB_W} ${RSI_H}`}
+          preserveAspectRatio="xMidYMid meet"
+          className="w-full h-auto block mt-1.5 select-none"
+          role="img"
+          aria-label="RSI"
+        >
+          <text x={M.l} y={12} style={{ fill: 'var(--cb-muted)', fontSize: 11 }}>
+            RSI (14)
+          </text>
+          {/* 과매수/과매도 존 */}
+          <rect x={M.l} y={yRsi(100)} width={PW} height={yRsi(70) - yRsi(100)} style={{ fill: 'var(--cb-hover)' }} />
+          <rect x={M.l} y={yRsi(30)} width={PW} height={yRsi(0) - yRsi(30)} style={{ fill: 'var(--cb-hover)' }} />
+          {[70, 50, 30].map((g) => (
+            <g key={g}>
+              <line
+                x1={M.l}
+                x2={M.l + PW}
+                y1={yRsi(g)}
+                y2={yRsi(g)}
+                style={{ stroke: 'var(--cb-border-subtle)' }}
+                strokeWidth={1}
+                strokeDasharray={g === 50 ? '1 3' : '3 3'}
+              />
+              <text x={M.l - 8} y={yRsi(g) + 3.5} textAnchor="end" style={{ fill: 'var(--cb-muted)', fontSize: 10 }}>
+                {g}
+              </text>
+            </g>
+          ))}
+          <polyline
+            points={view
+              .map((p, i) => (p.rsi == null ? '' : `${X(i).toFixed(1)},${yRsi(p.rsi).toFixed(1)}`))
+              .filter(Boolean)
+              .join(' ')}
+            fill="none"
+            style={{ stroke: 'var(--cb-point)' }}
+            strokeWidth={1.5}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+          {showCrosshair && (
+            <line
+              x1={hoverX}
+              x2={hoverX}
+              y1={0}
+              y2={RSI_H}
+              style={{ stroke: 'var(--cb-muted)' }}
+              strokeWidth={1}
+              strokeDasharray="3 3"
+            />
+          )}
+        </svg>
+      )}
+
+      {/* 범례(자세히) 또는 초보 안내 */}
+      {mode === 'advanced' ? (
+        <div className="flex flex-wrap gap-2 mt-3.5">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold border border-cb-border text-cb-muted">
+            <span className="w-3.5 h-[3px] rounded-sm" style={{ background: 'var(--cb-foreground)' }} />
+            {t.stock.tech.closeLabel}
+          </span>
+          <span className="inline-flex items-center self-center pl-0.5">
+            <InfoHint label={t.stock.tech.chartTitle} content={t.stock.tech.maHint} />
+          </span>
+          {MA_KEYS.map((m) => {
+            const on = visible[m.key];
+            const lastVal = view.length ? view[view.length - 1][m.key] : null;
+            return (
+              <button
+                key={m.key}
+                type="button"
+                onClick={() => toggleMa(m.key)}
+                aria-pressed={on}
+                className={[
+                  'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-opacity',
+                  'border-cb-border text-cb-foreground bg-[var(--cb-input-bg)]',
+                  on ? '' : 'opacity-40',
+                ].join(' ')}
+              >
+                <span className="w-3.5 h-[3px] rounded-sm" style={{ background: m.color }} />
+                {m.w}
+                {t.stock.tech.maUnit}
+                <span className="text-cb-muted tabular-nums">
+                  {lastVal == null ? '' : formatMoney(lastVal, currency)}
+                </span>
+              </button>
+            );
+          })}
+          {(
+            [
+              { k: 'bb' as const, label: t.stock.tech.bbToggle, color: 'var(--cb-point)' },
+              { k: 'sr' as const, label: t.stock.tech.srToggle, color: 'var(--cb-negative)' },
+              { k: 'round' as const, label: t.stock.tech.roundToggle, color: 'var(--cb-border-strong)' },
+            ]
+          ).map((o) => (
             <button
-              key={m.key}
+              key={o.k}
               type="button"
-              onClick={() => toggleMa(m.key)}
-              aria-pressed={on}
+              onClick={() => setOverlay((v) => ({ ...v, [o.k]: !v[o.k] }))}
+              aria-pressed={overlay[o.k]}
               className={[
                 'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold border transition-opacity',
                 'border-cb-border text-cb-foreground bg-[var(--cb-input-bg)]',
-                on ? '' : 'opacity-40',
+                overlay[o.k] ? '' : 'opacity-40',
               ].join(' ')}
             >
-              <span className="w-3.5 h-[3px] rounded-sm" style={{ background: m.color }} />
-              {m.w}
-              {t.stock.tech.maUnit}
-              <span className="text-cb-muted tabular-nums">
-                {lastVal == null ? '' : formatMoney(lastVal, currency)}
-              </span>
+              <span className="w-2 h-2 rounded-full" style={{ background: o.color }} />
+              {o.label}
             </button>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-3 text-[11.5px] text-cb-muted flex items-center gap-1.5 leading-relaxed">
+          {t.stock.tech.beginnerHint}
+          <InfoHint label={t.stock.tech.chartTitle} content={t.stock.tech.maHint} />
+        </p>
+      )}
     </div>
   );
 };

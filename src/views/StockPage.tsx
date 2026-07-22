@@ -9,6 +9,7 @@ import { SYMBOL_BY_CODE } from '../data/tradeableSymbols';
 import type { NewsItem } from '../domain/news/types';
 import TickerAutocomplete from '../components/stock/TickerAutocomplete';
 import PriceMaChart from '../components/stock/PriceMaChart';
+import TechnicalSummary from '../components/stock/TechnicalSummary';
 import TechnicalSignals from '../components/stock/TechnicalSignals';
 import AiAnalysisPanel, { AiLoading } from '../components/stock/AiAnalysisPanel';
 import { FEATURES } from '../config/features';
@@ -784,6 +785,12 @@ const StockPage = () => {
                   </div>
                 )}
               </section>
+
+              {tech && (
+                <section className="glass-panel rounded-xl p-5">
+                  <TechnicalSummary data={tech} />
+                </section>
+              )}
 
               {tech && (
                 <section className="glass-panel rounded-xl p-5">

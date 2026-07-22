@@ -89,10 +89,21 @@ export interface TechnicalPoint {
   ma20: number | null;
   ma60: number | null;
   ma120: number | null;
+  // 볼린저밴드(20,2σ) — 신규 필드. 구버전 캐시 응답엔 없을 수 있어 optional.
+  bbUpper?: number | null;
+  bbMid?: number | null;
+  bbLower?: number | null;
 }
 
 /** 이평선 기울기 근사 추세. */
 export type Trend = 'up' | 'down' | 'flat';
+
+/** 자동 감지 지지/저항 레벨. */
+export interface SrLevel {
+  price: number;
+  kind: 'support' | 'resistance';
+  touches: number;
+}
 
 /** 최신 시점 기준 교육용 상태 신호 (매수/매도 권유 아님). */
 export interface TechnicalSignals {
@@ -107,6 +118,8 @@ export interface TechnicalSignals {
   trendShort: Trend; // 20일선 기울기 (단기)
   volumeDemand: 'up' | 'down'; // 최근 10거래일 상승/하락일 거래량 우위
   volumeSpikeWick: boolean; // 고점권 대량거래+긴 윗꼬리 경고
+  atrPct?: number | null; // 하루 평균 변동폭 % (ATR/종가). 신규 필드 — optional
+  squeeze?: boolean; // 볼린저 밴드폭 최저권(변동성 수축)
 }
 
 export interface TechnicalResult {
@@ -116,6 +129,15 @@ export interface TechnicalResult {
   series: TechnicalPoint[];
   signals: TechnicalSignals;
   vix: number | null; // ^VIX 최신값 (없으면 null)
+  // ── 신규 필드 (구버전 캐시 응답엔 없을 수 있어 optional) ──
+  asOf?: string; // 데이터 기준일(마지막 봉)
+  delayed?: boolean; // 종가/지연 데이터
+  hi52?: number | null; // 52주 최고
+  lo52?: number | null; // 52주 최저
+  pos52?: number | null; // 52주 범위 내 위치 %
+  levels?: SrLevel[]; // 자동 지지/저항
+  nearestSupport?: SrLevel | null;
+  nearestResistance?: SrLevel | null;
 }
 
 // ── AI 종합 분석 — `GET /market/analysis` 응답 (libs/stock-ai StockAnalysis) ──
