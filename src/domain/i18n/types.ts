@@ -632,6 +632,7 @@ export interface TranslationSchema {
     marketUs: string;
     marketKr: string;
     indRate: string;
+    indFomc: string;
     indEmployment: string;
     indCpi: string;
     indPce: string;

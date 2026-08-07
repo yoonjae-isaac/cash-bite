@@ -617,6 +617,7 @@
     "marketUs": "미국",
     "marketKr": "국내",
     "indRate": "기준금리 결정(금통위)",
+    "indFomc": "FOMC 기준금리 결정",
     "indEmployment": "고용보고서",
     "indCpi": "소비자물가 CPI",
     "indPce": "개인소득, 지출(PCE)",

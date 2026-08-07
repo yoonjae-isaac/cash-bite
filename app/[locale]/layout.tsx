@@ -8,6 +8,7 @@ import '../globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ExchangeRateBar from '@/presentation/components/exchange/ExchangeRateBar';
+import MarketBoard from '@/components/layout/MarketBoard';
 import ClientInit from '@/components/app/ClientInit';
 import GaRouteTracker from '@/components/app/GaRouteTracker';
 import AppToaster from '@/components/app/AppToaster';
@@ -16,6 +17,9 @@ import MobileRefreshButton from '@/components/app/MobileRefreshButton';
 import { LanguageProvider } from '@/application/i18n/useLanguageStore';
 import { SITE_URL, SITE_NAME, SITE_TAGLINE_LOC, SITE_DESCRIPTION_LOC, localePath, LOCALES, type Locale } from '@/config/site';
 import { routing } from '@/i18n/routing';
+import { resolveBoard } from '@/config/boardRules';
+import { fetchCalendar } from '@/infrastructure/api/calendarClient';
+import type { BoardConfig } from '@/domain/calendar/board';
 import type { Language } from '@/domain/i18n/types';
 
 // 브랜드/워드마크 폰트 — next/font 로 셀프호스팅(빌드 시 번들, zero-CLS). Pretendard(한글)만 CDN 유지.
@@ -81,6 +85,25 @@ export async function generateMetadata({
 
 const themeInitScript = `(function(){try{var t=localStorage.getItem('theme-storage');var m='dark';if(t){var p=JSON.parse(t);if(p&&p.state&&p.state.theme==='light')m='light';}document.documentElement.dataset.theme=m;}catch(e){document.documentElement.dataset.theme='dark';}try{var u=localStorage.getItem('updown-storage');var n='default';if(u){var q=JSON.parse(u);if(q&&q.state&&q.state.mode==='swap')n='swap';}document.documentElement.dataset.updown=n;}catch(e){document.documentElement.dataset.updown='default';}})();`;
 
+/**
+ * 홈 최상단 전광판 데이터 — 금주 미국 증시 일정 + 노출 규칙(config/boardRules) 판정.
+ *
+ * 셸에서 만드는 이유: 스트립이 헤더·환율바에 붙은 풀블리드라 main(max-w-1280) 안에 둘 수 없다.
+ * 홈에서만 보이게 하는 판정은 MarketBoard 가 경로로 처리한다(레이아웃은 pathname 을 모른다).
+ * 해설 카피가 한국어 전용이라 ko 로케일에서만 만든다. 백엔드 장애 시엔 조용히 생략.
+ * ISR 30분 — 백엔드 갱신(매일 12:00 KST)과 주간 롤오버(일 09시)를 증시 일정 페이지와 같은 주기로 따라간다.
+ */
+async function loadHomeBoard(locale: string): Promise<BoardConfig | null> {
+  if (locale !== 'ko') {
+    return null;
+  }
+  try {
+    return resolveBoard(await fetchCalendar('US', undefined, undefined, 1800));
+  } catch {
+    return null;
+  }
+}
+
 const consentInitScript = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',wait_for_update:500});`;
 
 export default async function LocaleLayout({
@@ -95,6 +118,7 @@ export default async function LocaleLayout({
     notFound();
   }
   setRequestLocale(locale); // 정적 렌더 활성화(플러그인 request 설정과 연동)
+  const board = await loadHomeBoard(locale);
 
   return (
     <html lang={locale} className={`${spaceGrotesk.variable} ${bricolage.variable}`} suppressHydrationWarning>
@@ -145,6 +169,7 @@ export default async function LocaleLayout({
           <div className="flex flex-col min-h-screen">
             <Header />
             <ExchangeRateBar />
+            {board && <MarketBoard config={board} />}
             <main className="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-6 py-8 md:py-10">
               {children}
             </main>

@@ -617,6 +617,7 @@
     "marketUs": "US",
     "marketKr": "KR",
     "indRate": "BOK Rate Decision",
+    "indFomc": "FOMC Rate Decision",
     "indEmployment": "Employment Situation",
     "indCpi": "CPI (Consumer Prices)",
     "indPce": "Personal Income & Outlays (PCE)",

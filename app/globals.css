@@ -175,4 +175,47 @@
   .theme-icon-tile {
     background-color: var(--cb-icon-tile);
   }
+
+  /*
+   * 홈 최상단 전광판 티커 — 원본+복제 두 그룹을 -50% 이동시켜 끊김 없이 흐른다.
+   * 읽는 중 놓치지 않도록 hover·키보드 포커스에서 멈추고,
+   * 모션 축소 설정에서는 흐름을 끄고 가로 스크롤로 전환한다(아래 미디어 쿼리).
+   */
+  .board-ticker {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 36px), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 36px), transparent);
+  }
+
+  .board-ticker__track {
+    display: flex;
+    width: max-content;
+    animation: board-ticker-slide 44s linear infinite;
+  }
+
+  .board-ticker:hover .board-ticker__track,
+  .board-ticker:focus-within .board-ticker__track {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes board-ticker-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-ticker {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .board-ticker__track {
+    animation: none;
+  }
 }

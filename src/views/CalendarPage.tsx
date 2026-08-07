@@ -50,6 +50,7 @@ const IMPACT_KEY: Record<string, keyof T['calendar']> = {
 // 백엔드 경제지표 key → i18n 지표명(현지어). 미매핑 시 원문 event 폴백.
 const IND_KEY: Record<string, keyof T['calendar']> = {
   rate: 'indRate', // KR 한은 금통위
+  fomc: 'indFomc', // US 연준 FOMC (정적 큐레이션)
   employment: 'indEmployment',
   cpi: 'indCpi',
   pce: 'indPce',

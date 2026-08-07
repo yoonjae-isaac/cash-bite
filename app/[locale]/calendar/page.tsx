@@ -15,7 +15,8 @@ export async function generateMetadata({
   return staticPageMetadata('/calendar', locale as Locale);
 }
 
-// ISR — 30분마다 재생성. 주말→다음주 롤오버가 SSR 에 빠르게 반영되도록 짧게. 서버 렌더로 SSR 콘텐츠 확보(색인·AdSense).
+// ISR — 30분마다 재생성. 백엔드는 하루 1회(매일 12:00 KST) 갱신하지만, 그 갱신과 일요일 09시
+// 주간 롤오버가 화면에 늦어도 30분 안에 닿도록 짧게 유지한다. 서버 렌더로 SSR 콘텐츠 확보(색인·AdSense).
 export const revalidate = 1800;
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
