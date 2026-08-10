@@ -85,7 +85,8 @@ const ExchangeRateBar = () => {
   const loadingIndices = indicesLoading && indices.length === 0;
 
   const refresh = () => {
-    trackEvent('exchange_rate_refresh', { source: 'bar' });
+    // refresh_source — GA4 의 트래픽 소스 측정기준(session source 등)과 이름이 겹치지 않게 접두사를 둔다.
+    trackEvent('exchange_rate_refresh', { refresh_source: 'bar' });
     fetchExchangeRate(true);
     fetchIndices(true);
   };

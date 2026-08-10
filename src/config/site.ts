@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
-// 도메인 확정 후 Vercel 환경변수 NEXT_PUBLIC_SITE_URL 로 설정. 미설정 시 임시 플레이스홀더.
-// canonical·OG·sitemap·robots 의 절대 URL 기준이 되므로 배포 전 반드시 실제 도메인으로 지정할 것.
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://antsup.app';
+// canonical·OG·sitemap·robots 의 절대 URL 기준. Vercel 환경변수 NEXT_PUBLIC_SITE_URL 로 주입하고,
+// 기본값은 프로덕션 도메인과 동일하게 둔다 — env 누락 시 죽은 도메인이 색인되는 사고를 막기 위함.
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ants-up.com';
 export const SITE_NAME = 'AntsUp';
 
 export type Locale = 'ko' | 'en' | 'ja';

@@ -10,7 +10,6 @@ import Footer from '@/components/layout/Footer';
 import ExchangeRateBar from '@/presentation/components/exchange/ExchangeRateBar';
 import MarketBoard from '@/components/layout/MarketBoard';
 import ClientInit from '@/components/app/ClientInit';
-import GaRouteTracker from '@/components/app/GaRouteTracker';
 import AppToaster from '@/components/app/AppToaster';
 import ConsentBanner from '@/components/app/ConsentBanner';
 import MobileRefreshButton from '@/components/app/MobileRefreshButton';
@@ -161,7 +160,6 @@ export default async function LocaleLayout({
         )}
 
         <ClientInit />
-        <GaRouteTracker />
         <AppToaster />
         <ConsentBanner />
 
