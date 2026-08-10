@@ -50,22 +50,3 @@ export interface MacroOverviewRow {
   entry: MacroCatalogEntry;
   latest: MacroLatest;
 }
-
-// ── 금리 방향 추정 — `GET /macro/rate-outlook` ──
-export type RateLean = 'cut' | 'hold' | 'hike';
-export type RateBucket = 'cut-strong' | 'cut' | 'hold' | 'hike' | 'hike-strong';
-
-export interface RateOutlookFactor {
-  key: 'inflation' | 'employment' | 'market' | 'curve';
-  value: number | null;
-  trend: number | null;
-  lean: RateLean;
-}
-
-export interface RateOutlook {
-  score: number; // -100(인하 유력) ~ 0(동결) ~ +100(인상 유력)
-  bucket: RateBucket;
-  currentRate: number | null;
-  nextFomc: string | null;
-  factors: RateOutlookFactor[];
-}

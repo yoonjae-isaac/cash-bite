@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMacroStore, type MacroRange } from '../application/macro/useMacroStore';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
-import type { MacroOverviewRow, MacroSeriesData, RateOutlook } from '../domain/macro/types';
+import type { MacroOverviewRow, MacroSeriesData } from '../domain/macro/types';
 import { changeColorClass, formatChange, formatMacroValue } from '../domain/macro/format';
-import { fetchMacroOverview, fetchRateOutlook } from '../infrastructure/api/macroClient';
-import RateOutlookCard from '../components/macro/RateOutlookCard';
+import { fetchMacroOverview } from '../infrastructure/api/macroClient';
 import MacroOverviewGrid from '../components/macro/MacroOverviewGrid';
 import MacroLineChart from '../components/macro/MacroLineChart';
 import Skeleton from '../components/ui/Skeleton';
@@ -49,23 +48,15 @@ const SummaryCards = ({ data }: { data: MacroSeriesData }) => {
   );
 };
 
-const MacroPage = ({
-  initialOverview,
-  initialOutlook,
-}: {
-  initialOverview?: MacroOverviewRow[];
-  initialOutlook?: RateOutlook | null;
-}) => {
+const MacroPage = ({ initialOverview }: { initialOverview?: MacroOverviewRow[] }) => {
   const t = useLanguageStore((s) => s.t);
   const lang = useLanguageStore((s) => s.language);
   const { selectedId, range, seriesCache, isLoadingSeries, error, init, selectSeries, setRange } =
     useMacroStore();
 
-  // 서버가 내려준 overview·outlook 으로 초기화 → SSR 콘텐츠(첫 렌더부터 표시).
+  // 서버가 내려준 overview 로 초기화 → SSR 콘텐츠(첫 렌더부터 표시).
   const [overview, setOverview] = useState<MacroOverviewRow[]>(initialOverview ?? []);
   const [overviewError, setOverviewError] = useState(false);
-  const [outlook, setOutlook] = useState<RateOutlook | null>(initialOutlook ?? null);
-  const [outlookLoading, setOutlookLoading] = useState(!initialOutlook);
   const detailRef = useRef<HTMLDivElement>(null);
 
   const loadOverview = useCallback(() => {
@@ -80,19 +71,11 @@ const MacroPage = ({
     init();
   }, [init]);
 
-  // overview·outlook 은 서버가 값을 줬으면 재요청 생략, 없으면(로컬·장애) 클라 폴백 fetch.
+  // overview 는 서버가 값을 줬으면 재요청 생략, 없으면(로컬·장애) 클라 폴백 fetch.
   useEffect(() => {
     if (initialOverview && initialOverview.length > 0) return;
     loadOverview();
   }, [initialOverview, loadOverview]);
-
-  useEffect(() => {
-    if (initialOutlook) return;
-    fetchRateOutlook()
-      .then(setOutlook)
-      .catch(() => setOutlook(null))
-      .finally(() => setOutlookLoading(false));
-  }, [initialOutlook]);
 
   const onSelect = (id: string) => {
     void selectSeries(id);
@@ -110,12 +93,6 @@ const MacroPage = ({
         </h1>
         <p className="mt-1.5 text-cb-muted">{t.macro.subtitle}</p>
       </header>
-
-      {/* 금리 방향 인디케이터 */}
-      <section>
-        <h3 className="text-[15px] font-bold text-cb-foreground mb-2.5">{t.macro.rateTitle}</h3>
-        <RateOutlookCard outlook={outlook} loading={outlookLoading} />
-      </section>
 
       {/* 거시지표 한눈에 */}
       <section>
