@@ -53,7 +53,16 @@ export async function generateMetadata({
     },
     description,
     applicationName: SITE_NAME,
-    icons: { icon: '/logo.png' },
+    // 구글 검색결과 파비콘 규격: 루트 /favicon.ico 존재 + 정사각 48 배수 PNG.
+    // logo.png(512)는 48 배수가 아니라 구글이 무시한다 — 192 로 파생해 함께 선언.
+    icons: {
+      icon: [
+        { url: '/favicon.ico', sizes: 'any' },
+        { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      ],
+      shortcut: '/favicon.ico',
+      apple: { url: '/apple-touch-icon.png', sizes: '180x180' },
+    },
     alternates: {
       canonical: localePath(locale, '/'),
       languages: {
