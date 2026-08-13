@@ -140,6 +140,23 @@
 }
 
 @layer utilities {
+  /* 셸 가로 폭 단일 소스 — 헤더·전광판·본문·푸터가 같은 축에 정렬된다.
+     한 줄이 너무 길면 눈이 다음 줄 첫 글자를 찾기 어려워 읽기 부담이 커지므로
+     넓은 화면에서도 본문 폭을 묶어 둔다(표·2단 그리드는 이 폭 안에서 충분하다).
+     1024 + 좌우 24 = 콘텐츠 976px. */
+  .shell-container {
+    width: 100%;
+    max-width: 1024px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .shell-container {
+      padding-inline: 1.5rem;
+    }
+  }
+
   /* 플랫 카드 — dark: 서피스 대비, light: 아웃라인 (이름은 기존 호환 유지) */
   .glass-panel {
     border-radius: 1.25rem;

@@ -5,9 +5,18 @@ import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { formatIssuerName } from '../../domain/guru/format';
 import { toQuarterLabel, type GuruStatStock } from '../../domain/guru/types';
 import SectionHeader from './SectionHeader';
+import TickerLogo from '../ui/TickerLogo';
 
 /** 홈 — 여러 거장이 함께 담은 종목 상위. 클릭하면 컨센서스 전체로. */
-const ConsensusPreview = ({ stocks, asOf }: { stocks: GuruStatStock[]; asOf: string }) => {
+const ConsensusPreview = ({
+  stocks,
+  asOf,
+  logos,
+}: {
+  stocks: GuruStatStock[];
+  asOf: string;
+  logos?: Record<string, string>;
+}) => {
   const t = useLanguageStore((s) => s.t);
   if (stocks.length === 0) {
     return null;
@@ -28,10 +37,15 @@ const ConsensusPreview = ({ stocks, asOf }: { stocks: GuruStatStock[]; asOf: str
 
       <ol className="space-y-2">
         {stocks.map((s, i) => (
-          <li key={s.cusip} className="flex items-center gap-3">
+          <li key={s.cusip} className="flex items-center gap-2.5">
             <span className="w-4 shrink-0 text-right text-xs text-cb-muted tabular-nums">
               {i + 1}
             </span>
+            <TickerLogo
+              symbol={s.ticker ?? s.nameOfIssuer}
+              src={s.ticker ? logos?.[s.ticker] : undefined}
+              size="sm"
+            />
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="truncate text-sm font-semibold text-cb-foreground">

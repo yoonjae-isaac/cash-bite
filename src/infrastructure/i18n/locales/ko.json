@@ -477,7 +477,12 @@
     "deltaHint": "직전 분기 대비 보유 거장 수 증감",
     "howToRead": "이 숫자, 어떻게 읽나요?",
     "howToReadBody": "13F는 미국 기관투자자가 분기마다 의무적으로 내는 보유 종목 공시예요. 분기 말 기준이고 최대 45일 뒤에 공개되므로, 지금 그 거장이 실제로 들고 있는 종목과는 다를 수 있어요. 공매도·채권·해외 주식은 신고 대상이 아니라 포트폴리오 전부가 아니라는 점도 감안해서 보세요.",
-    "asOfLabel": "기준"
+    "asOfLabel": "기준",
+    "filingReflected": "명 반영",
+    "filingIncoming": "먼저 제출",
+    "filingStale": "공시 중단",
+    "filingNote": "13F는 분기말로부터 45일 안에 제출하면 되기 때문에, 마감 전에는 거장마다 반영된 분기가 다를 수 있어요. 컨센서스 집계는 위 기준 분기에 공시가 들어온 거장만으로 계산합니다.",
+    "staleBadge": "공시 중단"
   },
   "macro": {
     "title": "거시경제 지표",
@@ -613,6 +618,8 @@
     "indIndprod": "산업생산",
     "guruOnly": "거장 보유",
     "guruHeldBadge": "명 보유",
-    "guruFilterHint": "SEC 13F 기준, 추적 중인 거장이 보유한 종목만 남겨요"
+    "guruFilterHint": "SEC 13F 기준, 추적 중인 거장이 보유한 종목만 남겨요",
+    "pastEvents": "지난 일정",
+    "noUpcoming": "이번 주 남은 일정이 없어요"
   }
 }

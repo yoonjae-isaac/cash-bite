@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import type { GuruStatStock, GuruStatHolder } from '../../domain/guru/types';
 import { formatIssuerName, formatUsd13F } from '../../domain/guru/format';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
+import TickerLogo from '../ui/TickerLogo';
 
 type Metric = 'holders' | 'value' | 'buyers' | 'sellers';
 
@@ -16,6 +17,7 @@ interface Props {
   stocks: GuruStatStock[];
   metric: Metric;
   unit: string; // 'holders' 등 단위 라벨
+  logos?: Record<string, string>; // 티커 → 로고 URL (없으면 이니셜 배지)
 }
 
 interface Coords {
@@ -61,7 +63,7 @@ function holdersFor(stock: GuruStatStock, metric: Metric): GuruStatHolder[] {
   return hs.filter((h) => h.change !== 'exit'); // holders · value
 }
 
-const StatRankCard = ({ title, desc, icon, accent, stocks, metric, unit }: Props) => {
+const StatRankCard = ({ title, desc, icon, accent, stocks, metric, unit, logos }: Props) => {
   const t = useLanguageStore((s) => s.t);
   const max = metricMax(stocks, metric);
   const rows = stocks.slice(0, 12);
@@ -205,8 +207,9 @@ const StatRankCard = ({ title, desc, icon, accent, stocks, metric, unit }: Props
 
       <ol className="space-y-1.5">
         {rows.map((s, i) => (
-          <li key={s.cusip} className="flex items-center gap-3">
-            <span className="w-5 text-right text-xs text-cb-muted tabular-nums shrink-0">{i + 1}</span>
+          <li key={s.cusip} className="flex items-center gap-2.5">
+            <span className="w-4 text-right text-xs text-cb-muted tabular-nums shrink-0">{i + 1}</span>
+            <TickerLogo symbol={s.ticker ?? s.nameOfIssuer} src={s.ticker ? logos?.[s.ticker] : undefined} size="sm" />
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-semibold text-sm text-cb-foreground truncate">

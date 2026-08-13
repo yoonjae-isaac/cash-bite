@@ -477,7 +477,12 @@
     "deltaHint": "Change in holder count vs. previous quarter",
     "howToRead": "How do I read these numbers?",
     "howToReadBody": "A 13F is the quarterly holdings report US institutional investors must file. It reflects positions as of quarter-end and appears up to 45 days later, so it may differ from what the investor holds today. Short positions, bonds and non-US listings are excluded, so it is not the full portfolio.",
-    "asOfLabel": "As of"
+    "asOfLabel": "As of",
+    "filingReflected": "filed",
+    "filingIncoming": "filed early",
+    "filingStale": "stopped filing",
+    "filingNote": "A 13F is due within 45 days of quarter-end, so before the deadline different investors may still be on different quarters. Consensus is computed only from those who have filed for the quarter shown above.",
+    "staleBadge": "No recent filing"
   },
   "macro": {
     "title": "Macro Indicators",
@@ -613,6 +618,8 @@
     "indIndprod": "Industrial Production",
     "guruOnly": "Legend-held",
     "guruHeldBadge": " hold",
-    "guruFilterHint": "Keeps only stocks held by the tracked investors, per SEC 13F"
+    "guruFilterHint": "Keeps only stocks held by the tracked investors, per SEC 13F",
+    "pastEvents": "Past events",
+    "noUpcoming": "Nothing left this week"
   }
 }

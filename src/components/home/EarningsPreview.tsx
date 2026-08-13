@@ -4,6 +4,7 @@ import { TrendingUp } from 'lucide-react';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import type { CalEarning } from '../../domain/calendar/types';
 import SectionHeader from './SectionHeader';
+import TickerLogo from '../ui/TickerLogo';
 
 const HOUR_LABEL: Record<string, 'hourBmo' | 'hourAmc' | 'hourDmh'> = {
   bmo: 'hourBmo',
@@ -30,11 +31,13 @@ const EarningsPreview = ({
   total,
   guruHeldTotal,
   guruSymbols,
+  logos,
 }: {
   items: CalEarning[];
   total: number;
   guruHeldTotal: number;
   guruSymbols?: Record<string, number>;
+  logos?: Record<string, string>;
 }) => {
   const t = useLanguageStore((s) => s.t);
   const lang = useLanguageStore((s) => s.language);
@@ -67,6 +70,7 @@ const EarningsPreview = ({
               className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm theme-row"
             >
               <span className="flex min-w-0 flex-1 items-center gap-1.5">
+                <TickerLogo symbol={e.symbol} src={logos?.[e.symbol.toUpperCase()]} size="sm" />
                 <b className="font-semibold text-cb-foreground tabular-nums">{e.symbol}</b>
                 {guruCount !== undefined && (
                   <span

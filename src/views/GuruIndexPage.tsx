@@ -11,8 +11,9 @@ import {
   styleOf,
   type GuruStyle,
 } from '../domain/guru/investors';
-import { splitInvestorName, toQuarterLabel, type GuruOverview } from '../domain/guru/types';
+import { splitInvestorName, type GuruOverview } from '../domain/guru/types';
 import InvestorCard from '../components/guru/InvestorCard';
+import FilingStatusBar from '../components/guru/FilingStatusBar';
 import EmptyState from '../components/ui/EmptyState';
 import ExplainToggle from '../components/ui/ExplainToggle';
 import FilterChips, { type FilterChipOption } from '../components/ui/FilterChips';
@@ -61,11 +62,9 @@ const GuruIndexPage = ({ overview }: { overview: GuruOverview }) => {
       <header>
         <h1 className="text-2xl font-bold text-cb-foreground md:text-3xl">{t.gurus.title}</h1>
         <p className="mt-1.5 text-cb-muted">{t.gurus.indexSubtitle}</p>
-        <p className="mt-2 text-xs text-cb-muted">
-          {t.gurus.asOfLabel} {toQuarterLabel(overview.asOf)} · {overview.investors.length}
-          {t.gurus.peopleUnit}
-        </p>
       </header>
+
+      {overview.filing && <FilingStatusBar filing={overview.filing} />}
 
       <Link
         href="/consensus"

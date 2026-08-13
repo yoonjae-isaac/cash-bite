@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import type { GuruHolding, GuruHoldingChange } from '../../domain/guru/types';
 import { formatIssuerName, formatShares, formatUsd13F } from '../../domain/guru/format';
+import TickerLogo from '../ui/TickerLogo';
 
 const COLLAPSED_COUNT = 15;
 
@@ -52,7 +53,13 @@ const ChangeBadge = ({ change }: { change: GuruHoldingChange }) => {
   );
 };
 
-const HoldingsTable = ({ holdings }: { holdings: GuruHolding[] }) => {
+const HoldingsTable = ({
+  holdings,
+  logos,
+}: {
+  holdings: GuruHolding[];
+  logos?: Record<string, string>;
+}) => {
   const t = useLanguageStore((s) => s.t);
   const [expanded, setExpanded] = useState(false);
 
@@ -85,14 +92,23 @@ const HoldingsTable = ({ holdings }: { holdings: GuruHolding[] }) => {
               >
                 <td className="py-2.5 pr-2 text-cb-muted tabular-nums">{i + 1}</td>
                 <td className="py-2.5 pr-3">
-                  <span className="font-semibold text-cb-foreground">
-                    {h.ticker ?? formatIssuerName(h.nameOfIssuer)}
-                  </span>
-                  {h.putCall && <PutCallBadge putCall={h.putCall} />}
-                  {h.change && <ChangeBadge change={h.change} />}
-                  <span className="block text-[11px] text-cb-muted">
-                    {h.ticker ? formatIssuerName(h.nameOfIssuer) : h.titleOfClass}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <TickerLogo
+                      symbol={h.ticker ?? h.nameOfIssuer}
+                      src={h.ticker ? logos?.[h.ticker] : undefined}
+                      size="sm"
+                    />
+                    <div className="min-w-0">
+                      <span className="font-semibold text-cb-foreground">
+                        {h.ticker ?? formatIssuerName(h.nameOfIssuer)}
+                      </span>
+                      {h.putCall && <PutCallBadge putCall={h.putCall} />}
+                      {h.change && <ChangeBadge change={h.change} />}
+                      <span className="block text-[11px] text-cb-muted">
+                        {h.ticker ? formatIssuerName(h.nameOfIssuer) : h.titleOfClass}
+                      </span>
+                    </div>
+                  </div>
                 </td>
                 <td className="py-2.5 pr-3">
                   <div className="flex items-center gap-2">

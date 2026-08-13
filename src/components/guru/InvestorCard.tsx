@@ -3,7 +3,7 @@ import { Link } from '@/i18n/navigation';
 import { useLanguageStore } from '../../application/i18n/useLanguageStore';
 import { bioOf, initialsOf, personOf } from '../../domain/guru/investors';
 import { formatUsd13F } from '../../domain/guru/format';
-import { splitInvestorName, type GuruOverviewItem } from '../../domain/guru/types';
+import { splitInvestorName, toQuarterLabel, type GuruOverviewItem } from '../../domain/guru/types';
 
 /** 거장 1명 = 카드 1장. 클릭하면 개별 포트폴리오 상세로 이동. */
 const InvestorCard = ({ item }: { item: GuruOverviewItem }) => {
@@ -64,20 +64,31 @@ const InvestorCard = ({ item }: { item: GuruOverviewItem }) => {
         </p>
       )}
 
-      {(item.newCount > 0 || item.exitCount > 0) && (
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {item.newCount > 0 && (
-            <span className="rounded bg-cb-positive/15 px-1.5 py-px text-[10px] font-bold text-cb-positive">
-              {t.gurus.cardNew} {item.newCount}
-            </span>
-          )}
-          {item.exitCount > 0 && (
-            <span className="rounded bg-cb-negative/15 px-1.5 py-px text-[10px] font-bold text-cb-negative">
-              {t.gurus.cardExit} {item.exitCount}
-            </span>
-          )}
-        </div>
-      )}
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        {/* 대표 분기와 다른 분기면 어느 분기 데이터인지 명시 — 카드마다 시점이 다를 수 있다. */}
+        {(item.quartersBehind ?? 0) > 0 && (
+          <span
+            className={`rounded px-1.5 py-px text-[10px] font-bold ${
+              item.isStale
+                ? 'bg-cb-negative/15 text-cb-negative'
+                : 'bg-[var(--cb-hover)] text-cb-muted'
+            }`}
+          >
+            {item.isStale ? `${t.gurus.staleBadge} · ` : ''}
+            {toQuarterLabel(item.reportDate)}
+          </span>
+        )}
+        {item.newCount > 0 && (
+          <span className="rounded bg-cb-positive/15 px-1.5 py-px text-[10px] font-bold text-cb-positive">
+            {t.gurus.cardNew} {item.newCount}
+          </span>
+        )}
+        {item.exitCount > 0 && (
+          <span className="rounded bg-cb-negative/15 px-1.5 py-px text-[10px] font-bold text-cb-negative">
+            {t.gurus.cardExit} {item.exitCount}
+          </span>
+        )}
+      </div>
     </>
   );
 

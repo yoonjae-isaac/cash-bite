@@ -37,9 +37,11 @@ const secFilingUrl = (portfolio: GuruPortfolio): string =>
 const GuruDetailPage = ({
   portfolio,
   analysis,
+  logos,
 }: {
   portfolio: GuruPortfolio;
   analysis: GuruAnalysis | null;
+  logos?: Record<string, string>;
 }) => {
   const t = useLanguageStore((s) => s.t);
   const lang = useLanguageStore((s) => s.language);
@@ -147,7 +149,7 @@ const GuruDetailPage = ({
           ) : filtered.length === 0 ? (
             <EmptyState message={t.gurus.changesEmpty} />
           ) : (
-            <HoldingsTable holdings={filtered} />
+            <HoldingsTable holdings={filtered} logos={logos} />
           )}
         </>
       )}

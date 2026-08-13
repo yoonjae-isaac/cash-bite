@@ -11,9 +11,11 @@ import ExplainToggle from '../components/ui/ExplainToggle';
 const ConsensusPage = ({
   stats,
   analysis,
+  logos,
 }: {
   stats: GuruStats;
   analysis: GuruAnalysis | null;
+  logos?: Record<string, string>;
 }) => {
   const t = useLanguageStore((s) => s.t);
 
@@ -61,6 +63,7 @@ const ConsensusPage = ({
           stocks={stats.mostHeld}
           metric="holders"
           unit={t.gurus.holdersUnit}
+          logos={logos}
         />
         <StatRankCard
           title={t.gurus.grandTitle}
@@ -70,6 +73,7 @@ const ConsensusPage = ({
           stocks={stats.grandPortfolio}
           metric="value"
           unit=""
+          logos={logos}
         />
         <StatRankCard
           title={t.gurus.mostBoughtTitle}
@@ -79,6 +83,7 @@ const ConsensusPage = ({
           stocks={stats.mostBought}
           metric="buyers"
           unit={t.gurus.buyersUnit}
+          logos={logos}
         />
         <StatRankCard
           title={t.gurus.mostSoldTitle}
@@ -88,6 +93,7 @@ const ConsensusPage = ({
           stocks={stats.mostSold}
           metric="sellers"
           unit={t.gurus.sellersUnit}
+          logos={logos}
         />
       </div>
 

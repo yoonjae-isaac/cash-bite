@@ -9,6 +9,7 @@ import {
   fetchGuruStats,
 } from '@/infrastructure/api/guruClient';
 import { fetchMacroOverview } from '@/infrastructure/api/macroClient';
+import { fetchStockLogos } from '@/infrastructure/api/logoClient';
 import type { HomeData } from '@/domain/home/types';
 
 const OG_INLANG: Record<Locale, string> = { ko: 'ko', en: 'en', ja: 'ja' };
@@ -18,6 +19,7 @@ const OG_INLANG: Record<Locale, string> = { ko: 'ko', en: 'en', ja: 'ja' };
 const CALENDAR_REVALIDATE = 1800;
 const GURU_REVALIDATE = 86400;
 const MACRO_REVALIDATE = 1800;
+const LOGO_REVALIDATE = 604800; // 로고는 거의 안 바뀐다 — 주 단위 재검증
 
 const CONSENSUS_PREVIEW = 6; // 홈에 노출할 컨센서스 종목 수
 const INVESTOR_PREVIEW = 5; // 홈에 노출할 거장 수
@@ -71,6 +73,15 @@ async function loadHomeData(): Promise<HomeData> {
       guruHeldTotal: guruHeld.length,
     };
   }
+  // 프리뷰 목록에 실제로 노출되는 티커만 모아 한 번에 조회.
+  const previewSymbols = [
+    ...(data.consensus?.stocks.map((s) => s.ticker) ?? []),
+    ...(data.earnings?.items.map((e) => e.symbol) ?? []),
+  ].filter((s): s is string => Boolean(s));
+  if (previewSymbols.length > 0) {
+    data.logos = await fetchStockLogos(previewSymbols, LOGO_REVALIDATE).catch(() => undefined);
+  }
+
   if (macro) {
     const picked = MACRO_PREVIEW_IDS.map((id) => macro.find((r) => r.entry.id === id)).filter(
       (r) => r !== undefined,

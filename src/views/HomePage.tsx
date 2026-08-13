@@ -169,7 +169,11 @@ const HomePage = ({ home }: { home?: HomeData }) => {
         <Reveal>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {home.consensus && (
-              <ConsensusPreview stocks={home.consensus.stocks} asOf={home.consensus.asOf} />
+              <ConsensusPreview
+                stocks={home.consensus.stocks}
+                asOf={home.consensus.asOf}
+                logos={home.logos}
+              />
             )}
             {home.guru && (
               <TopInvestorsPreview
@@ -201,6 +205,7 @@ const HomePage = ({ home }: { home?: HomeData }) => {
                 total={home.earnings.total}
                 guruHeldTotal={home.earnings.guruHeldTotal}
                 guruSymbols={home.guruSymbols}
+                logos={home.logos}
               />
             )}
             {home.macro && <MacroPreview rows={home.macro} />}

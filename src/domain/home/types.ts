@@ -29,4 +29,6 @@ export interface HomeData {
   guruSymbols?: Record<string, number>;
   /** 핵심 거시지표 */
   macro?: MacroOverviewRow[];
+  /** 티커 → 로고 URL (프리뷰 목록 가독성용) */
+  logos?: Record<string, string>;
 }

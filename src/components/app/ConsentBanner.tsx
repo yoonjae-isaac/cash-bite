@@ -73,7 +73,7 @@ export default function ConsentBanner() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-[60] p-3 md:p-4">
-      <div className="w-full max-w-[1280px] mx-auto glass-panel rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <div className="w-full max-w-[1024px] mx-auto glass-panel rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <p className="flex-1 text-xs md:text-sm text-cb-muted leading-relaxed">
           {CB_TEXT.pre[lang]}
           <Link href="/privacy" className="text-cb-accent hover:underline">

@@ -81,7 +81,7 @@ const MarketBoard = ({ config }: { config: BoardConfig }) => {
       aria-label="이번 주 시장 일정"
       className="w-full border-b border-cb-border bg-cb-surface"
     >
-      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6">
+      <div className="shell-container">
         <div className="flex items-stretch min-h-[58px]">
           <div className="flex items-center gap-2 shrink-0 pr-3 md:pr-4 md:border-r md:border-cb-border">
             <span
@@ -178,7 +178,7 @@ const MarketBoard = ({ config }: { config: BoardConfig }) => {
 
       {open && (
         <div className="border-t border-cb-border">
-          <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 py-4 md:py-5">
+          <div className="shell-container py-4 md:py-5">
             <Detail item={open} onClose={() => setOpenId(null)} />
           </div>
         </div>

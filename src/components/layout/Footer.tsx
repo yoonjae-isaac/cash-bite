@@ -28,7 +28,7 @@ const Footer = () => {
 
   return (
     <footer className="mt-auto border-t border-cb-border">
-      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 py-10">
+      <div className="shell-container py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* 브랜드 + 태그라인 + 버전·언어 */}
           <div className="col-span-2 md:col-span-1">

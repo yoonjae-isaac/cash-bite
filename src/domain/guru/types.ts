@@ -93,11 +93,26 @@ export interface GuruOverviewItem {
   topHolding?: { nameOfIssuer: string; ticker?: string; weight: number };
   newCount: number; // 신규 편입 종목 수
   exitCount: number; // 전량 매도 종목 수
+  // 아래 둘과 GuruOverview.filing 은 백엔드 선반영 전 응답에는 없다(배포 시차). 없으면 표시를 생략한다.
+  quartersBehind?: number; // 대표 분기 기준 몇 분기 뒤처졌는지 (0 = 최신 반영)
+  isStale?: boolean; // 여러 분기째 신규 공시 없음
+}
+
+/** 분기별 공시 반영 현황 — "N명 중 몇 명이 이번 분기를 냈나" */
+export interface GuruFilingStatus {
+  asOf: string; // 집계 대표 분기
+  latestQuarter: string; // 적재분 중 가장 최근 분기
+  asOfCount: number;
+  latestCount: number;
+  totalInvestors: number;
+  staleCount: number;
+  quarters: Array<{ reportDate: string; count: number }>;
 }
 
 export interface GuruOverview {
   asOf: string;
   investors: GuruOverviewItem[]; // 운용자산 내림차순
+  filing?: GuruFilingStatus;
 }
 
 /** 종목을 보유한 거장 1명 — /disclosure/13f/symbol/:symbol */

@@ -99,7 +99,7 @@ const ExchangeRateBar = () => {
 
   return (
     <div className="sticky top-[52px] z-40 w-full border-b border-[var(--cb-border-subtle)] bg-[color-mix(in_srgb,var(--cb-bg)_94%,transparent)] backdrop-blur-md">
-      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 h-11 flex items-center gap-3">
+      <div className="shell-container h-11 flex items-center gap-3">
         <div className="flex items-center gap-2 min-w-0 overflow-x-auto scrollbar-none">
           {/* 지수 (방향 색 칩) */}
           {loadingIndices

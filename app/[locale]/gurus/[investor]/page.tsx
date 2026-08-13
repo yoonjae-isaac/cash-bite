@@ -8,9 +8,12 @@ import { localeMetadata, localePath, SITE_NAME, SITE_URL, type Loc, type Locale 
 import { GURU_KEYS, GURU_PROFILES } from '@/domain/guru/investors';
 import { splitInvestorName, toQuarterLabel } from '@/domain/guru/types';
 import { fetchGuruAnalysis, fetchGuruPortfolio } from '@/infrastructure/api/guruClient';
+import { fetchStockLogos } from '@/infrastructure/api/logoClient';
 import type { GuruAnalysis, GuruPortfolio } from '@/domain/guru/types';
 
 const REVALIDATE = 86400; // 13F 는 분기 공시 — 하루 1회면 충분
+const LOGO_REVALIDATE = 604800; // 로고는 거의 안 바뀐다 — 주 단위 재검증
+const LOGO_ROWS = 15; // 보유 테이블 접힌 상태에서 보이는 행 수만 선조회
 
 export const revalidate = 86400;
 
@@ -96,6 +99,14 @@ export default async function Page({
     analysis = null; // AI 리포트는 부가 정보 — 실패해도 포트폴리오는 보여준다
   }
 
+  const logos = await fetchStockLogos(
+    portfolio.holdings
+      .slice(0, LOGO_ROWS)
+      .map((h) => h.ticker)
+      .filter((s): s is string => Boolean(s)),
+    LOGO_REVALIDATE,
+  ).catch(() => undefined);
+
   const { firm, person } = splitInvestorName(portfolio.investorName);
   const seo = buildSeo(investor, firm, person);
 
@@ -135,7 +146,7 @@ export default async function Page({
       <JsonLd data={breadcrumbJsonLd} />
       <JsonLd data={datasetJsonLd} />
       <Reveal>
-        <GuruDetailPage portfolio={portfolio} analysis={analysis} />
+        <GuruDetailPage portfolio={portfolio} analysis={analysis} logos={logos} />
       </Reveal>
     </>
   );

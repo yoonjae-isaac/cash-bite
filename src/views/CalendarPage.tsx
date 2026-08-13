@@ -1,10 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Crown, Landmark, Rocket, TrendingUp } from 'lucide-react';
+import { ChevronDown, Crown, Landmark, Rocket, TrendingUp } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { fetchCalendar } from '../infrastructure/api/calendarClient';
 import { fetchGuruHeldSymbols } from '../infrastructure/api/guruClient';
+import { fetchStockLogos } from '../infrastructure/api/logoClient';
+import TickerLogo from '../components/ui/TickerLogo';
 import type { CalEarning, CalEconomic, CalIpo, CalendarMarket, CalendarWeek } from '../domain/calendar/types';
 import type { TranslationSchema } from '../domain/i18n/types';
 import { SYMBOL_BY_CODE } from '../data/tradeableSymbols';
@@ -13,6 +15,8 @@ import ErrorRetry from '../components/ui/ErrorRetry';
 
 type T = TranslationSchema;
 type CalendarCategory = 'all' | 'earnings' | 'ipos' | 'economic';
+
+const LOGO_FETCH_LIMIT = 40; // 백엔드 배치 상한과 맞춘다
 
 // ── 날짜 유틸 (로컬 타임존, YYYY-MM-DD) ──
 // 주간 범위(월~금)는 백엔드가 산출 — 프론트는 응답 from/to 만 사용(타임존/롤오버 단일 기준).
@@ -76,8 +80,10 @@ const CalendarPage = ({
   const [kr, setKr] = useState<CalendarWeek | null>(null);
   const [usError, setUsError] = useState(false);
   const [krError, setKrError] = useState(false);
-  // 모바일 전용 시장 선택 (데스크톱 md+ 는 2단 동시 노출이라 무시됨).
-  const [mobileMarket, setMobileMarket] = useState<CalendarMarket>('KR');
+  // 시장 선택 — 한 번에 한 시장만 본다. 2단 동시 노출은 한 컬럼이 좁아 정보가 눌렸다.
+  const [market, setMarket] = useState<CalendarMarket>('KR');
+  // 종목 로고 — 미국 실적만 (국내는 숫자 코드라 로고 제공처에 매칭되지 않는다).
+  const [logos, setLogos] = useState<Record<string, string>>({});
   // '오늘'(KST 기준) YYYY-MM-DD. 하이드레이션 불일치 방지 위해 마운트 후 계산.
   const [today, setToday] = useState<Record<CalendarMarket, string> | null>(null);
   // 카테고리 내부 탭 — 실적/IPO/경제 따로 보기 (양쪽 시장 동시 필터).
@@ -112,16 +118,36 @@ const CalendarPage = ({
       .catch(() => setGuruSymbols(null));
   }, [initialData, loadUs, loadKr]);
 
+  // 미국 실적 로고 — 화면에 실제로 나오는 앞쪽 종목만. 백엔드가 종목당 30일 캐시한다.
   useEffect(() => {
-    // '오늘'은 KST(Asia/Seoul) 기준으로 통일 — 국내 사용자 기준 금일. Intl 로 명시 tz 계산이라
-    // 브라우저 타임존과 무관하고, 주간 범위(백엔드)도 KST 기준이라 US·KR 두 컬럼이 동일한 '오늘'로 정렬된다.
-    const kstToday = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Seoul',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).format(new Date());
-    setToday({ US: kstToday, KR: kstToday });
+    const symbols = (us?.earnings ?? []).slice(0, LOGO_FETCH_LIMIT).map((e) => e.symbol);
+    if (symbols.length === 0) return;
+    let alive = true;
+    fetchStockLogos(symbols)
+      .then((m) => {
+        if (alive) setLogos((prev) => ({ ...prev, ...m }));
+      })
+      .catch(() => {
+        /* 로고는 보조 표식 — 실패하면 이니셜 배지로 대체된다 */
+      });
+    return () => {
+      alive = false;
+    };
+  }, [us]);
+
+  useEffect(() => {
+    // '오늘'은 시장의 현지 날짜로 잡는다.
+    // 미국 일정을 KST 로 판정하면 한국 낮 시간에 미국의 그날 장이 아직 열리지도 않았는데
+    // 이미 지난 일정으로 밀려난다(KST 가 ET 보다 13~14시간 앞선다). tz 를 명시해 계산하므로
+    // 브라우저 타임존과도 무관하다.
+    const dateIn = (timeZone: string): string =>
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(new Date());
+    setToday({ US: dateIn('America/New_York'), KR: dateIn('Asia/Seoul') });
   }, []);
 
   // 라벨용 주간 범위 — 로드된 응답(US 우선, 없으면 KR/초기데이터)의 from/to.
@@ -200,58 +226,67 @@ const CalendarPage = ({
         )}
       </div>
 
-      {/* 모바일 전용 시장 토글 (데스크톱 md+ 는 2단 동시 노출) */}
-      <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--cb-input-bg)] w-fit md:hidden">
-        {(['US', 'KR'] as const).map((m) => (
-          <button
-            key={m}
-            onClick={() => setMobileMarket(m)}
-            className={[
-              'px-4 py-1.5 rounded-md text-sm font-semibold transition-colors',
-              mobileMarket === m
-                ? 'bg-cb-accent text-cb-on-accent'
-                : 'text-cb-muted hover:text-cb-foreground',
-            ].join(' ')}
-          >
-            {m === 'US' ? t.calendar.marketUs : t.calendar.marketKr}
-          </button>
-        ))}
+      {/* 시장 토글 — 한 번에 한 시장. 전체 폭을 써야 종목명·수치가 눌리지 않는다. */}
+      <div className="flex w-fit gap-1 rounded-xl bg-[var(--cb-input-bg)] p-1">
+        {(['US', 'KR'] as const).map((m) => {
+          const count = (m === 'US' ? us : kr);
+          const n = count
+            ? filterEarnings(count.earnings).length + count.ipos.length + count.economic.length
+            : null;
+          return (
+            <button
+              key={m}
+              onClick={() => setMarket(m)}
+              aria-pressed={market === m}
+              className={[
+                'rounded-lg px-5 py-2 text-sm font-bold transition-colors',
+                market === m
+                  ? 'bg-cb-accent text-cb-on-accent'
+                  : 'text-cb-muted hover:text-cb-foreground',
+              ].join(' ')}
+            >
+              {m === 'US' ? t.calendar.marketUs : t.calendar.marketKr}
+              {n !== null && (
+                <span className="ml-1.5 text-xs font-semibold opacity-70 tabular-nums">{n}</span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-        <div className={`${mobileMarket === 'US' ? '' : 'hidden'} md:block`}>
-          <MarketColumn
-            label={t.calendar.marketUs}
-            market="US"
-            data={us}
-            loading={!us && !usError}
-            error={usError}
-            onRetry={loadUs}
-            today={today?.US ?? null}
-            category={category}
-            filterEarnings={filterEarnings}
-            guruSymbols={guruSymbols}
-            t={t}
-            lang={lang}
-          />
-        </div>
-        <div className={`${mobileMarket === 'KR' ? '' : 'hidden'} md:block`}>
-          <MarketColumn
-            label={t.calendar.marketKr}
-            market="KR"
-            data={kr}
-            loading={!kr && !krError}
-            error={krError}
-            onRetry={loadKr}
-            today={today?.KR ?? null}
-            category={category}
-            filterEarnings={filterEarnings}
-            guruSymbols={guruSymbols}
-            t={t}
-            lang={lang}
-          />
-        </div>
-      </div>
+      {market === 'US' ? (
+        <MarketColumn
+          label={t.calendar.marketUs}
+          market="US"
+          data={us}
+          loading={!us && !usError}
+          error={usError}
+          onRetry={loadUs}
+          today={today?.US ?? null}
+          category={category}
+          filterEarnings={filterEarnings}
+          guruSymbols={guruSymbols}
+          logos={logos}
+          t={t}
+          lang={lang}
+        />
+      ) : (
+        <MarketColumn
+          label={t.calendar.marketKr}
+          market="KR"
+          data={kr}
+          loading={!kr && !krError}
+          error={krError}
+          onRetry={loadKr}
+          today={today?.KR ?? null}
+          category={category}
+          filterEarnings={filterEarnings}
+          guruSymbols={guruSymbols}
+          logos={logos}
+          t={t}
+          lang={lang}
+        />
+      )}
     </div>
   );
 };
@@ -268,6 +303,7 @@ const MarketColumn = ({
   category,
   filterEarnings,
   guruSymbols,
+  logos,
   t,
   lang,
 }: {
@@ -281,17 +317,54 @@ const MarketColumn = ({
   category: CalendarCategory;
   filterEarnings: (list: CalEarning[]) => CalEarning[];
   guruSymbols: Record<string, number> | null;
+  logos: Record<string, string>;
   t: T;
   lang: string;
 }) => {
+  const [showPast, setShowPast] = useState(false);
+
   const earnings = filterEarnings(data?.earnings ?? []);
   const ipos = data?.ipos ?? [];
   const economic = data?.economic ?? [];
   const showEarn = category === 'all' || category === 'earnings';
   const showIpo = category === 'all' || category === 'ipos';
   const showEcon = category === 'all' || category === 'economic';
-  const visibleCount =
-    (showEarn ? earnings.length : 0) + (showIpo ? ipos.length : 0) + (showEcon ? economic.length : 0);
+
+  // 오늘·이후를 위로, 이미 끝난 일정은 아래 접이식 영역으로 분리한다.
+  // today 미확정(SSR)이면 전부 '다가올'로 둬 서버·클라 렌더가 어긋나지 않게 한다.
+  const isPast = <X extends { date: string }>(x: X): boolean => today != null && x.date < today;
+  const upcoming = {
+    earnings: earnings.filter((e) => !isPast(e)),
+    ipos: ipos.filter((e) => !isPast(e)),
+    economic: economic.filter((e) => !isPast(e)),
+  };
+  const past = {
+    earnings: earnings.filter(isPast),
+    ipos: ipos.filter(isPast),
+    economic: economic.filter(isPast),
+  };
+  const countOf = (g: typeof upcoming): number =>
+    (showEarn ? g.earnings.length : 0) + (showIpo ? g.ipos.length : 0) + (showEcon ? g.economic.length : 0);
+  const upcomingCount = countOf(upcoming);
+  const pastCount = countOf(past);
+  const visibleCount = upcomingCount + pastCount;
+
+  const groups = (g: typeof upcoming): React.ReactNode => (
+    <div className="space-y-4">
+      {showEarn && (
+        <EarningsGroup
+          list={g.earnings}
+          t={t}
+          lang={lang}
+          today={today}
+          guruSymbols={guruSymbols}
+          logos={logos}
+        />
+      )}
+      {showIpo && <IpoGroup list={g.ipos} t={t} lang={lang} market={market} today={today} />}
+      {showEcon && <EconGroup list={g.economic} t={t} lang={lang} today={today} />}
+    </div>
+  );
 
   return (
     <section className="glass-panel rounded-xl p-4 space-y-4">
@@ -325,17 +398,30 @@ const MarketColumn = ({
         </p>
       ) : (
         <div className="space-y-4">
-          {showEarn && (
-            <EarningsGroup
-              list={earnings}
-              t={t}
-              lang={lang}
-              today={today}
-              guruSymbols={guruSymbols}
-            />
+          {upcomingCount > 0 ? (
+            groups(upcoming)
+          ) : (
+            <p className="py-6 text-center text-sm text-cb-muted">{t.calendar.noUpcoming}</p>
           )}
-          {showIpo && <IpoGroup list={ipos} t={t} lang={lang} market={market} today={today} />}
-          {showEcon && <EconGroup list={economic} t={t} lang={lang} today={today} />}
+
+          {pastCount > 0 && (
+            <div className="border-t border-cb-border pt-4">
+              <button
+                type="button"
+                onClick={() => setShowPast((v) => !v)}
+                aria-expanded={showPast}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-cb-muted transition-colors hover:text-cb-foreground"
+              >
+                <ChevronDown
+                  className={`h-3.5 w-3.5 transition-transform ${showPast ? 'rotate-180' : ''}`}
+                  aria-hidden
+                />
+                {t.calendar.pastEvents}
+                <span className="tabular-nums">{pastCount}</span>
+              </button>
+              {showPast && <div className="mt-3 opacity-60">{groups(past)}</div>}
+            </div>
+          )}
         </div>
       )}
 
@@ -358,7 +444,7 @@ const CatLabel = ({
   color: string;
   n: number;
 }) => (
-  <p className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide mb-1.5 ${color}`}>
+  <p className={`mb-2 flex items-center gap-1.5 text-sm font-bold tracking-tight ${color}`}>
     {icon}
     {label}
     <span className="text-cb-muted/70 tabular-nums">{n}</span>
@@ -399,33 +485,32 @@ function DateGrouped<X extends { date: string }>({
   return (
     <div className="rounded-lg border border-cb-border overflow-hidden">
       {groupByDate(list).map((g, gi) => {
-        // 과거=흐릿(disable), 오늘=테두리 강조, 이후=현행. today 미확정(SSR) 시 강조 없음.
-        const isPast = today != null && g.date < today;
+        // 오늘만 테두리로 강조. 지난 일정은 호출부에서 별도 영역으로 분리하므로 여기선 다루지 않는다.
         const isToday = today != null && g.date === today;
         return (
           <div
             key={g.date}
             className={[
               gi > 0 ? 'border-t border-cb-border' : '',
-              isPast ? 'opacity-45' : '',
               isToday ? 'ring-2 ring-inset ring-cb-accent' : '',
             ].join(' ')}
           >
             <div
               className={[
-                'px-2.5 py-1 text-[11px] font-bold tabular-nums',
+                'flex items-baseline gap-2 px-4 py-2 text-sm font-bold tabular-nums',
                 isToday
                   ? 'bg-cb-accent/15 text-cb-accent'
                   : 'bg-[var(--cb-input-bg)] text-cb-muted',
               ].join(' ')}
             >
               {weekdayLabel(g.date, lang)}
+              <span className="text-xs font-semibold opacity-70">{g.items.length}</span>
             </div>
             <ul className="divide-y divide-cb-border/40">
               {g.items.map((it, i) => (
                 <li
                   key={keyOf(it, i)}
-                  className="flex flex-wrap items-center gap-x-2 gap-y-0.5 px-2.5 py-1.5"
+                  className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 theme-row"
                 >
                   {renderItem(it)}
                 </li>
@@ -444,12 +529,14 @@ const EarningsGroup = ({
   lang,
   today,
   guruSymbols,
+  logos,
 }: {
   list: CalEarning[];
   t: T;
   lang: string;
   today: string | null;
   guruSymbols: Record<string, number> | null;
+  logos: Record<string, string>;
 }) =>
   list.length === 0 ? null : (
     <div>
@@ -468,38 +555,43 @@ const EarningsGroup = ({
           const name = e.name ?? companyName(e.symbol, lang);
           const hourLabel = e.hour && HOUR_KEY[e.hour] ? t.calendar[HOUR_KEY[e.hour]] : '';
           const guruCount = guruSymbols?.[e.symbol.toUpperCase()];
-          // 표기: 데스크톱은 티커코드(한국어이름) 인라인, 모바일은 코드 아래 작은 이름(겹침 방지).
+          // 국내는 종목코드(005930)가 아니라 회사명이 식별자다 — 숫자로 시작하면 이름을 앞세운다.
+          const isNumericCode = /^\d/.test(e.symbol);
+          const primary = isNumericCode && name ? name : e.symbol;
+          const secondary = isNumericCode && name ? e.symbol : name;
+
           const nameEl = (
-            <span className="flex min-w-0 flex-col sm:flex-row sm:items-baseline sm:gap-1">
-              <b className="flex items-center gap-1 font-semibold text-cb-foreground tabular-nums leading-tight">
-                {e.symbol}
-                {guruCount !== undefined && (
-                  <span
-                    title={`${guruCount}${t.calendar.guruHeldBadge}`}
-                    className="shrink-0 rounded bg-cb-accent/15 px-1 text-[10px] font-bold text-cb-accent"
-                  >
-                    ★{guruCount}
+            <span className="flex min-w-0 items-center gap-2.5">
+              <TickerLogo symbol={primary} src={logos[e.symbol.toUpperCase()]} />
+              <span className="min-w-0">
+                <b className="flex items-center gap-1.5 text-base font-bold leading-tight text-cb-foreground">
+                  <span className="truncate">{primary}</span>
+                  {guruCount !== undefined && (
+                    <span
+                      title={`${guruCount}${t.calendar.guruHeldBadge}`}
+                      className="shrink-0 rounded bg-cb-accent/15 px-1.5 py-px text-[10px] font-bold text-cb-accent"
+                    >
+                      ★{guruCount}
+                    </span>
+                  )}
+                </b>
+                {secondary && (
+                  <span className="block truncate text-xs leading-tight text-cb-muted tabular-nums">
+                    {secondary}
                   </span>
                 )}
-              </b>
-              {name && (
-                <span className="truncate text-[11px] leading-tight text-cb-muted sm:text-sm sm:leading-normal">
-                  <span className="hidden sm:inline">(</span>
-                  {name}
-                  <span className="hidden sm:inline">)</span>
-                </span>
-              )}
+              </span>
             </span>
           );
           return (
             <>
-              <span className="flex-1 min-w-0 text-sm">
+              <span className="min-w-0 flex-1">
                 {e.url ? (
                   <a
                     href={e.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-cb-accent transition-colors"
+                    className="transition-colors hover:text-cb-accent"
                   >
                     {nameEl}
                   </a>
@@ -508,19 +600,20 @@ const EarningsGroup = ({
                 )}
               </span>
               {hourLabel && (
-                <span className="shrink-0 text-[10px] font-semibold text-cb-muted bg-[var(--cb-input-bg)] px-1.5 py-0.5 rounded">
+                <span className="shrink-0 rounded-md bg-[var(--cb-input-bg)] px-2 py-1 text-[11px] font-semibold text-cb-muted">
                   {hourLabel}
                 </span>
               )}
               {(e.epsEstimate != null || e.revenueEstimate != null) && (
-                <span className="flex items-center gap-2 shrink-0 text-xs tabular-nums text-cb-muted">
+                <span className="flex shrink-0 items-center gap-3 text-right tabular-nums">
                   {e.epsEstimate != null && (
-                    <span>
-                      EPS <b className="text-cb-foreground">{fmtEps(e.epsEstimate)}</b>
+                    <span className="text-xs text-cb-muted">
+                      EPS{' '}
+                      <b className="text-sm text-cb-foreground">{fmtEps(e.epsEstimate)}</b>
                     </span>
                   )}
                   {e.revenueEstimate != null && (
-                    <b className="text-cb-foreground">{fmtUsd(e.revenueEstimate)}</b>
+                    <b className="text-sm text-cb-foreground">{fmtUsd(e.revenueEstimate)}</b>
                   )}
                 </span>
               )}
@@ -559,16 +652,21 @@ const IpoGroup = ({
         keyOf={(e, i) => `${e.symbol || e.name}-${i}`}
         renderItem={(e) => (
           <>
-            <span className="flex-1 min-w-0 truncate text-sm">
-              <b className="font-semibold text-cb-foreground">{e.name}</b>
-              {(e.symbol || e.exchange) && (
-                <span className="ml-1 text-[10px] text-cb-muted">
-                  {[e.symbol, e.exchange].filter(Boolean).join(', ')}
-                </span>
-              )}
+            <span className="flex min-w-0 flex-1 items-center gap-2.5">
+              <TickerLogo symbol={e.symbol || e.name} />
+              <span className="min-w-0">
+                <b className="block truncate text-base font-bold leading-tight text-cb-foreground">
+                  {e.name}
+                </b>
+                {(e.symbol || e.exchange) && (
+                  <span className="block truncate text-xs leading-tight text-cb-muted">
+                    {[e.symbol, e.exchange].filter(Boolean).join(' · ')}
+                  </span>
+                )}
+              </span>
             </span>
             {e.price && (
-              <span className="shrink-0 text-xs font-semibold text-cb-foreground tabular-nums">
+              <span className="shrink-0 text-sm font-bold text-cb-foreground tabular-nums">
                 {market === 'KR' ? fmtKrw(e.price) : e.price}
               </span>
             )}
@@ -612,11 +710,17 @@ const EconGroup = ({
           const impactLabel = e.impact && IMPACT_KEY[e.impact] ? t.calendar[IMPACT_KEY[e.impact]] : '';
           return (
             <>
-              <span className="flex-1 min-w-0 truncate text-sm font-medium text-cb-foreground">
-                {name}
+              <span className="flex min-w-0 flex-1 items-center gap-2.5">
+                <span
+                  className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-amber-500/12 text-amber-500"
+                  aria-hidden
+                >
+                  <Landmark className="h-3.5 w-3.5" />
+                </span>
+                <span className="truncate text-base font-bold text-cb-foreground">{name}</span>
               </span>
               {impactLabel && (
-                <span className="shrink-0 text-[10px] font-semibold text-amber-500 bg-amber-500/12 px-1.5 py-0.5 rounded">
+                <span className="shrink-0 rounded-md bg-amber-500/12 px-2 py-1 text-[11px] font-semibold text-amber-500">
                   {impactLabel}
                 </span>
               )}

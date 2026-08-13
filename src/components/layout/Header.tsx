@@ -62,7 +62,7 @@ const Header = () => {
   return (
     <header className="glass-header">
       {/* Single row: logo | desktop-nav (flush bottom) | controls */}
-      <div className="w-full max-w-[1280px] mx-auto px-4 md:px-6 flex items-center justify-between min-h-[52px]">
+      <div className="shell-container flex items-center justify-between min-h-[52px]">
         {/* 좌측 그룹: 로고 + 탭 (세로 중앙 정렬 — 탭 레이어와 일치) */}
         <div className="flex items-center min-w-0">
 
@@ -155,7 +155,7 @@ const Header = () => {
           className="md:hidden border-t border-cb-border bg-cb-surface/95 backdrop-blur-sm"
           aria-label="Mobile navigation"
         >
-          <div className="w-full max-w-[1280px] mx-auto px-4 py-2 flex flex-col gap-0.5">
+          <div className="shell-container py-2 flex flex-col gap-0.5">
             {mobileItems.map((id) => {
               const active = isActive(id);
               return (

@@ -96,7 +96,7 @@ const themeInitScript = `(function(){try{var t=localStorage.getItem('theme-stora
 /**
  * 홈 최상단 전광판 데이터 — 금주 미국 증시 일정 + 노출 규칙(config/boardRules) 판정.
  *
- * 셸에서 만드는 이유: 스트립이 헤더·환율바에 붙은 풀블리드라 main(max-w-1280) 안에 둘 수 없다.
+ * 셸에서 만드는 이유: 스트립이 헤더·환율바에 붙은 풀블리드라 main(.shell-container) 안에 둘 수 없다.
  * 홈에서만 보이게 하는 판정은 MarketBoard 가 경로로 처리한다(레이아웃은 pathname 을 모른다).
  * 해설 카피가 한국어 전용이라 ko 로케일에서만 만든다. 백엔드 장애 시엔 조용히 생략.
  * ISR 30분 — 백엔드 갱신(매일 12:00 KST)과 주간 롤오버(일 09시)를 증시 일정 페이지와 같은 주기로 따라간다.
@@ -177,7 +177,7 @@ export default async function LocaleLayout({
             <Header />
             <ExchangeRateBar />
             {board && <MarketBoard config={board} />}
-            <main className="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-6 py-8 md:py-10">
+            <main className="shell-container flex-grow py-8 md:py-10">
               {children}
             </main>
             <Footer />

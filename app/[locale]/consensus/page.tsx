@@ -5,9 +5,11 @@ import EmptyState from '@/components/ui/EmptyState';
 import { setRequestLocale } from 'next-intl/server';
 import { staticPageMetadata, type Locale } from '@/config/site';
 import { fetchGuruAnalysis, fetchGuruStats } from '@/infrastructure/api/guruClient';
+import { fetchStockLogos } from '@/infrastructure/api/logoClient';
 import type { GuruAnalysis, GuruStats } from '@/domain/guru/types';
 
 const REVALIDATE = 86400;
+const LOGO_REVALIDATE = 604800; // 로고는 거의 안 바뀐다 — 주 단위 재검증
 
 export async function generateMetadata({
   params,
@@ -38,10 +40,21 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     analysis = null;
   }
 
+  // 4개 랭킹 카드에 등장하는 티커만 모아 한 번에 조회 (백엔드가 종목당 30일 캐시).
+  let logos: Record<string, string> | undefined;
+  if (stats) {
+    const symbols = [stats.mostHeld, stats.grandPortfolio, stats.mostBought, stats.mostSold]
+      .flat()
+      .slice(0, 40)
+      .map((s) => s.ticker)
+      .filter((s): s is string => Boolean(s));
+    logos = await fetchStockLogos(symbols, LOGO_REVALIDATE).catch(() => undefined);
+  }
+
   return (
     <Reveal>
       {stats ? (
-        <ConsensusPage stats={stats} analysis={analysis} />
+        <ConsensusPage stats={stats} analysis={analysis} logos={logos} />
       ) : (
         <EmptyState message="Preparing data." />
       )}

@@ -499,6 +499,12 @@ export interface TranslationSchema {
     howToRead: string;
     howToReadBody: string;
     asOfLabel: string;
+    // 공시 진행 현황
+    filingReflected: string;
+    filingIncoming: string;
+    filingStale: string;
+    filingNote: string;
+    staleBadge: string;
   };
   macro: {
     title: string;
@@ -635,5 +641,7 @@ export interface TranslationSchema {
     guruOnly: string;
     guruHeldBadge: string;
     guruFilterHint: string;
+    pastEvents: string;
+    noUpcoming: string;
   };
 }
