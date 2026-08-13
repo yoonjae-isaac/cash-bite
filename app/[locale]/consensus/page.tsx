@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import Reveal from '@/components/ui/Reveal';
-import GuruIndexPage from '@/views/GuruIndexPage';
+import ConsensusPage from '@/views/ConsensusPage';
+import EmptyState from '@/components/ui/EmptyState';
 import { setRequestLocale } from 'next-intl/server';
 import { staticPageMetadata, type Locale } from '@/config/site';
-import { fetchGuruOverview } from '@/infrastructure/api/guruClient';
-import EmptyState from '@/components/ui/EmptyState';
-import type { GuruOverview } from '@/domain/guru/types';
+import { fetchGuruAnalysis, fetchGuruStats } from '@/infrastructure/api/guruClient';
+import type { GuruAnalysis, GuruStats } from '@/domain/guru/types';
+
+const REVALIDATE = 86400;
 
 export async function generateMetadata({
   params,
@@ -13,27 +15,33 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  return staticPageMetadata('/gurus', locale as Locale);
+  return staticPageMetadata('/consensus', locale as Locale);
 }
 
-// ISR — 하루 1회 재생성(13F 는 분기 공시). 서버에서 카드 그리드를 렌더해 SSR 콘텐츠 확보.
 export const revalidate = 86400;
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  let overview: GuruOverview | undefined;
+  let stats: GuruStats | undefined;
   try {
-    overview = await fetchGuruOverview(86400);
+    stats = await fetchGuruStats(REVALIDATE);
   } catch {
-    overview = undefined; // 백엔드 장애/미적재 — 빈 상태로 렌더
+    stats = undefined;
+  }
+
+  let analysis: GuruAnalysis | null = null;
+  try {
+    analysis = await fetchGuruAnalysis(undefined, REVALIDATE);
+  } catch {
+    analysis = null;
   }
 
   return (
     <Reveal>
-      {overview ? (
-        <GuruIndexPage overview={overview} />
+      {stats ? (
+        <ConsensusPage stats={stats} analysis={analysis} />
       ) : (
         <EmptyState message="Preparing data." />
       )}

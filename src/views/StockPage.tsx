@@ -12,6 +12,7 @@ import PriceMaChart from '../components/stock/PriceMaChart';
 import TechnicalSummary from '../components/stock/TechnicalSummary';
 import TechnicalSignals from '../components/stock/TechnicalSignals';
 import AiAnalysisPanel, { AiLoading } from '../components/stock/AiAnalysisPanel';
+import StockGuruHolders from '../components/stock/StockGuruHolders';
 import { FEATURES } from '../config/features';
 import type {
   Financials,
@@ -685,6 +686,9 @@ const StockPage = () => {
               )}
             </div>
           )}
+
+          {/* 이 종목을 담은 거장 — 13F 크로스 (보유자 0 이면 컴포넌트가 스스로 숨는다) */}
+          <StockGuruHolders ticker={tech?.ticker ?? fin?.ticker ?? query.toUpperCase()} />
 
           {/* 관련 뉴스 — 온디맨드 (KR=네이버, US=Finnhub, 최신 10) */}
           <div>

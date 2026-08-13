@@ -8,6 +8,7 @@ export type PageId =
   | 'averaging'
   | 'news'
   | 'gurus'
+  | 'consensus'
   | 'macro'
   | 'stock'
   | 'persona'
@@ -37,6 +38,7 @@ export interface TranslationSchema {
     averaging: string;
     news: string;
     gurus: string;
+    consensus: string;
     macro: string;
     stock: string;
     persona: string;
@@ -78,15 +80,10 @@ export interface TranslationSchema {
     newsDesc: string;
     gurusTitle: string;
     gurusDesc: string;
+    updatesTitle: string;
+    updatesEventUnit: string;
+    updatesDaily: string;
     heroEyebrow: string;
-    usageTitle: string;
-    usageSubtitle: string;
-    usage1Title: string;
-    usage1Desc: string;
-    usage2Title: string;
-    usage2Desc: string;
-    usage3Title: string;
-    usage3Desc: string;
     closingTitle: string;
     closingDesc: string;
   };
@@ -466,6 +463,42 @@ export interface TranslationSchema {
     tipSellers: string;
     tipWeight: string;
     tipEmpty: string;
+    // 거장 인덱스(카드 그리드)
+    indexSubtitle: string;
+    searchPlaceholder: string;
+    searchEmpty: string;
+    styleAll: string;
+    cardAum: string;
+    cardTop: string;
+    cardNew: string;
+    cardExit: string;
+    peopleUnit: string;
+    // 거장 상세
+    detailBack: string;
+    viewPortfolio: string;
+    aiReportTitle: string;
+    aiReportNote: string;
+    holdingsFilterAll: string;
+    holdingsFilterNew: string;
+    holdingsFilterUp: string;
+    holdingsFilterDown: string;
+    holdingsFilterExit: string;
+    // 종목 페이지 크로스 섹션
+    symbolTitle: string;
+    symbolDesc: string;
+    symbolEmpty: string;
+    symbolExited: string;
+    symbolWeight: string;
+    // 컨센서스
+    consensusTitle: string;
+    consensusSubtitle: string;
+    marketAiTitle: string;
+    marketAiNote: string;
+    deltaHint: string;
+    // 공통 설명 토글
+    howToRead: string;
+    howToReadBody: string;
+    asOfLabel: string;
   };
   macro: {
     title: string;
@@ -599,5 +632,8 @@ export interface TranslationSchema {
     indJobless: string;
     indHousing: string;
     indIndprod: string;
+    guruOnly: string;
+    guruHeldBadge: string;
+    guruFilterHint: string;
   };
 }

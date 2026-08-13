@@ -87,6 +87,14 @@ export const PAGE_SEO: Record<string, { title: Loc; description: Loc }> = {
       ja: 'ウォーレン・バフェットら投資の巨匠の13Fポートフォリオと保有銘柄の変化をチェック。',
     },
   },
+  '/consensus': {
+    title: { ko: '거장 컨센서스', en: 'Guru Consensus', ja: '巨匠コンセンサス' },
+    description: {
+      ko: '여러 투자 거장이 동시에 보유·매수·매도한 종목을 13F 공시로 집계했습니다. 보유 거장 수와 직전 분기 대비 변동을 함께 확인하세요.',
+      en: 'Stocks that multiple legendary investors hold, bought, or sold — aggregated from SEC 13F filings, with holder counts and quarter-over-quarter changes.',
+      ja: '複数の投資の巨匠が同時に保有・買い・売りした銘柄を13F開示から集計。保有者数と前四半期比の変動も確認できます。',
+    },
+  },
   '/stock': {
     title: { ko: '종목 분석', en: 'Stock Analysis', ja: '銘柄分析' },
     description: {

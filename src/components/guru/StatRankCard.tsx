@@ -212,18 +212,31 @@ const StatRankCard = ({ title, desc, icon, accent, stocks, metric, unit }: Props
                 <span className="font-semibold text-sm text-cb-foreground truncate">
                   {s.ticker ?? formatIssuerName(s.nameOfIssuer)}
                 </span>
-                <button
-                  type="button"
-                  className={`text-sm font-bold tabular-nums shrink-0 rounded px-1.5 -mx-1.5 cursor-help underline decoration-dotted decoration-cb-border underline-offset-4 transition-colors hover:bg-cb-border/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-cb-accent ${accent}`}
-                  onMouseEnter={(e) => open(e.currentTarget, s)}
-                  onMouseLeave={close}
-                  onFocus={(e) => open(e.currentTarget, s)}
-                  onBlur={close}
-                  aria-label={`${s.ticker ?? formatIssuerName(s.nameOfIssuer)} ${title}`}
-                >
-                  {metricValue(s, metric)}
-                  {metric !== 'value' && <span className="text-cb-muted font-normal text-xs"> {unit}</span>}
-                </button>
+                <span className="flex items-baseline gap-1 shrink-0">
+                  <button
+                    type="button"
+                    className={`text-sm font-bold tabular-nums rounded px-1.5 -mx-1.5 cursor-help underline decoration-dotted decoration-cb-border underline-offset-4 transition-colors hover:bg-cb-border/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-cb-accent ${accent}`}
+                    onMouseEnter={(e) => open(e.currentTarget, s)}
+                    onMouseLeave={close}
+                    onFocus={(e) => open(e.currentTarget, s)}
+                    onBlur={close}
+                    aria-label={`${s.ticker ?? formatIssuerName(s.nameOfIssuer)} ${title}`}
+                  >
+                    {metricValue(s, metric)}
+                    {metric !== 'value' && <span className="text-cb-muted font-normal text-xs"> {unit}</span>}
+                  </button>
+                  {/* 보유 거장 수 카드에서만 직전 분기 대비 증감을 노출 (매수·매도 카드는 이미 변화량 자체) */}
+                  {metric === 'holders' && s.holderDelta !== undefined && (
+                    <span
+                      title={t.gurus.deltaHint}
+                      className={`text-[11px] font-bold tabular-nums ${
+                        s.holderDelta > 0 ? 'text-cb-positive' : 'text-cb-negative'
+                      }`}
+                    >
+                      {s.holderDelta > 0 ? `↑${s.holderDelta}` : `↓${Math.abs(s.holderDelta)}`}
+                    </span>
+                  )}
+                </span>
               </div>
               <div className="mt-1 h-1.5 rounded-full bg-cb-border/60 overflow-hidden">
                 <div

@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Landmark, Rocket, TrendingUp } from 'lucide-react';
+import { Crown, Landmark, Rocket, TrendingUp } from 'lucide-react';
 import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { fetchCalendar } from '../infrastructure/api/calendarClient';
+import { fetchGuruHeldSymbols } from '../infrastructure/api/guruClient';
 import type { CalEarning, CalEconomic, CalIpo, CalendarMarket, CalendarWeek } from '../domain/calendar/types';
 import type { TranslationSchema } from '../domain/i18n/types';
 import { SYMBOL_BY_CODE } from '../data/tradeableSymbols';
@@ -81,6 +82,9 @@ const CalendarPage = ({
   const [today, setToday] = useState<Record<CalendarMarket, string> | null>(null);
   // 카테고리 내부 탭 — 실적/IPO/경제 따로 보기 (양쪽 시장 동시 필터).
   const [category, setCategory] = useState<CalendarCategory>('all');
+  // 거장(13F) 보유 종목만 보기 — 실적 항목에만 적용. 맵은 마운트 후 1회 로드.
+  const [guruOnly, setGuruOnly] = useState(false);
+  const [guruSymbols, setGuruSymbols] = useState<Record<string, number> | null>(null);
 
   // 주간 범위는 백엔드가 산출(현재 영업주, KST) — 응답 from/to 를 그대로 사용. US·KR 동일 주간.
   const loadUs = useCallback(() => {
@@ -102,6 +106,10 @@ const CalendarPage = ({
     didMount.current = true;
     if (!initialData) loadUs(); // 서버 초기 데이터(US)가 있으면 재요청 생략
     loadKr(); // KR 은 항상 클라에서 로드
+    // 거장 보유 티커 맵 — 부가 기능이라 실패하면 필터 자체를 노출하지 않는다.
+    fetchGuruHeldSymbols()
+      .then((res) => setGuruSymbols(res.symbols))
+      .catch(() => setGuruSymbols(null));
   }, [initialData, loadUs, loadKr]);
 
   useEffect(() => {
@@ -122,9 +130,19 @@ const CalendarPage = ({
     ? `${parseYMD(range.from).getMonth() + 1}/${parseYMD(range.from).getDate()} – ${parseYMD(range.to).getMonth() + 1}/${parseYMD(range.to).getDate()}`
     : '';
 
-  // 탭 카운트 = 미국+국내 합계.
+  // 거장 보유 필터가 켜졌을 때 실적 목록을 좁히는 함수 — 티커 대문자 기준.
+  // 맵이 없거나 필터가 꺼져 있으면 원본을 그대로 통과시킨다.
+  const filterEarnings = useCallback(
+    (list: CalEarning[]): CalEarning[] =>
+      guruOnly && guruSymbols
+        ? list.filter((e) => guruSymbols[e.symbol.toUpperCase()] !== undefined)
+        : list,
+    [guruOnly, guruSymbols],
+  );
+
+  // 탭 카운트 = 미국+국내 합계 (거장 필터 반영).
   const catTotals = {
-    earnings: (us?.earnings.length ?? 0) + (kr?.earnings.length ?? 0),
+    earnings: filterEarnings(us?.earnings ?? []).length + filterEarnings(kr?.earnings ?? []).length,
     ipos: (us?.ipos.length ?? 0) + (kr?.ipos.length ?? 0),
     economic: (us?.economic.length ?? 0) + (kr?.economic.length ?? 0),
   };
@@ -162,6 +180,24 @@ const CalendarPage = ({
             <span className="ml-1 tabular-nums opacity-70">{c.n}</span>
           </button>
         ))}
+
+        {/* 거장 보유 종목만 — 13F 맵을 못 받았으면 노출하지 않는다 */}
+        {guruSymbols && (category === 'all' || category === 'earnings') && (
+          <button
+            onClick={() => setGuruOnly((v) => !v)}
+            aria-pressed={guruOnly}
+            title={t.calendar.guruFilterHint}
+            className={[
+              'inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium transition-colors',
+              guruOnly
+                ? 'bg-cb-accent text-cb-on-accent'
+                : 'border border-cb-border text-cb-muted hover:border-cb-accent/40 hover:text-cb-foreground',
+            ].join(' ')}
+          >
+            <Crown className="h-3.5 w-3.5" />
+            {t.calendar.guruOnly}
+          </button>
+        )}
       </div>
 
       {/* 모바일 전용 시장 토글 (데스크톱 md+ 는 2단 동시 노출) */}
@@ -193,6 +229,8 @@ const CalendarPage = ({
             onRetry={loadUs}
             today={today?.US ?? null}
             category={category}
+            filterEarnings={filterEarnings}
+            guruSymbols={guruSymbols}
             t={t}
             lang={lang}
           />
@@ -207,6 +245,8 @@ const CalendarPage = ({
             onRetry={loadKr}
             today={today?.KR ?? null}
             category={category}
+            filterEarnings={filterEarnings}
+            guruSymbols={guruSymbols}
             t={t}
             lang={lang}
           />
@@ -226,6 +266,8 @@ const MarketColumn = ({
   onRetry,
   today,
   category,
+  filterEarnings,
+  guruSymbols,
   t,
   lang,
 }: {
@@ -237,10 +279,12 @@ const MarketColumn = ({
   onRetry: () => void;
   today: string | null;
   category: CalendarCategory;
+  filterEarnings: (list: CalEarning[]) => CalEarning[];
+  guruSymbols: Record<string, number> | null;
   t: T;
   lang: string;
 }) => {
-  const earnings = data?.earnings ?? [];
+  const earnings = filterEarnings(data?.earnings ?? []);
   const ipos = data?.ipos ?? [];
   const economic = data?.economic ?? [];
   const showEarn = category === 'all' || category === 'earnings';
@@ -281,7 +325,15 @@ const MarketColumn = ({
         </p>
       ) : (
         <div className="space-y-4">
-          {showEarn && <EarningsGroup list={earnings} t={t} lang={lang} today={today} />}
+          {showEarn && (
+            <EarningsGroup
+              list={earnings}
+              t={t}
+              lang={lang}
+              today={today}
+              guruSymbols={guruSymbols}
+            />
+          )}
           {showIpo && <IpoGroup list={ipos} t={t} lang={lang} market={market} today={today} />}
           {showEcon && <EconGroup list={economic} t={t} lang={lang} today={today} />}
         </div>
@@ -391,11 +443,13 @@ const EarningsGroup = ({
   t,
   lang,
   today,
+  guruSymbols,
 }: {
   list: CalEarning[];
   t: T;
   lang: string;
   today: string | null;
+  guruSymbols: Record<string, number> | null;
 }) =>
   list.length === 0 ? null : (
     <div>
@@ -413,11 +467,20 @@ const EarningsGroup = ({
         renderItem={(e) => {
           const name = e.name ?? companyName(e.symbol, lang);
           const hourLabel = e.hour && HOUR_KEY[e.hour] ? t.calendar[HOUR_KEY[e.hour]] : '';
+          const guruCount = guruSymbols?.[e.symbol.toUpperCase()];
           // 표기: 데스크톱은 티커코드(한국어이름) 인라인, 모바일은 코드 아래 작은 이름(겹침 방지).
           const nameEl = (
             <span className="flex min-w-0 flex-col sm:flex-row sm:items-baseline sm:gap-1">
-              <b className="font-semibold text-cb-foreground tabular-nums leading-tight">
+              <b className="flex items-center gap-1 font-semibold text-cb-foreground tabular-nums leading-tight">
                 {e.symbol}
+                {guruCount !== undefined && (
+                  <span
+                    title={`${guruCount}${t.calendar.guruHeldBadge}`}
+                    className="shrink-0 rounded bg-cb-accent/15 px-1 text-[10px] font-bold text-cb-accent"
+                  >
+                    ★{guruCount}
+                  </span>
+                )}
               </b>
               {name && (
                 <span className="truncate text-[11px] leading-tight text-cb-muted sm:text-sm sm:leading-normal">

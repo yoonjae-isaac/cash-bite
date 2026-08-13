@@ -11,6 +11,7 @@ export const PATH_OF: Record<PageId, string> = {
   averaging: '/averaging',
   news: '/news',
   gurus: '/gurus',
+  consensus: '/consensus',
   macro: '/macro',
   stock: '/stock',
   persona: '/persona',

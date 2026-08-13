@@ -6,7 +6,7 @@ export interface GuruInvestor {
   cik: string;
 }
 
-type GuruChangeType = 'new' | 'increased' | 'decreased' | 'unchanged';
+export type GuruChangeType = 'new' | 'increased' | 'decreased' | 'unchanged';
 
 export interface GuruHoldingChange {
   type: GuruChangeType;
@@ -69,6 +69,7 @@ export interface GuruStatStock {
   buyerCount: number; // 이번 분기 신규/확대 거장 수
   sellerCount: number; // 이번 분기 축소/매도 거장 수
   holders?: GuruStatHolder[]; // 보유·매수·매도 거장 상세 (value 내림차순, exit 포함). 구 캐시 호환 위해 옵셔널
+  holderDelta?: number; // 직전 분기 대비 보유 거장 수 증감 (직전 스냅샷이 있을 때만)
 }
 
 export interface GuruStats {
@@ -79,6 +80,74 @@ export interface GuruStats {
   grandPortfolio: GuruStatStock[];
   mostBought: GuruStatStock[];
   mostSold: GuruStatStock[];
+}
+
+/** 투자자 카드 1장 — /disclosure/13f/overview */
+export interface GuruOverviewItem {
+  key?: string; // 백엔드 FAMOUS_INVESTORS 키
+  name: string;
+  cik: string;
+  reportDate: string;
+  totalValue: number; // USD
+  positionCount: number;
+  topHolding?: { nameOfIssuer: string; ticker?: string; weight: number };
+  newCount: number; // 신규 편입 종목 수
+  exitCount: number; // 전량 매도 종목 수
+}
+
+export interface GuruOverview {
+  asOf: string;
+  investors: GuruOverviewItem[]; // 운용자산 내림차순
+}
+
+/** 종목을 보유한 거장 1명 — /disclosure/13f/symbol/:symbol */
+export interface GuruSymbolHolder {
+  investorKey?: string;
+  investorName: string;
+  reportDate: string;
+  weight: number; // 해당 거장 포트폴리오 내 비중 %
+  value: number; // USD
+  shares: number;
+  changeType?: GuruChangeType;
+}
+
+export interface GuruSymbolHolders {
+  symbol: string;
+  asOf: string;
+  totalInvestors: number;
+  holderCount: number;
+  totalValue: number;
+  holders: GuruSymbolHolder[]; // 비중 내림차순
+  exitedNames: string[]; // 이번 분기 전량 매도한 거장 인물명
+}
+
+/** 거장 보유 티커 → 보유 거장 수 — /disclosure/13f/held-symbols */
+export interface GuruHeldSymbols {
+  asOf: string;
+  symbols: Record<string, number>;
+}
+
+/** 거장 동향 AI 요약 — /disclosure/13f/analysis */
+export interface GuruAnalysis {
+  scope: 'INVESTOR' | 'MARKET';
+  subjectKey: string;
+  reportDate: string;
+  summary: string;
+  model?: string;
+  generatedAt: string;
+}
+
+/**
+ * 거장 개별 리포트 본문 분해 — 백엔드 프롬프트 계약상 첫 문단이 제목.
+ * 계약이 깨진 응답(제목이 길거나 문단 구분 없음)은 전체를 본문으로 폴백한다.
+ */
+export function splitAnalysis(summary: string): { headline?: string; body: string } {
+  const trimmed = summary.trim();
+  const [first, ...rest] = trimmed.split(/\n\s*\n/);
+  if (rest.length === 0 || first.length > 60 || first.includes('\n')) {
+    return { body: trimmed };
+  }
+  return { headline: first.replace(/^#+\s*/, ''), body: rest.join('\n\n') };
 }
 
 /** 'Berkshire Hathaway (Warren Buffett)' → { firm, person } 분리 */

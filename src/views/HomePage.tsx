@@ -6,9 +6,15 @@ import { useLanguageStore } from '../application/i18n/useLanguageStore';
 import { PATH_OF } from '../application/routing/pages';
 import type { PageId } from '../domain/i18n/types';
 import QuoteOfDay from '../components/home/QuoteOfDay';
+import UpdatesStrip from '../components/home/UpdatesStrip';
+import ConsensusPreview from '../components/home/ConsensusPreview';
+import TopInvestorsPreview from '../components/home/TopInvestorsPreview';
+import EarningsPreview from '../components/home/EarningsPreview';
+import MacroPreview from '../components/home/MacroPreview';
 import MarketNewsPreview from '../components/news/MarketNewsPreview';
 import InfoHint from '../components/ui/InfoHint';
 import Reveal from '../components/ui/Reveal';
+import type { HomeData } from '../domain/home/types';
 
 type Tool = {
   id: PageId;
@@ -22,7 +28,7 @@ const CARD_CTA = {
   start: { ko: '시작하기', en: 'Start', ja: '始める' },
 } as const;
 
-const HomePage = () => {
+const HomePage = ({ home }: { home?: HomeData }) => {
   const t = useLanguageStore((s) => s.t);
   const lang = useLanguageStore((s) => s.language);
 
@@ -75,23 +81,6 @@ const HomePage = () => {
     { icon: <Smartphone className="w-4 h-4" />, label: t.home.trust4 },
   ];
 
-  // 히어로 CTA 아래 기능 칩 — "이 사이트로 뭘 할 수 있는지" 즉시 노출
-  const chips: PageId[] = ['news', 'gurus', 'stock', 'macro', 'calendar'];
-  const chipLabel: Record<string, string> = {
-    news: t.nav.news,
-    gurus: t.nav.gurus,
-    stock: t.nav.stock,
-    macro: t.nav.macro,
-    calendar: t.nav.calendar,
-  };
-
-  // 01·02·03 활용 흐름 카드 (클릭 시 해당 페이지로)
-  const usageSteps = [
-    { num: '01', icon: <Newspaper className="w-5 h-5" />, title: t.home.usage1Title, desc: t.home.usage1Desc, page: 'news' as PageId, color: 'text-sky-400' },
-    { num: '02', icon: <Crown className="w-5 h-5" />, title: t.home.usage2Title, desc: t.home.usage2Desc, page: 'gurus' as PageId, color: 'text-rose-400' },
-    { num: '03', icon: <LineChart className="w-5 h-5" />, title: t.home.usage3Title, desc: t.home.usage3Desc, page: 'macro' as PageId, color: 'text-amber-400' },
-  ];
-
   const tips = [
     { title: t.home.tip1Title, desc: t.home.tip1Desc, hint: t.glossary.drip },
     { title: t.home.tip2Title, desc: t.home.tip2Desc, hint: undefined },
@@ -101,79 +90,23 @@ const HomePage = () => {
   return (
     <div className="flex flex-col gap-16 pb-8">
 
-      {/* ── Hero (정체성 0.5초 전달: eyebrow + 슬로건 + 설명 + CTA 2개) ─── */}
-      <Reveal>
-        <section className="text-center pt-2 md:pt-8">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-cb-border bg-cb-surface/60 text-xs font-semibold text-cb-accent">
-            <Sparkles className="w-3.5 h-3.5" />
-            {t.home.heroEyebrow}
-          </span>
-          <h1 className="mt-5 text-3xl md:text-5xl font-brand font-extrabold tracking-tight text-cb-foreground leading-snug whitespace-pre-line">
-            {t.home.heroTitle}
-          </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-cb-muted text-base md:text-lg leading-relaxed">
-            {t.home.heroSubtitle}
-          </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href={PATH_OF.gurus}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-cb-point text-cb-on-point text-sm font-bold hover:bg-cb-point-hover transition-colors"
-            >
-              {t.home.heroCta}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href={PATH_OF.news}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl border border-cb-border text-cb-foreground text-sm font-bold hover:border-cb-accent/40 hover:text-cb-accent transition-colors"
-            >
-              {t.nav.news}
-            </Link>
-          </div>
-
-          {/* 신뢰 배지 (CTA 바로 아래로 끌어올림) */}
-          <div className="mt-7 flex flex-wrap justify-center gap-2.5">
-            {trustItems.map((item, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-cb-border bg-cb-surface/50 text-xs md:text-sm text-cb-muted font-medium"
-              >
-                <span className="text-cb-accent">{item.icon}</span>
-                {item.label}
-              </div>
-            ))}
-          </div>
-
-          {/* 기능 칩 (이 사이트로 뭘 할 수 있는지) */}
-          <div className="mt-3 flex flex-wrap justify-center gap-2">
-            {chips.map((id) => (
-              <Link
-                key={id}
-                href={PATH_OF[id]}
-                className="px-3 py-1 rounded-full text-xs font-semibold text-cb-muted bg-[var(--cb-hover)] hover:text-cb-accent transition-colors"
-              >
-                {chipLabel[id]}
-              </Link>
-            ))}
-          </div>
-        </section>
-      </Reveal>
-
-      {/* ── 주린이 온보딩 진입 배너 (국내 전용 — ko 에서만) ──────── */}
+      {/* ── 주린이 온보딩 진입 배너 (국내 전용 — ko 에서만).
+              레이아웃의 증시 일정 배너 바로 아래가 되도록 홈 최상단에 둔다. ─── */}
       {lang === 'ko' && (
-        <Reveal>
+        <Reveal className="-mb-10">
           <Link
             href="/onboarding"
-            className="group flex items-center gap-4 rounded-2xl border border-cb-point/30 bg-gradient-to-br from-cb-point/12 to-cb-accent/5 px-5 py-5 md:px-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-cb-point/50"
+            className="group flex items-center gap-4 rounded-2xl border border-cb-point/30 bg-gradient-to-br from-cb-point/12 to-cb-accent/5 px-5 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-cb-point/50 md:px-7"
           >
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-cb-point text-2xl text-cb-on-point">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-cb-point text-xl text-cb-on-point">
               💡
             </span>
             <div className="min-w-0 flex-1">
               <div className="mb-0.5 text-xs font-bold text-cb-point">주식 처음이세요?</div>
-              <h3 className="text-lg md:text-xl font-extrabold tracking-tight text-cb-foreground">
+              <h3 className="text-base font-extrabold tracking-tight text-cb-foreground md:text-lg">
                 주린이 온보딩 — 왜 투자하나부터 첫 매수까지
               </h3>
-              <p className="mt-1 hidden text-sm text-cb-muted sm:block">
+              <p className="mt-0.5 hidden text-sm text-cb-muted sm:block">
                 증권계좌·세금·ISA·용어까지 순서대로. 6단계면 혼자 시작할 수 있어요.
               </p>
             </div>
@@ -182,6 +115,69 @@ const HomePage = () => {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </span>
           </Link>
+        </Reveal>
+      )}
+
+      {/* ── Hero — 좌: 정체성/CTA, 우: 지금 들어와 있는 데이터 피드.
+              첫 화면을 카피로만 채우지 않고 실데이터 진입점을 나란히 둔다. ─── */}
+      <Reveal>
+        <section className="grid items-start gap-5 pt-1 md:pt-3 lg:grid-cols-[1.25fr_1fr] lg:gap-8">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-cb-border bg-cb-surface/60 px-3 py-1 text-xs font-semibold text-cb-accent">
+              <Sparkles className="h-3.5 w-3.5" />
+              {t.home.heroEyebrow}
+            </span>
+            <h1 className="mt-3.5 whitespace-pre-line font-brand text-2xl font-extrabold leading-snug tracking-tight text-cb-foreground md:text-4xl">
+              {t.home.heroTitle}
+            </h1>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-cb-muted md:text-base">
+              {t.home.heroSubtitle}
+            </p>
+            <div className="mt-5 flex flex-wrap items-center gap-2.5">
+              <Link
+                href={PATH_OF.gurus}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-cb-point px-5 py-2.5 text-sm font-bold text-cb-on-point transition-colors hover:bg-cb-point-hover"
+              >
+                {t.home.heroCta}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href={PATH_OF.news}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-cb-border px-5 py-2.5 text-sm font-bold text-cb-foreground transition-colors hover:border-cb-accent/40 hover:text-cb-accent"
+              >
+                {t.nav.news}
+              </Link>
+            </div>
+
+            {/* 신뢰 배지 — 히어로가 커지지 않도록 한 줄로 압축 */}
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5">
+              {trustItems.map((item, i) => (
+                <span key={i} className="flex items-center gap-1.5 text-xs font-medium text-cb-muted">
+                  <span className="text-cb-accent">{item.icon}</span>
+                  {item.label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {home && <UpdatesStrip data={home} />}
+        </section>
+      </Reveal>
+
+      {/* ── 거장 데이터 (컨센서스 · 운용자산 상위) ───────────────── */}
+      {(home?.consensus || home?.guru) && (
+        <Reveal>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {home.consensus && (
+              <ConsensusPreview stocks={home.consensus.stocks} asOf={home.consensus.asOf} />
+            )}
+            {home.guru && (
+              <TopInvestorsPreview
+                investors={home.guru.topInvestors}
+                investorCount={home.guru.investorCount}
+              />
+            )}
+          </div>
         </Reveal>
       )}
 
@@ -195,34 +191,22 @@ const HomePage = () => {
         <MarketNewsPreview />
       </Reveal>
 
-      {/* ── 이렇게 활용하세요 (01·02·03 흐름 카드) ───────────── */}
-      <Reveal>
-        <section>
-          <div className="text-center mb-8">
-            <h3 className="text-2xl md:text-3xl font-bold text-cb-foreground mb-2">{t.home.usageTitle}</h3>
-            <p className="text-cb-muted">{t.home.usageSubtitle}</p>
+      {/* ── 이번 주 일정 · 거시지표 ──────────────────────────── */}
+      {(home?.earnings || home?.macro) && (
+        <Reveal>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {home.earnings && (
+              <EarningsPreview
+                items={home.earnings.items}
+                total={home.earnings.total}
+                guruHeldTotal={home.earnings.guruHeldTotal}
+                guruSymbols={home.guruSymbols}
+              />
+            )}
+            {home.macro && <MacroPreview rows={home.macro} />}
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {usageSteps.map((step) => (
-              <Link
-                key={step.num}
-                href={PATH_OF[step.page]}
-                className="group glass-panel p-6 text-left flex flex-col gap-3 hover:border-cb-accent/35 hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-3xl font-black text-cb-muted/25 tabular-nums leading-none">{step.num}</span>
-                  <span className={`${step.color}`}>{step.icon}</span>
-                </div>
-                <h4 className="font-bold text-cb-foreground">{step.title}</h4>
-                <p className="text-sm text-cb-muted leading-relaxed">{step.desc}</p>
-                <div className="mt-auto flex items-center gap-1 text-xs font-semibold text-cb-accent opacity-0 group-hover:opacity-100 transition-opacity">
-                  {CARD_CTA.goto[lang]} <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      </Reveal>
+        </Reveal>
+      )}
 
       {/* ── Tool Cards ───────────────────────────────────── */}
       <Reveal>

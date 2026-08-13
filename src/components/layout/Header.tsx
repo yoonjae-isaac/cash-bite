@@ -37,11 +37,17 @@ const Header = () => {
     averaging: t.nav.averaging,
     news: t.nav.news,
     gurus: t.nav.gurus,
+    consensus: t.nav.consensus,
     macro: t.nav.macro,
     stock: t.nav.stock,
     persona: t.nav.persona,
     calendar: t.nav.calendar,
   };
+
+  // 하위 라우트(/gurus/[investor] 등)에서도 상위 탭이 활성으로 보이도록 prefix 매칭.
+  // 홈은 '/' 라 startsWith 가 전부 참이 되므로 완전 일치로만 판정한다.
+  const isActive = (id: PageId): boolean =>
+    id === 'home' ? pathname === '/' : pathname.startsWith(PATH_OF[id]);
 
   // 투자 도구는 PageId 체계 밖(별도 계산기 섹션) — 전용 링크로 취급.
   const toolsActive = pathname.startsWith('/tools');
@@ -76,7 +82,7 @@ const Header = () => {
           aria-label="Main navigation"
         >
           {navItems.map((id) => {
-            const active = pathname === PATH_OF[id];
+            const active = isActive(id);
             return (
               <Link
                 key={id}
@@ -151,7 +157,7 @@ const Header = () => {
         >
           <div className="w-full max-w-[1280px] mx-auto px-4 py-2 flex flex-col gap-0.5">
             {mobileItems.map((id) => {
-              const active = pathname === PATH_OF[id];
+              const active = isActive(id);
               return (
                 <Link
                   key={id}
