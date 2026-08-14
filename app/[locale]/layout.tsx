@@ -55,10 +55,13 @@ export async function generateMetadata({
     applicationName: SITE_NAME,
     // 구글 검색결과 파비콘 규격: 루트 /favicon.ico 존재 + 정사각 48 배수 PNG.
     // logo.png(512)는 48 배수가 아니라 구글이 무시한다 — 192 로 파생해 함께 선언.
+    // 구글은 검색결과 파비콘을 48px 배수(48·96·144·192…) 정사각형으로 권장하고 48px 로 렌더한다.
+    // .ico 에는 16·32 만 들어 있어 그것만 채택되면 권장 크기에 못 미치므로 PNG 를 먼저 선언한다.
     icons: {
       icon: [
-        { url: '/favicon.ico', sizes: 'any' },
+        { url: '/icon-48.png', type: 'image/png', sizes: '48x48' },
         { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+        { url: '/favicon.ico', sizes: 'any' },
       ],
       shortcut: '/favicon.ico',
       apple: { url: '/apple-touch-icon.png', sizes: '180x180' },

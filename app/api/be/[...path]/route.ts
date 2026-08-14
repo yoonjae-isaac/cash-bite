@@ -44,12 +44,17 @@ async function forward(
     return gatewayError();
   }
 
-  return new Response(response.body, {
-    status: response.status,
-    headers: {
-      'content-type': response.headers.get('content-type') ?? 'application/json',
-    },
-  });
+  // 백엔드가 명시한 캐시 정책만 그대로 전달한다. 대부분의 엔드포인트는 헤더를 두지 않아
+  // 지금처럼 매번 백엔드를 타고, 로고처럼 잘 안 바뀌는 응답만 브라우저·CDN 이 받아낸다.
+  const responseHeaders: Record<string, string> = {
+    'content-type': response.headers.get('content-type') ?? 'application/json',
+  };
+  const cacheControl = response.headers.get('cache-control');
+  if (cacheControl) {
+    responseHeaders['cache-control'] = cacheControl;
+  }
+
+  return new Response(response.body, { status: response.status, headers: responseHeaders });
 }
 
 export async function GET(
