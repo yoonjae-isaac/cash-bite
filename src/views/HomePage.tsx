@@ -7,6 +7,7 @@ import { PATH_OF } from '../application/routing/pages';
 import type { PageId } from '../domain/i18n/types';
 import QuoteOfDay from '../components/home/QuoteOfDay';
 import UpdatesStrip from '../components/home/UpdatesStrip';
+import ArkPreview from '../components/home/ArkPreview';
 import ConsensusPreview from '../components/home/ConsensusPreview';
 import TopInvestorsPreview from '../components/home/TopInvestorsPreview';
 import EarningsPreview from '../components/home/EarningsPreview';
@@ -164,10 +165,24 @@ const HomePage = ({ home }: { home?: HomeData }) => {
         </section>
       </Reveal>
 
+      {/* ── ARK 일별 매매 — 유일하게 매일 공개되는 거장 데이터라 분기 집계보다 위에 둔다 ─── */}
+      {home?.ark && (
+        <Reveal>
+          <ArkPreview
+            tradeDate={home.ark.tradeDate}
+            buyCount={home.ark.buyCount}
+            sellCount={home.ark.sellCount}
+            trades={home.ark.trades}
+            logos={home.logos}
+          />
+        </Reveal>
+      )}
+
       {/* ── 거장 데이터 (컨센서스 · 운용자산 상위) ───────────────── */}
       {(home?.consensus || home?.guru) && (
         <Reveal>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {/* items-start — 카드마다 항목 수·행 높이가 달라 늘려 맞추면 아래가 빈다. */}
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
             {home.consensus && (
               <ConsensusPreview
                 stocks={home.consensus.stocks}
@@ -198,7 +213,8 @@ const HomePage = ({ home }: { home?: HomeData }) => {
       {/* ── 이번 주 일정 · 거시지표 ──────────────────────────── */}
       {(home?.earnings || home?.macro) && (
         <Reveal>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {/* items-start — 카드마다 항목 수·행 높이가 달라 늘려 맞추면 아래가 빈다. */}
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
             {home.earnings && (
               <EarningsPreview
                 items={home.earnings.items}

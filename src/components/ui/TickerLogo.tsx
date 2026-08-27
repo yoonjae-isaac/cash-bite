@@ -43,7 +43,9 @@ const TickerLogo = ({
       aria-hidden
       loading="lazy"
       onError={() => setFailed(true)}
-      className={`${box} bg-white/90 object-contain p-1`}
+      // 로고 원본은 대부분 배경이 투명하고 어두운 색이라 밝은 판을 깔아야 다크 테마에서 보인다.
+      // 순백은 어두운 배경에서 사각형으로 튀므로 살짝 낮춘 흰색 + 원형에 가까운 라운드로 눌러 준다.
+      className={`${box} bg-white/85 object-contain p-1 ring-1 ring-inset ring-black/5`}
     />
   );
 };

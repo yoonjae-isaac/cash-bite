@@ -8,12 +8,18 @@ import { localeMetadata, localePath, SITE_NAME, SITE_URL, type Loc, type Locale 
 import { GURU_KEYS, GURU_PROFILES } from '@/domain/guru/investors';
 import { splitInvestorName, toQuarterLabel } from '@/domain/guru/types';
 import { fetchGuruAnalysis, fetchGuruPortfolio } from '@/infrastructure/api/guruClient';
+import { fetchArkFunds, fetchArkTrades } from '@/infrastructure/api/arkClient';
 import { fetchStockLogos } from '@/infrastructure/api/logoClient';
 import type { GuruAnalysis, GuruPortfolio } from '@/domain/guru/types';
 
 const REVALIDATE = 86400; // 13F 는 분기 공시 — 하루 1회면 충분
 const LOGO_REVALIDATE = 604800; // 로고는 거의 안 바뀐다 — 주 단위 재검증
 const LOGO_ROWS = 15; // 보유 테이블 접힌 상태에서 보이는 행 수만 선조회
+
+// ARK 일별 매매는 캐시 우드(ARK 창업자)에게만 있는 데이터다.
+const ARK_INVESTOR_KEY = 'wood';
+const ARK_DAYS = 5;
+const ARK_REVALIDATE = 3600; // 매일 갱신되는 데이터라 13F 보다 짧게
 
 export const revalidate = 86400;
 
@@ -99,13 +105,22 @@ export default async function Page({
     analysis = null; // AI 리포트는 부가 정보 — 실패해도 포트폴리오는 보여준다
   }
 
-  const logos = await fetchStockLogos(
-    portfolio.holdings
-      .slice(0, LOGO_ROWS)
-      .map((h) => h.ticker)
-      .filter((s): s is string => Boolean(s)),
-    LOGO_REVALIDATE,
-  ).catch(() => undefined);
+  // ARK 일별 매매 — 캐시 우드만. 적재 전이면 404 라 섹션을 감춘다.
+  const ark =
+    investor === ARK_INVESTOR_KEY
+      ? await Promise.all([
+          fetchArkTrades(ARK_DAYS, ARK_REVALIDATE).catch(() => undefined),
+          fetchArkFunds(ARK_REVALIDATE).catch(() => undefined),
+        ])
+      : [undefined, undefined];
+  const [arkTrades, arkFunds] = ark;
+
+  // 보유 목록과 ARK 매매 목록에 함께 쓰이므로 한 번에 조회한다.
+  const logoSymbols = [
+    ...portfolio.holdings.slice(0, LOGO_ROWS).map((h) => h.ticker),
+    ...(arkTrades ?? []).flatMap((d) => d.trades.slice(0, 8).map((t) => t.ticker)),
+  ].filter((s): s is string => Boolean(s));
+  const logos = await fetchStockLogos(logoSymbols, LOGO_REVALIDATE).catch(() => undefined);
 
   const { firm, person } = splitInvestorName(portfolio.investorName);
   const seo = buildSeo(investor, firm, person);
@@ -146,7 +161,13 @@ export default async function Page({
       <JsonLd data={breadcrumbJsonLd} />
       <JsonLd data={datasetJsonLd} />
       <Reveal>
-        <GuruDetailPage portfolio={portfolio} analysis={analysis} logos={logos} />
+        <GuruDetailPage
+          portfolio={portfolio}
+          analysis={analysis}
+          logos={logos}
+          arkTrades={arkTrades}
+          arkStaleFunds={arkFunds?.filter((f) => f.isStale).map((f) => f.fund)}
+        />
       </Reveal>
     </>
   );

@@ -621,5 +621,21 @@
     "guruFilterHint": "Keeps only stocks held by the tracked investors, per SEC 13F",
     "pastEvents": "Past events",
     "noUpcoming": "Nothing left this week"
+  },
+  "ark": {
+    "title": "Daily trades",
+    "desc": "ARK publishes its holdings every day. A 13F arrives once a quarter and up to 45 days late — these are same-day trades.",
+    "homeTitle": "What Cathie Wood traded today",
+    "homeDesc": "The only manager that discloses trades daily — every other legend shows up once a quarter",
+    "liveBadge": "Daily",
+    "badgeNew": "New",
+    "badgeExit": "Exited",
+    "buyLabel": "Buys",
+    "sellLabel": "Sells",
+    "sharesUnit": "shares",
+    "moreRows": "+{n} more",
+    "showMore": "Show {n} earlier days",
+    "showLess": "Show less",
+    "staleNote": "{funds} stopped updating on ARK's side, so recent trades are not reflected."
   }
 }

@@ -621,5 +621,21 @@
     "guruFilterHint": "SEC 13F基準、追跡中の巨匠が保有する銘柄のみ表示します",
     "pastEvents": "過去の予定",
     "noUpcoming": "今週の残りの予定はありません"
+  },
+  "ark": {
+    "title": "日次売買",
+    "desc": "ARKは毎日保有銘柄を公開します。13Fは四半期に一度・最大45日遅れですが、これは当日の売買です。",
+    "homeTitle": "キャシー・ウッドの今日の売買",
+    "homeDesc": "売買を毎日公開する唯一の運用会社 — 他の巨匠は四半期に一度しか見えません",
+    "liveBadge": "毎日更新",
+    "badgeNew": "新規",
+    "badgeExit": "全売却",
+    "buyLabel": "買い",
+    "sellLabel": "売り",
+    "sharesUnit": "株",
+    "moreRows": "他{n}件",
+    "showMore": "過去{n}日を表示",
+    "showLess": "閉じる",
+    "staleNote": "{funds}はARK側でファイル更新が止まっており、最新の売買が反映されません。"
   }
 }

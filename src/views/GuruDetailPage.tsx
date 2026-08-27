@@ -25,6 +25,8 @@ import PortfolioChanges from '../components/guru/PortfolioChanges';
 import HoldingsTable from '../components/guru/HoldingsTable';
 import GuruExits from '../components/guru/GuruExits';
 import GuruAiReport from '../components/guru/GuruAiReport';
+import ArkDailyTradesSection from '../components/ark/ArkDailyTrades';
+import type { ArkDailyTrades } from '../domain/ark/types';
 import EmptyState from '../components/ui/EmptyState';
 import ExplainToggle from '../components/ui/ExplainToggle';
 import FilterChips, { type FilterChipOption } from '../components/ui/FilterChips';
@@ -38,10 +40,15 @@ const GuruDetailPage = ({
   portfolio,
   analysis,
   logos,
+  arkTrades,
+  arkStaleFunds,
 }: {
   portfolio: GuruPortfolio;
   analysis: GuruAnalysis | null;
   logos?: Record<string, string>;
+  /** 캐시 우드에만 있는 ARK 일별 매매 — 다른 거장은 undefined. */
+  arkTrades?: ArkDailyTrades[];
+  arkStaleFunds?: string[];
 }) => {
   const t = useLanguageStore((s) => s.t);
   const lang = useLanguageStore((s) => s.language);
@@ -115,6 +122,11 @@ const GuruDetailPage = ({
       </header>
 
       <GuruSummary portfolio={portfolio} />
+
+      {/* 일별 매매는 13F 보다 최신이라 분기 포트폴리오보다 위에 둔다 */}
+      {arkTrades && arkTrades.length > 0 && (
+        <ArkDailyTradesSection days={arkTrades} logos={logos} staleFunds={arkStaleFunds} />
+      )}
 
       {analysis && (
         <GuruAiReport

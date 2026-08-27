@@ -79,9 +79,9 @@ const HoldingsTable = ({
             <tr className="text-left text-xs text-cb-muted border-b border-cb-border">
               <th className="py-2 pr-2 w-8">{t.gurus.rank}</th>
               <th className="py-2 pr-3">{t.gurus.company}</th>
-              <th className="py-2 pr-3 w-[30%] min-w-36">{t.gurus.weight}</th>
-              <th className="py-2 pr-3 text-right">{t.gurus.value}</th>
-              <th className="py-2 text-right hidden sm:table-cell">{t.gurus.shares}</th>
+              <th className="py-2 pl-3 text-right w-20">{t.gurus.weight}</th>
+              <th className="py-2 pl-3 text-right w-24">{t.gurus.value}</th>
+              <th className="py-2 pl-3 text-right w-24 hidden sm:table-cell">{t.gurus.shares}</th>
             </tr>
           </thead>
           <tbody>
@@ -90,43 +90,43 @@ const HoldingsTable = ({
                 key={`${h.cusip}:${h.putCall ?? ''}`}
                 className="border-b border-cb-border/50 last:border-0 theme-row"
               >
-                <td className="py-2.5 pr-2 text-cb-muted tabular-nums">{i + 1}</td>
-                <td className="py-2.5 pr-3">
-                  <div className="flex items-center gap-2">
+                <td className="py-2 pr-2 text-cb-muted tabular-nums">{i + 1}</td>
+                <td className="py-2 pr-3">
+                  <div className="flex items-center gap-2.5">
                     <TickerLogo
                       symbol={h.ticker ?? h.nameOfIssuer}
                       src={h.ticker ? logos?.[h.ticker] : undefined}
                       size="sm"
                     />
                     <div className="min-w-0">
-                      <span className="font-semibold text-cb-foreground">
-                        {h.ticker ?? formatIssuerName(h.nameOfIssuer)}
+                      <span className="flex items-center gap-1.5">
+                        <span className="truncate font-semibold text-cb-foreground">
+                          {h.ticker ?? formatIssuerName(h.nameOfIssuer)}
+                        </span>
+                        {h.putCall && <PutCallBadge putCall={h.putCall} />}
+                        {h.change && <ChangeBadge change={h.change} />}
                       </span>
-                      {h.putCall && <PutCallBadge putCall={h.putCall} />}
-                      {h.change && <ChangeBadge change={h.change} />}
-                      <span className="block text-[11px] text-cb-muted">
+                      <span className="block truncate text-[11px] leading-tight text-cb-muted">
                         {h.ticker ? formatIssuerName(h.nameOfIssuer) : h.titleOfClass}
                       </span>
+                      {/* 비중 막대는 종목명 아래 얇은 선으로 — 별도 컬럼을 차지하면 숫자가 밀리고,
+                          폭을 좁히면 이름과 숫자 사이가 비어 보여 남는 폭을 그대로 쓴다. */}
+                      <span className="mt-1 block h-[3px] w-full overflow-hidden rounded-full bg-cb-border/50">
+                        <span
+                          className="block h-full rounded-full bg-cb-accent"
+                          style={{ width: `${maxWeight > 0 ? (h.weight / maxWeight) * 100 : 0}%` }}
+                        />
+                      </span>
                     </div>
                   </div>
                 </td>
-                <td className="py-2.5 pr-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 rounded-full bg-cb-border/60 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-cb-accent"
-                        style={{ width: `${maxWeight > 0 ? (h.weight / maxWeight) * 100 : 0}%` }}
-                      />
-                    </div>
-                    <span className="w-14 text-right text-cb-foreground font-medium tabular-nums">
-                      {h.weight.toFixed(2)}%
-                    </span>
-                  </div>
+                <td className="py-2 pl-3 text-right font-semibold text-cb-foreground tabular-nums">
+                  {h.weight.toFixed(2)}%
                 </td>
-                <td className="py-2.5 pr-3 text-right text-cb-foreground tabular-nums">
+                <td className="py-2 pl-3 text-right text-cb-foreground tabular-nums">
                   {formatUsd13F(h.value)}
                 </td>
-                <td className="py-2.5 text-right text-cb-muted tabular-nums hidden sm:table-cell">
+                <td className="py-2 pl-3 text-right text-cb-muted tabular-nums hidden sm:table-cell">
                   {formatShares(h.shares)}
                 </td>
               </tr>

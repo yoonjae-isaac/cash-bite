@@ -644,4 +644,20 @@ export interface TranslationSchema {
     pastEvents: string;
     noUpcoming: string;
   };
+  ark: {
+    title: string;
+    desc: string;
+    homeTitle: string;
+    homeDesc: string;
+    liveBadge: string;
+    badgeNew: string;
+    badgeExit: string;
+    buyLabel: string;
+    sellLabel: string;
+    sharesUnit: string;
+    moreRows: string;
+    showMore: string;
+    showLess: string;
+    staleNote: string;
+  };
 }
