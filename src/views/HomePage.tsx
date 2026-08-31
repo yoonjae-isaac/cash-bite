@@ -9,6 +9,7 @@ import QuoteOfDay from '../components/home/QuoteOfDay';
 import UpdatesStrip from '../components/home/UpdatesStrip';
 import ArkPreview from '../components/home/ArkPreview';
 import ConsensusPreview from '../components/home/ConsensusPreview';
+import InsiderBuysPreview from '../components/home/InsiderBuysPreview';
 import TopInvestorsPreview from '../components/home/TopInvestorsPreview';
 import EarningsPreview from '../components/home/EarningsPreview';
 import MacroPreview from '../components/home/MacroPreview';
@@ -165,16 +166,27 @@ const HomePage = ({ home }: { home?: HomeData }) => {
         </section>
       </Reveal>
 
-      {/* ── ARK 일별 매매 — 유일하게 매일 공개되는 거장 데이터라 분기 집계보다 위에 둔다 ─── */}
-      {home?.ark && (
+      {/* ── 매일 바뀌는 두 신호 (ARK 일별 매매 · 내부자 매수) — 분기 집계보다 위에 둔다 ─── */}
+      {(home?.ark || home?.insiderBuys) && (
         <Reveal>
-          <ArkPreview
-            tradeDate={home.ark.tradeDate}
-            buyCount={home.ark.buyCount}
-            sellCount={home.ark.sellCount}
-            trades={home.ark.trades}
-            logos={home.logos}
-          />
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+            {home.ark && (
+              <ArkPreview
+                tradeDate={home.ark.tradeDate}
+                buyCount={home.ark.buyCount}
+                sellCount={home.ark.sellCount}
+                trades={home.ark.trades}
+                logos={home.logos}
+              />
+            )}
+            {home.insiderBuys && (
+              <InsiderBuysPreview
+                rows={home.insiderBuys}
+                logos={home.logos}
+                guruSymbols={home.guruSymbols}
+              />
+            )}
+          </div>
         </Reveal>
       )}
 

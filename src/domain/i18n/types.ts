@@ -644,6 +644,17 @@ export interface TranslationSchema {
     pastEvents: string;
     noUpcoming: string;
   };
+  insider: {
+    title: string;
+    desc: string;
+    buyLabel: string;
+    sellLabel: string;
+    moreRows: string;
+    source: string;
+    homeTitle: string;
+    homeDesc: string;
+    buyersUnit: string;
+  };
   ark: {
     title: string;
     desc: string;

@@ -9,6 +9,7 @@ import {
   fetchGuruStats,
 } from '@/infrastructure/api/guruClient';
 import { fetchArkTrades } from '@/infrastructure/api/arkClient';
+import { fetchInsiderBuys } from '@/infrastructure/api/insiderClient';
 import { fetchMacroOverview } from '@/infrastructure/api/macroClient';
 import { fetchStockLogos } from '@/infrastructure/api/logoClient';
 import type { HomeData } from '@/domain/home/types';
@@ -23,6 +24,9 @@ const MACRO_REVALIDATE = 1800;
 const LOGO_REVALIDATE = 604800; // 로고는 거의 안 바뀐다 — 주 단위 재검증
 
 const ARK_PREVIEW = 5; // 홈에 노출할 ARK 매매 건수
+const INSIDER_PREVIEW = 5; // 홈에 노출할 내부자 매수 종목 수
+const INSIDER_DAYS = 7;
+const INSIDER_REVALIDATE = 3600; // 하루 1회 적재 — ARK 와 같은 주기
 const ARK_REVALIDATE = 3600; // 매일 갱신 — 13F 보다 짧게
 const CONSENSUS_PREVIEW = 6; // 홈에 노출할 컨센서스 종목 수
 const INVESTOR_PREVIEW = 5; // 홈에 노출할 거장 수
@@ -39,13 +43,14 @@ const MACRO_PREVIEW_IDS = [
 ];
 
 async function loadHomeData(): Promise<HomeData> {
-  const [overview, stats, calendar, held, macro, arkDays] = await Promise.all([
+  const [overview, stats, calendar, held, macro, arkDays, insiderBuys] = await Promise.all([
     fetchGuruOverview(GURU_REVALIDATE).catch(() => null),
     fetchGuruStats(GURU_REVALIDATE).catch(() => null),
     fetchCalendar('US', undefined, undefined, CALENDAR_REVALIDATE).catch(() => null),
     fetchGuruHeldSymbols(GURU_REVALIDATE).catch(() => null),
     fetchMacroOverview(MACRO_REVALIDATE).catch(() => null),
     fetchArkTrades(1, ARK_REVALIDATE).catch(() => null),
+    fetchInsiderBuys(INSIDER_DAYS, INSIDER_REVALIDATE).catch(() => null),
   ]);
 
   const data: HomeData = {};
@@ -88,11 +93,16 @@ async function loadHomeData(): Promise<HomeData> {
     };
   }
 
-  // 프리뷰 목록에 실제로 노출되는 티커만 모아 한 번에 조회 (ARK 포함 — 로고 조회는 한 번만).
+  if (insiderBuys) {
+    data.insiderBuys = insiderBuys.rows.slice(0, INSIDER_PREVIEW);
+  }
+
+  // 프리뷰 목록에 실제로 노출되는 티커만 모아 한 번에 조회 (로고 조회는 한 번만).
   const previewSymbols = [
     ...(data.consensus?.stocks.map((s) => s.ticker) ?? []),
     ...(data.earnings?.items.map((e) => e.symbol) ?? []),
     ...(data.ark?.trades.map((t) => t.ticker) ?? []),
+    ...(data.insiderBuys?.map((r) => r.ticker) ?? []),
   ].filter((s): s is string => Boolean(s));
   if (previewSymbols.length > 0) {
     data.logos = await fetchStockLogos(previewSymbols, LOGO_REVALIDATE).catch(() => undefined);

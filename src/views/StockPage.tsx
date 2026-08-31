@@ -13,6 +13,7 @@ import TechnicalSummary from '../components/stock/TechnicalSummary';
 import TechnicalSignals from '../components/stock/TechnicalSignals';
 import AiAnalysisPanel, { AiLoading } from '../components/stock/AiAnalysisPanel';
 import StockGuruHolders from '../components/stock/StockGuruHolders';
+import StockInsiderTrades from '../components/stock/StockInsiderTrades';
 import { FEATURES } from '../config/features';
 import type {
   Financials,
@@ -689,6 +690,9 @@ const StockPage = () => {
 
           {/* 이 종목을 담은 거장 — 13F 크로스 (보유자 0 이면 컴포넌트가 스스로 숨는다) */}
           <StockGuruHolders ticker={tech?.ticker ?? fin?.ticker ?? query.toUpperCase()} />
+
+          {/* 내부자 거래 — Form 4. 거장(분기)보다 최신이라 바로 아래에 둔다 */}
+          <StockInsiderTrades ticker={tech?.ticker ?? fin?.ticker ?? query.toUpperCase()} />
 
           {/* 관련 뉴스 — 온디맨드 (KR=네이버, US=Finnhub, 최신 10) */}
           <div>

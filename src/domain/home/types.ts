@@ -3,6 +3,7 @@
 
 import type { ArkTradeRow } from '../ark/types';
 import type { CalEarning } from '../calendar/types';
+import type { InsiderBuyRow } from '../insider/types';
 import type { GuruOverviewItem, GuruStatStock } from '../guru/types';
 import type { MacroOverviewRow } from '../macro/types';
 
@@ -42,4 +43,6 @@ export interface HomeData {
     sellCount: number;
     trades: ArkTradeRow[];
   };
+  /** 최근 장내 매수 상위 — 내부자가 자기 돈을 쓴 것만(매도는 보상 성격이 섞여 제외). */
+  insiderBuys?: InsiderBuyRow[];
 }
