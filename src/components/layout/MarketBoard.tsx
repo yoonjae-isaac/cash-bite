@@ -155,9 +155,11 @@ const MarketBoard = ({ config }: { config: BoardConfig }) => {
       (it): it is BoardEconomicItem => it.kind === 'economic' && it.id === openId,
     ) ?? null;
   const flowing = config.items.length >= FLOW_MIN_ITEMS;
-  // 모바일은 흐르지 않고 스택 — 아직 지나지 않은 발표부터 채운다(전부 지났으면 그대로 보여준다).
+  // 모바일은 흐르지 않고 스택 — 아직 지나지 않은 발표를 먼저 채우고, 모자라면 지난 발표로 채운다.
+  // 주 후반에는 남은 일정이 한두 건뿐이라, 앞의 것만 쓰면 한 줄만 덩그러니 남아 고장난 것처럼 보인다.
   const upcoming = today ? config.items.filter((it) => it.date >= today) : config.items;
-  const mobileItems = (upcoming.length > 0 ? upcoming : config.items).slice(0, MOBILE_MAX);
+  const past = today ? config.items.filter((it) => it.date < today) : [];
+  const mobileItems = [...upcoming, ...past].slice(0, MOBILE_MAX);
   // 아이템 0건이면 resolveBoard 가 null 을 주므로 여기까지 오지 않는다.
   const [lead, ...rest] = mobileItems;
 
@@ -243,14 +245,16 @@ const MarketBoard = ({ config }: { config: BoardConfig }) => {
               aria-expanded={listOpen}
               aria-controls="market-board-list"
               className={[
-                'flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold transition-colors',
+                // 모바일에서도 라벨을 남긴다 — 아이콘만 두면 몇 건이 더 있는지 알 수 없고,
+                // 터치 영역도 작아져 눌러도 되는 자리로 보이지 않는다.
+                'flex min-h-[36px] items-center gap-1 rounded px-2.5 text-xs font-semibold transition-colors',
                 listOpen
                   ? 'bg-[var(--cb-hover)] text-cb-foreground'
                   : 'text-cb-muted hover:text-cb-foreground hover:bg-[var(--cb-hover)]',
               ].join(' ')}
             >
-              <List className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{listOpen ? '접기' : `목록 ${config.items.length}`}</span>
+              <List className="h-3.5 w-3.5 shrink-0" />
+              {listOpen ? '접기' : `목록 ${config.items.length}`}
             </button>
 
             {/* 국내 일정·실적·공모주는 전광판에 싣지 않는다 — 빼는 게 아니라 이 링크로 옮긴 것. */}
