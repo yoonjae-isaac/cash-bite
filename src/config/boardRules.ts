@@ -1,4 +1,10 @@
-import { buildEconomicItems, weekRangeLabel, type BoardConfig } from '../domain/calendar/board';
+import {
+  buildEconomicItems,
+  buildGuruEarningsItems,
+  weekRangeLabel,
+  type BoardConfig,
+  type BoardItem,
+} from '../domain/calendar/board';
 import type { CalendarWeek } from '../domain/calendar/types';
 
 /**
@@ -8,9 +14,10 @@ import type { CalendarWeek } from '../domain/calendar/types';
  * 흩어두면 "왜 오늘은 안 뜨지"를 답할 수 없게 되므로 규칙을 여기 모은다
  * (`features.ts`·백엔드 `cache-policy.ts` 와 같은 방식).
  *
- * 규칙은 위에서부터 평가해 **가장 먼저 충족한 하나만** 켠다 — 최상단은 한 줄이고,
- * 둘이 겹치면 둘 다 안 읽힌다. 이번 분기는 `weeklyEconomicHigh` 하나만 활성이고
- * 나머지는 순서를 미리 잡아두기 위해 정의만 해둔다.
+ * 규칙은 위에서부터 평가해 **충족한 규칙의 아이템을 순서대로 합친다**. 한 줄 스트립이라
+ * 원래는 하나만 켰지만, 경제지표와 거장 보유 종목 실적은 "이번 주에 시장을 흔들 일정"이라는
+ * 같은 질문의 답이라 나란히 있을 때 오히려 읽힌다. 대신 규칙마다 건수를 스스로 제한해
+ * 한 규칙이 줄을 독차지하지 않게 한다.
  */
 
 export type BoardPresetId = 'economic' | 'earnings' | 'brief' | 'notice';
@@ -18,6 +25,8 @@ export type BoardPresetId = 'economic' | 'earnings' | 'brief' | 'notice';
 export interface BoardContext {
   /** 금주(월~금, KST) 미국 증시 일정. 일정이 없을 때의 처리는 resolveBoard 가 먼저 끝내므로 여기선 항상 있다. */
   week: CalendarWeek;
+  /** 티커 → 보유 거장 수. 거장 데이터를 못 받았으면 빈 객체 — 실적 규칙이 스스로 0건이 된다. */
+  guruSymbols: Record<string, number>;
 }
 
 export interface BoardRule {
@@ -26,7 +35,12 @@ export interface BoardRule {
   enabled: boolean;
   preset: BoardPresetId;
   match: (ctx: BoardContext) => boolean;
+  /** 표시 아이템. match 를 통과해도 0건이 나올 수 있다(아래 각 규칙 주석 참고). */
+  build: (ctx: BoardContext) => BoardItem[];
 }
+
+/** 실적은 전광판에서 최대 이만큼 — 나머지는 증시 일정에 그대로 있다. */
+const EARNINGS_LIMIT = 6;
 
 export const BOARD_RULES: BoardRule[] = [
   {
@@ -38,21 +52,26 @@ export const BOARD_RULES: BoardRule[] = [
      * 발표 당일만 띄우면 미리 대비할 수 없고, 하루짜리 노출은 대부분 놓친다.
      */
     match: (ctx) => ctx.week.economic.some((e) => e.impact === 'high'),
+    // 규칙은 impact 로 판정하고 아이템은 해설 카피 유무까지 거르므로 0건이 될 수 있다.
+    build: (ctx) => buildEconomicItems(ctx.week),
+  },
+  {
+    id: 'guruHeldEarnings',
+    enabled: true,
+    preset: 'earnings',
+    /** 금주 실적 발표에 거장 보유 종목이 있으면 — 사용자가 이 서비스에서 따라가는 종목들이다. */
+    match: (ctx) =>
+      ctx.week.earnings.some((e) => ctx.guruSymbols[e.symbol.toUpperCase()] !== undefined),
+    build: (ctx) => buildGuruEarningsItems(ctx.week, ctx.guruSymbols, EARNINGS_LIMIT),
   },
   // ── 아래는 이번 분기 범위 밖(정의만) ──
-  {
-    id: 'ownedEarnings',
-    enabled: false,
-    preset: 'earnings',
-    /** 금주 실적 발표에 보유 종목이 있으면. */
-    match: () => false,
-  },
   {
     id: 'marketBrief',
     enabled: false,
     preset: 'brief',
     /** 미국장 마감 후 ~ 국내장 개장 전 시간대. */
     match: () => false,
+    build: () => [],
   },
   {
     id: 'serviceNotice',
@@ -60,29 +79,37 @@ export const BOARD_RULES: BoardRule[] = [
     preset: 'notice',
     /** 운영자가 등록한 공지가 노출 기간 내. */
     match: () => false,
+    build: () => [],
   },
 ];
 
 /**
- * 첫 충족 규칙의 표시 데이터를 만든다. null 이면 스트립 자체를 렌더하지 않는다
+ * 같은 날이면 경제지표를 앞에, 그다음 실적.
+ *
+ * 시각으로는 못 섞는다 — 경제지표는 'HH:mm' 이고 실적은 장전/장후만 공시돼 비교할 값이 없다.
+ * 그래서 날짜만 기준으로 두고, 같은 날 안에서는 시장 전체를 움직이는 지표를 먼저 둔다.
+ * `Array.sort` 가 안정 정렬이라 각 규칙이 잡아둔 내부 순서(지표=시각순, 실적=보유 거장 수순)는 유지된다.
+ */
+const KIND_ORDER: Record<BoardItem['kind'], number> = { economic: 0, earnings: 1 };
+
+/**
+ * 충족한 규칙들의 표시 데이터를 합친다. null 이면 스트립 자체를 렌더하지 않는다
  * (빈 껍데기가 최상단에 남아 있는 게 더 나쁘다).
  *
  * 주간 일정이 없는 경우(백엔드 장애 등)를 여기서 먼저 끝내므로, 각 규칙의 match 는
  * 일정이 있다는 전제만 다루면 된다 — 규칙을 늘릴 때마다 null 검사를 반복하지 않도록.
  */
-export function resolveBoard(week: CalendarWeek | null): BoardConfig | null {
+export function resolveBoard(
+  week: CalendarWeek | null,
+  guruSymbols: Record<string, number> = {},
+): BoardConfig | null {
   if (!week) {
     return null;
   }
-  const rule = BOARD_RULES.find((r) => r.enabled && r.match({ week }));
-  if (!rule) {
-    return null;
-  }
-  if (rule.preset !== 'economic') {
-    return null; // 나머지 프리셋은 미구현 — 규칙도 enabled:false 라 여기 닿지 않는다.
-  }
-  const items = buildEconomicItems(week);
-  // 규칙은 impact 로 판정하고 아이템은 해설 카피 유무까지 거르므로, 카피가 없으면 0건이 될 수 있다.
+  const ctx: BoardContext = { week, guruSymbols };
+  const items = BOARD_RULES.filter((r) => r.enabled && r.match(ctx))
+    .flatMap((r) => r.build(ctx))
+    .sort((a, b) => a.date.localeCompare(b.date) || KIND_ORDER[a.kind] - KIND_ORDER[b.kind]);
   return items.length > 0
     ? { label: '이번 주 발표', weekLabel: weekRangeLabel(week), items }
     : null;

@@ -81,7 +81,9 @@ const CalendarPage = ({
   const [usError, setUsError] = useState(false);
   const [krError, setKrError] = useState(false);
   // 시장 선택 — 한 번에 한 시장만 본다. 2단 동시 노출은 한 컬럼이 좁아 정보가 눌렸다.
-  const [market, setMarket] = useState<CalendarMarket>('KR');
+  // 기본값 US: 서버가 미리 채워 보내는 initialData 가 US 라 첫 화면이 곧바로 채워지고,
+  // 이 서비스의 축(13F·거장 보유 ★)이 미국 종목이라 국내로 열면 정작 볼 게 없다.
+  const [market, setMarket] = useState<CalendarMarket>('US');
   // 종목 로고 — 미국 실적만 (국내는 숫자 코드라 로고 제공처에 매칭되지 않는다).
   const [logos, setLogos] = useState<Record<string, string>>({});
   // '오늘'(KST 기준) YYYY-MM-DD. 하이드레이션 불일치 방지 위해 마운트 후 계산.
@@ -323,7 +325,12 @@ const MarketColumn = ({
 }) => {
   const [showPast, setShowPast] = useState(false);
 
-  const earnings = filterEarnings(data?.earnings ?? []);
+  // 거장이 보유한 종목을 앞으로 — 하루에 수십 건이 나오는 날 무엇부터 볼지 정해준다.
+  // 날짜 그룹핑(groupByDate)의 정렬이 안정 정렬이라, 여기서 잡은 순서가 같은 날짜 안에서 유지된다.
+  const guruRank = (e: CalEarning): number => guruSymbols?.[e.symbol.toUpperCase()] ?? 0;
+  const earnings = filterEarnings(data?.earnings ?? [])
+    .slice()
+    .sort((a, b) => guruRank(b) - guruRank(a));
   const ipos = data?.ipos ?? [];
   const economic = data?.economic ?? [];
   const showEarn = category === 'all' || category === 'earnings';

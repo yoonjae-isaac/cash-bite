@@ -17,7 +17,10 @@ import { LanguageProvider } from '@/application/i18n/useLanguageStore';
 import { SITE_URL, SITE_NAME, SITE_TAGLINE_LOC, SITE_DESCRIPTION_LOC, localePath, LOCALES, type Locale } from '@/config/site';
 import { routing } from '@/i18n/routing';
 import { resolveBoard } from '@/config/boardRules';
+import { boardLogoSymbols } from '@/domain/calendar/board';
 import { fetchCalendar } from '@/infrastructure/api/calendarClient';
+import { fetchGuruHeldSymbols } from '@/infrastructure/api/guruClient';
+import { fetchStockLogos } from '@/infrastructure/api/logoClient';
 import type { BoardConfig } from '@/domain/calendar/board';
 import type { Language } from '@/domain/i18n/types';
 
@@ -97,19 +100,42 @@ export async function generateMetadata({
 const themeInitScript = `(function(){try{var t=localStorage.getItem('theme-storage');var m='dark';if(t){var p=JSON.parse(t);if(p&&p.state&&p.state.theme==='light')m='light';}document.documentElement.dataset.theme=m;}catch(e){document.documentElement.dataset.theme='dark';}try{var u=localStorage.getItem('updown-storage');var n='default';if(u){var q=JSON.parse(u);if(q&&q.state&&q.state.mode==='swap')n='swap';}document.documentElement.dataset.updown=n;}catch(e){document.documentElement.dataset.updown='default';}})();`;
 
 /**
- * 홈 최상단 전광판 데이터 — 금주 미국 증시 일정 + 노출 규칙(config/boardRules) 판정.
+ * 홈 최상단 전광판 데이터 — 금주 미국 증시 일정 + 거장 보유 종목 + 노출 규칙(config/boardRules) 판정.
  *
  * 셸에서 만드는 이유: 스트립이 헤더·환율바에 붙은 풀블리드라 main(.shell-container) 안에 둘 수 없다.
  * 홈에서만 보이게 하는 판정은 MarketBoard 가 경로로 처리한다(레이아웃은 pathname 을 모른다).
  * 해설 카피가 한국어 전용이라 ko 로케일에서만 만든다. 백엔드 장애 시엔 조용히 생략.
- * ISR 30분 — 백엔드 갱신(매일 12:00 KST)과 주간 롤오버(일 09시)를 증시 일정 페이지와 같은 주기로 따라간다.
+ *
+ * 캐시: 일정 ISR 30분(백엔드 갱신 매일 12:00 KST + 주간 롤오버 일 09시), 거장 보유 ISR 24시간(분기 공시),
+ * 로고 ISR 7일(거의 안 바뀐다 — 홈 페이지와 같은 값). 홈 페이지(app/[locale]/page.tsx)가 일정·거장 보유를
+ * 같은 URL·revalidate 로 호출하므로 fetch 중복 제거가 걸려, 셸에서 한 번 더 부른다고 요청이 늘지 않는다
+ * — 두 곳의 revalidate 는 같이 움직여야 한다.
+ *
+ * 거장 보유·로고만 실패하면 경제지표 스트립은 그대로 살린다 — 실적은 없으면 안 보이면 그만이고,
+ * 로고는 없으면 컴포넌트가 이니셜 배지로 대체한다.
  */
+const BOARD_LOGO_REVALIDATE = 604800;
+
 async function loadHomeBoard(locale: string): Promise<BoardConfig | null> {
   if (locale !== 'ko') {
     return null;
   }
   try {
-    return resolveBoard(await fetchCalendar('US', undefined, undefined, 1800));
+    const [week, held] = await Promise.all([
+      fetchCalendar('US', undefined, undefined, 1800),
+      fetchGuruHeldSymbols(86400).catch(() => null),
+    ]);
+    const config = resolveBoard(week, held?.symbols ?? {});
+    if (!config) {
+      return null;
+    }
+    // 로고는 items 가 확정된 뒤에야 어떤 티커가 필요한지 알 수 있어 여기서 이어 붙인다.
+    const symbols = boardLogoSymbols(config.items);
+    if (symbols.length === 0) {
+      return config;
+    }
+    const logos = await fetchStockLogos(symbols, BOARD_LOGO_REVALIDATE).catch(() => undefined);
+    return logos ? { ...config, logos } : config;
   } catch {
     return null;
   }
