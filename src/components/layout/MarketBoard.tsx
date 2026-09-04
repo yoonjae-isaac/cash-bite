@@ -7,9 +7,6 @@ import { PATH_OF } from '../../application/routing/pages';
 import TickerLogo from '../ui/TickerLogo';
 import type { BoardConfig, BoardEconomicItem, BoardItem } from '../../domain/calendar/board';
 
-/** 모바일에서 스택으로 노출할 최대 건수 — 홈 첫 화면에서 전광판이 가져가도 되는 높이 기준. */
-const MOBILE_MAX = 3;
-
 /**
  * 이 건수부터 자동 흐름을 켠다. 한 주 중요 발표는 보통 1~3건이라, 적을 때 흐르게 두면
  * 넓은 빈 자리를 글자가 가로지르며 양끝에서 잘리기만 한다 — 그때는 고정이 더 잘 읽힌다.
@@ -155,13 +152,21 @@ const MarketBoard = ({ config }: { config: BoardConfig }) => {
       (it): it is BoardEconomicItem => it.kind === 'economic' && it.id === openId,
     ) ?? null;
   const flowing = config.items.length >= FLOW_MIN_ITEMS;
-  // 모바일은 흐르지 않고 스택 — 아직 지나지 않은 발표를 먼저 채우고, 모자라면 지난 발표로 채운다.
-  // 주 후반에는 남은 일정이 한두 건뿐이라, 앞의 것만 쓰면 한 줄만 덩그러니 남아 고장난 것처럼 보인다.
-  const upcoming = today ? config.items.filter((it) => it.date >= today) : config.items;
-  const past = today ? config.items.filter((it) => it.date < today) : [];
-  const mobileItems = [...upcoming, ...past].slice(0, MOBILE_MAX);
-  // 아이템 0건이면 resolveBoard 가 null 을 주므로 여기까지 오지 않는다.
-  const [lead, ...rest] = mobileItems;
+  /*
+   * 모바일은 자동으로 흐르지 않고 손으로 미는 가로 스크롤 — 데스크톱과 같은 전부를 싣는다.
+   *
+   * 세로 스택으로 몇 건만 자르면(이전 방식) 나머지 티커가 아예 안 보이고, 그렇다고 전부 세로로
+   * 쌓으면 홈 첫 화면을 전광판이 다 먹는다. 가로로 두면 높이는 한 줄인데 건수 제한이 없다.
+   *
+   * 순서는 아직 지나지 않은 발표부터 — 스크롤 시작 위치에 오늘 이후가 오게 한다.
+   * today 미확정(SSR)일 땐 원래 날짜순 그대로 둬 서버·클라 렌더가 어긋나지 않게 한다.
+   */
+  const mobileItems = today
+    ? [
+        ...config.items.filter((it) => it.date >= today),
+        ...config.items.filter((it) => it.date < today),
+      ]
+    : config.items;
 
   const toggle = (id: string): void => setOpenId((prev) => (prev === id ? null : id));
 
@@ -171,8 +176,10 @@ const MarketBoard = ({ config }: { config: BoardConfig }) => {
       className="w-full border-b border-cb-border bg-cb-surface"
     >
       <div className="shell-container">
-        <div className="flex items-stretch min-h-[58px]">
-          <div className="flex items-center gap-2 shrink-0 pr-3 md:pr-4 md:border-r md:border-cb-border">
+        {/* 모바일은 줄바꿈 — 라벨·버튼과 한 줄을 나눠 쓰면 미는 줄에 200px 도 안 남는다.
+            md 부터는 한 줄(nowrap)로 되돌려 기존 배치를 유지한다. */}
+        <div className="flex flex-wrap items-center md:flex-nowrap md:items-stretch md:min-h-[58px]">
+          <div className="flex items-center gap-2 shrink-0 py-2.5 pr-3 md:py-0 md:pr-4 md:border-r md:border-cb-border">
             <span
               aria-hidden
               className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"
@@ -180,7 +187,7 @@ const MarketBoard = ({ config }: { config: BoardConfig }) => {
             <span className="text-[12.5px] font-bold text-cb-foreground whitespace-nowrap">
               {config.label}
             </span>
-            <span className="hidden md:inline text-[10.5px] font-semibold text-cb-muted tabular-nums">
+            <span className="text-[10.5px] font-semibold text-cb-muted tabular-nums">
               {config.weekLabel}
             </span>
           </div>
@@ -222,23 +229,18 @@ const MarketBoard = ({ config }: { config: BoardConfig }) => {
             </ul>
           )}
 
-          {/* 모바일 — 가장 임박한 1건만 한 줄로 (나머지는 아래 스택) */}
-          <TickShell
-            item={lead}
-            openId={openId}
-            onSelect={toggle}
-            className="md:hidden flex flex-1 min-w-0 items-center gap-2 text-left"
-          >
-            <ItemLogo item={lead} logos={config.logos} />
-            <span className="truncate text-[13.5px] font-semibold text-cb-foreground">
-              {titleOf(lead)}
-            </span>
-            {lead.kind === 'earnings' && <GuruBadge count={lead.guruCount} />}
-            <DdayBadge date={lead.date} today={today} />
-          </TickShell>
+          {/* 모바일 — 손으로 미는 가로 스크롤. 데스크톱과 같은 전부를 한 줄 높이에 싣는다.
+              order-last + w-full 로 라벨·버튼 아래 제 줄을 통째로 받는다(전체 폭을 써야 한 칸이 안 잘린다). */}
+          <ul className="md:hidden order-last flex w-full items-center list-none m-0 p-0 overflow-x-auto border-t border-cb-border board-swipe">
+            {mobileItems.map((it) => (
+              <li key={`m-${it.id}`}>
+                <Tick item={it} today={today} openId={openId} onSelect={toggle} logos={config.logos} />
+              </li>
+            ))}
+          </ul>
 
-          <div className="flex shrink-0 items-center gap-1 self-center pl-2 md:pl-4">
-            {/* 흐르는 줄에서 놓친 항목을 목록으로 — 모바일에서도 스택(최대 3건) 밖의 나머지를 볼 통로. */}
+          <div className="flex shrink-0 items-center gap-1 self-center ml-auto pl-2 md:ml-0 md:pl-4">
+            {/* 흐르는 줄·미는 줄에서 놓친 항목을 한눈에 — 세로 목록으로 전부 펼치는 통로. */}
             <button
               type="button"
               onClick={() => setListOpen((v) => !v)}
@@ -308,35 +310,6 @@ const MarketBoard = ({ config }: { config: BoardConfig }) => {
             </ul>
           </div>
         </div>
-      )}
-
-      {/* 모바일 스택 — 흐르는 글자는 좁은 화면에서 읽히지 않아 상위 건수만 세로로.
-          목록을 펼치면 같은 항목이 두 번 나오므로 접는다. */}
-      {rest.length > 0 && !listOpen && (
-        <ul className="md:hidden list-none m-0 p-0 border-t border-cb-border">
-          {rest.map((it) => (
-            <li key={it.id} className="border-t border-cb-border first:border-t-0">
-              <TickShell
-                item={it}
-                openId={openId}
-                onSelect={toggle}
-                className="flex w-full items-center gap-2 px-4 py-2.5 text-left"
-              >
-                <ItemLogo item={it} logos={config.logos} />
-                <span className="flex-1 min-w-0">
-                  <span className="block truncate text-[13.5px] font-semibold text-cb-foreground">
-                    {titleOf(it)}
-                  </span>
-                  <span className="block text-[11px] text-cb-muted tabular-nums">
-                    {whenLabel(it.date)} · {it.time}
-                  </span>
-                </span>
-                {it.kind === 'earnings' && <GuruBadge count={it.guruCount} />}
-                <DdayBadge date={it.date} today={today} />
-              </TickShell>
-            </li>
-          ))}
-        </ul>
       )}
 
       {open && (
