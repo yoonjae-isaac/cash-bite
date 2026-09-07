@@ -51,7 +51,6 @@ export interface TranslationSchema {
     toolsTitle: string;
   };
   home: {
-    heroTitle: string;
     heroSubtitle: string;
     heroCta: string;
     toolsTitle: string;

@@ -125,14 +125,16 @@ const HomePage = ({ home }: { home?: HomeData }) => {
       <Reveal>
         <section className="grid items-start gap-5 pt-1 md:pt-3 lg:grid-cols-[1.25fr_1fr] lg:gap-8">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-cb-border bg-cb-surface/60 px-3 py-1 text-xs font-semibold text-cb-accent">
+            {/*
+             * 이 배지가 홈의 h1 이다 — 큰 카피 문구를 걷어내면서 제목 자리를 비우지 않기 위해서다.
+             * 문서에 h1 이 하나도 없으면 검색·스크린리더가 이 페이지의 주제를 잡지 못한다.
+             * 서비스가 무엇인지 한 줄로 말하는 문장이라 제목으로도 그대로 맞는다.
+             */}
+            <h1 className="inline-flex items-center gap-1.5 rounded-full border border-cb-border bg-cb-surface/60 px-3 py-1 text-xs font-semibold text-cb-accent">
               <Sparkles className="h-3.5 w-3.5" />
               {t.home.heroEyebrow}
-            </span>
-            <h1 className="mt-3.5 whitespace-pre-line font-brand text-2xl font-extrabold leading-snug tracking-tight text-cb-foreground md:text-4xl">
-              {t.home.heroTitle}
             </h1>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-cb-muted md:text-base">
+            <p className="mt-3.5 max-w-xl text-sm leading-relaxed text-cb-muted md:text-base">
               {t.home.heroSubtitle}
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-2.5">
